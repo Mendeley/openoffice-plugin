@@ -1,0 +1,3 @@
+Mendeley OpenOffice Plugin. 
+
+A tool for citing Mendeley references in OpenOffice documents.

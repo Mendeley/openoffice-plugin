@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE library:library PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "library.dtd">
+<library:library xmlns:library="http://openoffice.org/2000/library" library:name="Mendeley" library:readonly="false" library:passwordprotected="false">
+ <library:element library:name="mendeleyMain"/>
+ <library:element library:name="mendeleyLib"/>
+ <library:element library:name="mendeleyDataTypes"/>
+ <library:element library:name="mendeleyUnitTests"/>
+</library:library>
