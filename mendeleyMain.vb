@@ -2,9 +2,6 @@
 ' ***** BEGIN LICENSE BLOCK *****
 '
 ' Copyright (c) 2009, 2010, 2011 Mendeley Ltd.
-' Copyright (c) 2006 Center for History and New Media
-'                    George Mason University, Fairfax, Virginia, USA
-'                    http://chnm.gmu.edu
 '
 ' Licensed under the Educational Community License, Version 1.0 (the "License");
 ' you may not use this file except in compliance with the License.
@@ -20,9 +17,6 @@
 '
 ' ***** END LICENSE BLOCK *****
 
-' Thanks to the Zotero developers whose Word/Open Office plugin source code was
-' frequently referred to and borrowed from in the development of this plugin
-
 ' author: steve.ridout@mendeley.com
 
 Option Explicit
@@ -32,7 +26,7 @@ Option Explicit
     Global previouslySelectedField
 Global previouslySelectedFieldResultText As String
 
-Global Const DEBUG_MODE = false
+Global Const DEBUG_MODE = ${DEBUG_MODE}
 Private Const DEBUG_LOG_FILE = "file:///D:/tasks/OODebug/debugLog.txt"
 
 Global Const TEMPLATE_NAME_DURING_BUILD = "MendeleyPlugin"
@@ -826,8 +820,6 @@ Sub exportCompatibleOpenOffice()
     ThisComponent.storeToUrl(sFileUrl, exportProperties())
     End If
 End Sub
-
-
 
 ' ----- end of top level functions -----
 Function isUiDisabled() As Boolean

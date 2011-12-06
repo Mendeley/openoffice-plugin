@@ -82,19 +82,11 @@ $DEBUG_MODE = $ARGV[1];
 
 print "OpenOffice Plugin Version: $PLUGIN_VERSION\n";
 
-open(MENDELEY_MAIN, "mendeleyMain.vb") or die "Couldn't open file mendeleyMain.vb";
-open(MENDELEY_LIB, "mendeleyLib.vb") or die "Couldn't open file mendeleyLib.vb";
-open(MENDELEY_DATATYPES, "mendeleyDataTypes.vb") or die "Couldn't open file mendeleyDataTypes.vb";
-open(MENDELEY_UNIT_TESTS, "mendeleyUnitTests.vb") or die "Couldn't open file mendeleyUnitTests.vb";
-open(OPEN_OFFICE_MAIN, ">temp/mendeleyMain-OpenOffice.vb") or die "Couldn't open file mendeleyMain-OpenOffice.vb";
-open(OPEN_OFFICE_LIB, ">temp/mendeleyLib-OpenOffice.vb") or die "Couldn't open file mendeleyLib-OpenOffice.vb";
-open(OPEN_OFFICE_DATATYPES, ">temp/mendeleyDataTypes-OpenOffice.vb") or die "Couldn't open file mendeleyDataTypes-OpenOffice.vb";
-open(OPEN_OFFICE_UNIT_TESTS, ">temp/mendeleyUnitTests-OpenOffice.vb") or die "Couldn't open file mendeleyUnitTests-OpenOffice.vb";
-
 processSourceFile("mendeleyMain.vb", "mendeleyMain-OpenOffice.vb", "Mendeley");
 processSourceFile("mendeleyLib.vb", "mendeleyLib-OpenOffice.vb", "MendeleyLib");
 processSourceFile("mendeleyDataTypes.vb", "mendeleyDataTypes-OpenOffice.vb", "MendeleyDataTypes");
-processSourceFile("mendeleyUnitTests.vb", "mendeleyUnitTests-OpenOffice.vb", "mendeleyUnitTests");
+processSourceFile("mendeleyUnitTests.vb", "mendeleyUnitTests-OpenOffice.vb", "MendeleyUnitTests");
+processSourceFile("shared/sharedLib.vb", "sharedLib-OpenOffice.vb", "SharedLib");
 
 # create OpenOffice mendeleyPlugin.oxt
 # (which is actually a zip archive)
@@ -106,6 +98,8 @@ copy("temp/mendeleyLib-OpenOffice.vb", "Mendeley/mendeleyLib.xba")
 copy("temp/mendeleyDataTypes-OpenOffice.vb", "Mendeley/mendeleyDataTypes.xba")
 	or die "copy failed: $!";
 copy("temp/mendeleyUnitTests-OpenOffice.vb", "Mendeley/mendeleyUnitTests.xba")
+	or die "copy failed: $!";
+copy("temp/sharedLib-OpenOffice.vb", "Mendeley/sharedLib.xba")
 	or die "copy failed: $!";
 	
 # TODO: refactor the copy commands into a function or use the Perl ones
