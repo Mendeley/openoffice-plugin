@@ -23,7 +23,7 @@ Option Explicit
 
 Function testsPath() As String
 	' Read path from environment variable
-	testsPath = Environ("MENDELEY_OO_TEST_PATH")
+	testsPath = Environ("MENDELEY_OO_TEST_FILES")
 	If testsPath = "" Then
 		MsgBox "Please ensure the MENDELEY_OO_TEST_PATH environment variable is set to " & Chr(13) &_
 		       "the directory containing your *.odt test files before running the tests."
@@ -162,14 +162,14 @@ Sub testRefreshDocument()
     
     ' search for all .docx files
     Dim filename
-    filename = Dir(testsPath & "*.odt")
+    filename = Dir(testsPath() & "/*.odt")
     
     Do While filename <> ""
         documentName = Left(filename, Len(filename) - Len(".odt"))
 	    outputDocumentName = "refreshDocument/" & documentName
         
         Dim url
-        url = ConvertToUrl(testsPath & documentName & ".odt")
+        url = ConvertToUrl(testsPath & "/" & documentName & ".odt")
 		Dim noArgs() 'An empty array for the arguments
 		Dim doc
 		doc = StarDesktop.LoadComponentFromUrl(url, "_blank", 0, Array())

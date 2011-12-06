@@ -82,11 +82,11 @@ $DEBUG_MODE = $ARGV[1];
 
 print "OpenOffice Plugin Version: $PLUGIN_VERSION\n";
 
-processSourceFile("mendeleyMain.vb", "mendeleyMain-OpenOffice.vb", "Mendeley");
-processSourceFile("mendeleyLib.vb", "mendeleyLib-OpenOffice.vb", "MendeleyLib");
-processSourceFile("mendeleyDataTypes.vb", "mendeleyDataTypes-OpenOffice.vb", "MendeleyDataTypes");
-processSourceFile("mendeleyUnitTests.vb", "mendeleyUnitTests-OpenOffice.vb", "MendeleyUnitTests");
-processSourceFile("shared/sharedLib.vb", "sharedLib-OpenOffice.vb", "SharedLib");
+processSourceFile("src/mendeleyMain.vb", "mendeleyMain-OpenOffice.vb", "Mendeley");
+processSourceFile("src/mendeleyLib.vb", "mendeleyLib-OpenOffice.vb", "MendeleyLib");
+processSourceFile("src/mendeleyDataTypes.vb", "mendeleyDataTypes-OpenOffice.vb", "MendeleyDataTypes");
+processSourceFile("src/mendeleyUnitTests.vb", "mendeleyUnitTests-OpenOffice.vb", "MendeleyUnitTests");
+processSourceFile("external/zoteroLib.vb", "zoteroLib-OpenOffice.vb", "ZoteroLib");
 
 # create OpenOffice mendeleyPlugin.oxt
 # (which is actually a zip archive)
@@ -99,7 +99,7 @@ copy("temp/mendeleyDataTypes-OpenOffice.vb", "Mendeley/mendeleyDataTypes.xba")
 	or die "copy failed: $!";
 copy("temp/mendeleyUnitTests-OpenOffice.vb", "Mendeley/mendeleyUnitTests.xba")
 	or die "copy failed: $!";
-copy("temp/sharedLib-OpenOffice.vb", "Mendeley/sharedLib.xba")
+copy("temp/zoteroLib-OpenOffice.vb", "Mendeley/zoteroLib.xba")
 	or die "copy failed: $!";
 	
 # TODO: refactor the copy commands into a function or use the Perl ones

@@ -28,7 +28,7 @@ and generated a bibliography automatically.
 ## Running unit tests:
 
  1. Build and install the .oxt file using the steps above
- 2. Set the environment variable `MENDELEY_OO_TEST_PATH` to the full path of the `tests/` directory
+ 2. Set the environment variable `MENDELEY_OO_TEST_FILES` to the full path of the `testFiles/` directory
  3. Copy the `tests/testDatabase@test.com@local.sqlite` file into your Mendeley data directory (see http://www.mendeley.com/faq/#locate-database).
  4. Run Mendeley Desktop with options `--account testDatabase@test.com --server local`
  5. Run OpenOffice Writer and select Tools->Macros->Run Macro... 

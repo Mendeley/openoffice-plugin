@@ -5,5 +5,5 @@
  <library:element library:name="mendeleyLib"/>
  <library:element library:name="mendeleyDataTypes"/>
  <library:element library:name="mendeleyUnitTests"/>
- <library:element library:name="sharedLib"/>
+ <library:element library:name="zoteroLib"/>
 </library:library>
