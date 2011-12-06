@@ -25,7 +25,7 @@ Function testsPath() As String
 	' Read path from environment variable
 	testsPath = Environ("MENDELEY_OO_TEST_FILES")
 	If testsPath = "" Then
-		MsgBox "Please ensure the MENDELEY_OO_TEST_PATH environment variable is set to " & Chr(13) &_
+		MsgBox "Please ensure the MENDELEY_OO_TEST_FILES environment variable is set to " & Chr(13) &_
 		       "the directory containing your *.odt test files before running the tests."
 	End If
 End Function
