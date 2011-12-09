@@ -23,7 +23,7 @@ Option Explicit
 
 
 ' These need to be Global as they are accessed from EventClassModule
-    Global previouslySelectedField
+Global previouslySelectedField
 Global previouslySelectedFieldResultText As String
 
 Global Const DEBUG_MODE = ${DEBUG_MODE}
@@ -139,120 +139,120 @@ Global Const JSON_PREVIOUS = "MendeleyPrevious"
 Global Const JSON_URL = "MendeleyUrl"
 
 ' - HTTP requests instead of linking to the LinkToMendeleyVba2.dll for OpenOffice
-    Function mendeleyRpcCall(functionName As String, argument As String, optional quitOnError As Boolean) As String
-        Dim mendeleyRpc
-        If IsEmpty(quitOnError) Then
-            quitOnError = true
-        End If
-        mendeleyRpc = createUnoService("com.sun.star.task.MendeleyRPC")
-        Dim mArgs(0) As New com.sun.star.beans.NamedValue
-        mArgs(0).Name = "meaningless"
-        mArgs(0).Value = functionName + Chr(13) + argument
-        On Error Goto ErrorHandler
-        mendeleyRpcCall = mendeleyRpc.Execute(mArgs)
-        Exit Function
+Function mendeleyRpcCall(functionName As String, argument As String, optional quitOnError As Boolean) As String
+    Dim mendeleyRpc
+    If IsEmpty(quitOnError) Then
+        quitOnError = true
+    End If
+    mendeleyRpc = createUnoService("com.sun.star.task.MendeleyRPC")
+    Dim mArgs(0) As New com.sun.star.beans.NamedValue
+    mArgs(0).Name = "meaningless"
+    mArgs(0).Value = functionName + Chr(13) + argument
+    On Error Goto ErrorHandler
+    mendeleyRpcCall = mendeleyRpc.Execute(mArgs)
+    Exit Function
 ErrorHandler:
-        mendeleyRpcCall = MENDELEY_RPC_CONNECTION_FAILED
-        If quitOnError Then
-            MsgBox "Connection to Mendeley lost"
-            End
-        End If
-    End Function
-    Function extGetCitationUuidsFromDialog (ByVal buttonText As String) As Long
-        extGetCitationUuidsFromDialog = mendeleyRpcCall("getCitationUuidsFromDialog", buttonText)
-    End Function
-    Function privateExtGetStringResult (ByRef result As String) As Long
-        result = mendeleyRpcCall("getStringResult", result)
-    End Function
-    Function extCheckConnectionAndSetupIfNeeded() As Long
-        Dim rpcResult As String
-        rpcResult = mendeleyRpcCall("checkConnectionAndSetupIfNeeded", "", false)
-        If (rpcResult = MENDELEY_RPC_CONNECTION_FAILED) Then
-            extCheckConnectionAndSetupIfNeeded = CONNECTION_MENDELEY_DESKTOP_NOT_FOUND
-        Else
-            extCheckConnectionAndSetupIfNeeded = rpcResult
-        End If
-    End Function
-    Function extGetCitationStyleNames() As Long
-        extGetCitationStyleNames = mendeleyRpcCall("getCitationStyleNames", "")
-    End Function
-    Function extGetCitationStyle() As Long
-        extGetCitationStyle = mendeleyRpcCall("getCitationStyle", "")
-    End Function
-    Function extLaunchMendeley() As Long
-        ' Don't know how to launch mendeley without linking to dll so present info to user instead
-        MsgBox "Please run Mendeley Desktop before using the plugin.", Title:="Couldn't Connect To Mendeley Desktop"
-        extLaunchMendeley = CONNECTION_MENDELEY_DESKTOP_NOT_FOUND
-    End Function
-    Function extGetUserAccount() As Long
-        extGetUserAccount = mendeleyRpcCall("getUserAccount", "")
-    End Function
-    Function extGetFormattedBibliography() As Long
-        extGetFormattedBibliography = mendeleyRpcCall("getFormattedBibliography", "")
-    End Function
-    Function extResetCitations() As Long
-        extResetCitations = mendeleyRpcCall("resetCitations", "")
-    End Function
-    Function extFormatCitationsAndBibliography() As Long
-        extFormatCitationsAndBibliography = mendeleyRpcCall("formatCitationsAndBibliography", "")
-    End Function
-    Function extGetCitationStyleFromDialogServerSide(ByVal styleId As String) As Long
-        extGetCitationStyleFromDialogServerSide = mendeleyRpcCall("getCitationStyleFromDialogServerSide", styleId)
-    End Function
-    Function extAddCitation(ByVal uuids As String) As Long
-        extAddCitation = mendeleyRpcCall("addCitation", uuids)
-    End Function
-    Function extAddFormattedCitation(ByVal displayedText As String) As Long
-        extAddFormattedCitation = mendeleyRpcCall("addFormattedCitation", displayedText)
-    End Function
-    Function extGetFormattedCitation(ByVal index As Long) As Long
-        extGetFormattedCitation = mendeleyRpcCall("getFormattedCitation", index)
-    End Function
-    Function extGetPreviouslyFormattedCitation(ByVal index As Long) As Long
-        extGetPreviouslyFormattedCitation = mendeleyRpcCall("getPreviouslyFormattedCitation", index)
-    End Function
-    Function extGetCitationJson(ByVal index As Long) As Long
-        extGetCitationJson = mendeleyRpcCall("getCitationJson", index)
-    End Function
-    Function extSetCitationStyle(ByVal style As String) As Long
-        extSetCitationStyle = mendeleyRpcCall("setCitationStyle", style)
-    End Function
-    Function extBringPluginToForeground() As Long
-        extBringPluginToForeground = mendeleyRpcCall("bringPluginToForeground", "")
-    End Function
-    Function extGetFieldCodeFromCitationEditor(ByVal uuids As String) As Long
-        extGetFieldCodeFromCitationEditor = mendeleyRpcCall("getFieldCodeFromCitationEditor", uuids)
-    End Function
-    Function extStartMerge() As Long
-        extStartMerge = mendeleyRpcCall("startMerge", "")
-    End Function
-    Function extAddFieldCodeToMerge(ByVal fieldCodeToMerge As String) As Long
-        extAddFieldCodeToMerge = mendeleyRpcCall("addFieldCodeToMerge", fieldCodeToMerge)
-    End Function
-    Function extGetMergedFieldCode() As Long
-        extGetMergedFieldCode = mendeleyRpcCall("getMergedFieldCode", "")
-    End Function
-    Function extSetDisplayedText(ByVal displayedText) As Long
-        extSetDisplayedText = mendeleyRpcCall("setDisplayedText", displayedText)
-    End Function
-    Function extCheckManualFormatAndGetFieldCode(ByVal fieldCode) As Long
-        extCheckManualFormatAndGetFieldCode = mendeleyRpcCall("checkManualFormatAndGetFieldCode", fieldCode)
-    End Function
-    Function extGetDisplayedText() As Long
-        extGetDisplayedText = mendeleyRpcCall("getDisplayedText", "")
-    End Function
-    Function extUndoManualFormat(ByVal fieldCode) As Long
-        extUndoManualFormat = mendeleyRpcCall("undoManualFormat", fieldCode)
-    End Function
-    Function extSetWordProcessor(ByVal wordProcessor) As Long
-        extSetWordProcessor = mendeleyRpcCall("setWordProcessor", wordProcessor)
-    End Function
-    Function extGetCitationStyleId() As Long
-        extGetCitationStyleId = mendeleyRpcCall("getCitationStyleId", "")
-    End Function
-	Function extTestGetFieldCode(ByVal fieldCode) As Long
-		extTestGetFieldCode = mendeleyRpcCall("testGetFieldCode", fieldCode)
-	End Function
+    mendeleyRpcCall = MENDELEY_RPC_CONNECTION_FAILED
+    If quitOnError Then
+        MsgBox "Connection to Mendeley lost"
+        End
+    End If
+End Function
+Function extGetCitationUuidsFromDialog (ByVal buttonText As String) As Long
+    extGetCitationUuidsFromDialog = mendeleyRpcCall("getCitationUuidsFromDialog", buttonText)
+End Function
+Function privateExtGetStringResult (ByRef result As String) As Long
+    result = mendeleyRpcCall("getStringResult", result)
+End Function
+Function extCheckConnectionAndSetupIfNeeded() As Long
+    Dim rpcResult As String
+    rpcResult = mendeleyRpcCall("checkConnectionAndSetupIfNeeded", "", false)
+    If (rpcResult = MENDELEY_RPC_CONNECTION_FAILED) Then
+        extCheckConnectionAndSetupIfNeeded = CONNECTION_MENDELEY_DESKTOP_NOT_FOUND
+    Else
+        extCheckConnectionAndSetupIfNeeded = rpcResult
+    End If
+End Function
+Function extGetCitationStyleNames() As Long
+    extGetCitationStyleNames = mendeleyRpcCall("getCitationStyleNames", "")
+End Function
+Function extGetCitationStyle() As Long
+    extGetCitationStyle = mendeleyRpcCall("getCitationStyle", "")
+End Function
+Function extLaunchMendeley() As Long
+    ' Don't know how to launch mendeley without linking to dll so present info to user instead
+    MsgBox "Please run Mendeley Desktop before using the plugin.", Title:="Couldn't Connect To Mendeley Desktop"
+    extLaunchMendeley = CONNECTION_MENDELEY_DESKTOP_NOT_FOUND
+End Function
+Function extGetUserAccount() As Long
+    extGetUserAccount = mendeleyRpcCall("getUserAccount", "")
+End Function
+Function extGetFormattedBibliography() As Long
+    extGetFormattedBibliography = mendeleyRpcCall("getFormattedBibliography", "")
+End Function
+Function extResetCitations() As Long
+    extResetCitations = mendeleyRpcCall("resetCitations", "")
+End Function
+Function extFormatCitationsAndBibliography() As Long
+    extFormatCitationsAndBibliography = mendeleyRpcCall("formatCitationsAndBibliography", "")
+End Function
+Function extGetCitationStyleFromDialogServerSide(ByVal styleId As String) As Long
+    extGetCitationStyleFromDialogServerSide = mendeleyRpcCall("getCitationStyleFromDialogServerSide", styleId)
+End Function
+Function extAddCitation(ByVal uuids As String) As Long
+    extAddCitation = mendeleyRpcCall("addCitation", uuids)
+End Function
+Function extAddFormattedCitation(ByVal displayedText As String) As Long
+    extAddFormattedCitation = mendeleyRpcCall("addFormattedCitation", displayedText)
+End Function
+Function extGetFormattedCitation(ByVal index As Long) As Long
+    extGetFormattedCitation = mendeleyRpcCall("getFormattedCitation", index)
+End Function
+Function extGetPreviouslyFormattedCitation(ByVal index As Long) As Long
+    extGetPreviouslyFormattedCitation = mendeleyRpcCall("getPreviouslyFormattedCitation", index)
+End Function
+Function extGetCitationJson(ByVal index As Long) As Long
+    extGetCitationJson = mendeleyRpcCall("getCitationJson", index)
+End Function
+Function extSetCitationStyle(ByVal style As String) As Long
+    extSetCitationStyle = mendeleyRpcCall("setCitationStyle", style)
+End Function
+Function extBringPluginToForeground() As Long
+    extBringPluginToForeground = mendeleyRpcCall("bringPluginToForeground", "")
+End Function
+Function extGetFieldCodeFromCitationEditor(ByVal uuids As String) As Long
+    extGetFieldCodeFromCitationEditor = mendeleyRpcCall("getFieldCodeFromCitationEditor", uuids)
+End Function
+Function extStartMerge() As Long
+    extStartMerge = mendeleyRpcCall("startMerge", "")
+End Function
+Function extAddFieldCodeToMerge(ByVal fieldCodeToMerge As String) As Long
+    extAddFieldCodeToMerge = mendeleyRpcCall("addFieldCodeToMerge", fieldCodeToMerge)
+End Function
+Function extGetMergedFieldCode() As Long
+    extGetMergedFieldCode = mendeleyRpcCall("getMergedFieldCode", "")
+End Function
+Function extSetDisplayedText(ByVal displayedText) As Long
+    extSetDisplayedText = mendeleyRpcCall("setDisplayedText", displayedText)
+End Function
+Function extCheckManualFormatAndGetFieldCode(ByVal fieldCode) As Long
+    extCheckManualFormatAndGetFieldCode = mendeleyRpcCall("checkManualFormatAndGetFieldCode", fieldCode)
+End Function
+Function extGetDisplayedText() As Long
+    extGetDisplayedText = mendeleyRpcCall("getDisplayedText", "")
+End Function
+Function extUndoManualFormat(ByVal fieldCode) As Long
+    extUndoManualFormat = mendeleyRpcCall("undoManualFormat", fieldCode)
+End Function
+Function extSetWordProcessor(ByVal wordProcessor) As Long
+    extSetWordProcessor = mendeleyRpcCall("setWordProcessor", wordProcessor)
+End Function
+Function extGetCitationStyleId() As Long
+    extGetCitationStyleId = mendeleyRpcCall("getCitationStyleId", "")
+End Function
+Function extTestGetFieldCode(ByVal fieldCode) As Long
+    extTestGetFieldCode = mendeleyRpcCall("testGetFieldCode", fieldCode)
+End Function
 
 ' Allocates a string of the required length and calls extGetStringResult() to fill
 ' it in with the result of the previous dll function call
@@ -590,16 +590,16 @@ Sub insertBibliography()
     
     ZoteroUseBookmarks = False
     
-        Dim fieldAtSelection As Variant
-        fieldAtSelection = Nothing
-        fieldAtSelection = getFieldAtSelection()
+    Dim fieldAtSelection As Variant
+    fieldAtSelection = Nothing
+    fieldAtSelection = getFieldAtSelection()
 
-        If Not(fieldAtSelection Is Nothing) Then
-          If isObject(fieldAtSelection) Then
-              MsgBox "A bibliography cannot be inserted within another citation or bibliography."
-              GoTo EndOfSub
-          End If
+    If Not(fieldAtSelection Is Nothing) Then
+        If isObject(fieldAtSelection) Then
+            MsgBox "A bibliography cannot be inserted within another citation or bibliography."
+            GoTo EndOfSub
         End If
+    End If
     
     Call setMendeleyDocument(True)
     
@@ -635,7 +635,7 @@ Sub undoEdit()
     Const NOT_IN_EDITABLE_CITATION_TITLE = "Undo Citation Edit"
     Const NOT_IN_EDITABLE_CITATION_TEXT = "Place cursor within an edited citation and press this button to undo the edit"
     
-        Dim currentMark
+    Dim currentMark
     
     If Not IsEmpty(getFieldAtSelection()) Then
         Set currentMark = getFieldAtSelection()
@@ -656,9 +656,8 @@ Sub undoEdit()
     Dim newMarkName As String
     newMarkName = extGetStringResult(extUndoManualFormat(markName))
     
-        currentMark = fnRenameMark(currentMark, newMarkName)
-        currentMark = subSetMarkText(currentMark, INSERT_CITATION_TEXT)
-        
+    currentMark = fnRenameMark(currentMark, newMarkName)
+    currentMark = subSetMarkText(currentMark, INSERT_CITATION_TEXT)
     
     Call refreshDocument
     GoTo EndOfSub
@@ -812,43 +811,43 @@ Sub exportCompatibleOpenOffice()
     If sFileUrl <> "" Then
         Dim marks
         ZoteroUseBookmarks = True
-    marks = fnGetMarks(ZoteroUseBookmarks)
+        marks = fnGetMarks(ZoteroUseBookmarks)
 
-    dim exportProperties(1) as new com.sun.star.beans.PropertyValue
-    exportProperties(0).Name = "FilterName"
-    exportProperties(0).Value = "MS Word 97"
-    ThisComponent.storeToUrl(sFileUrl, exportProperties())
+        dim exportProperties(1) as new com.sun.star.beans.PropertyValue
+        exportProperties(0).Name = "FilterName"
+        exportProperties(0).Value = "MS Word 97"
+        ThisComponent.storeToUrl(sFileUrl, exportProperties())
     End If
 End Sub
 
 ' ----- end of top level functions -----
 Function isUiDisabled() As Boolean
-        If uiDisabled Then
-            Dim userResponse
-            If awaitingResponseFromMD Then
-                userResponse = MsgBox ("Please finish selecting a citation from Mendeley Desktop before continuing.", _
-                MB_RETRYCANCEL, MACRO_ALREADY_RUNNING)
+    If uiDisabled Then
+        Dim userResponse
+        If awaitingResponseFromMD Then
+            userResponse = MsgBox ("Please finish selecting a citation from Mendeley Desktop before continuing.", _
+            MB_RETRYCANCEL, MACRO_ALREADY_RUNNING)
 
-                If userResponse = IDRETRY Then
-                    If awaitingResponseFromMD Then
-                        userResponse = MsgBox ("If you're not in the middle of selecting a citation something has gone wrong (sorry)." _
-                            + Chr(13) + Chr(13) + "Do you want to re-enable the toolbar?", _
-                            MB_YESNO, "Re-Enable Mendeley Toolbar And Continue?")
-                    End If
+            If userResponse = IDRETRY Then
+                If awaitingResponseFromMD Then
+                    userResponse = MsgBox ("If you're not in the middle of selecting a citation something has gone wrong (sorry)." _
+                        + Chr(13) + Chr(13) + "Do you want to re-enable the toolbar?", _
+                        MB_YESNO, "Re-Enable Mendeley Toolbar And Continue?")
                 End If
-            Else
-                userResponse = MsgBox ("The Mendeley toolbar is currently inactive because another macro hasn't finished running." + _
-                    Chr(13) + Chr(13) + "Do you want to re-activate it?", 4, "Re-Enable Mendeley Toolbar?")
             End If
-
-            Select Case userResponse
-                Case IDYES
-                    uiDisabled = False
-                    awaitingResponseFromMD = False
-                Case IDRETRY
-                    uiDisabled = False
-                    awaitingResponseFromMD = False
-            End Select
+        Else
+            userResponse = MsgBox ("The Mendeley toolbar is currently inactive because another macro hasn't finished running." + _
+                Chr(13) + Chr(13) + "Do you want to re-activate it?", 4, "Re-Enable Mendeley Toolbar?")
         End If
-        isUiDisabled = uiDisabled
+
+        Select Case userResponse
+            Case IDYES
+                uiDisabled = False
+                awaitingResponseFromMD = False
+            Case IDRETRY
+                uiDisabled = False
+                awaitingResponseFromMD = False
+        End Select
+    End If
+    isUiDisabled = uiDisabled
 End Function

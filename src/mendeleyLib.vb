@@ -55,7 +55,7 @@ Sub reportError()
         Exit Sub
     End If
 
-	' todo: line number is specified but the source file is not - can we get it somehow?
+    ' todo: line number is specified but the source file is not - can we get it somehow?
     MsgBox "Error: " + errorDescription + Chr$(13) + "At line: " + errorLine
 End Sub
 
@@ -116,11 +116,11 @@ Function isThisFileOdf As Boolean
     fileExtension = Right(ThisComponent.getUrl, 4)
 
     If Left(fileExtension, 1) = "." Then
-      If (fileExtension = ".odt") Or (fileExtension = ".ott") Then
-          ' Using safe format
-          isThisFileOdf = True
-          Exit Function
-      End If
+        If (fileExtension = ".odt") Or (fileExtension = ".ott") Then
+            ' Using safe format
+            isThisFileOdf = True
+            Exit Function
+        End If
     End If
     isThisFileOdf = False
 End Function
@@ -191,7 +191,6 @@ End Function
 ' an existing already-open document
 '
 Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest As Boolean)
-
     Dim currentDocumentPath As String
     currentDocumentPath = activeDocumentPath()
 
@@ -199,7 +198,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     
     ZoteroUseBookmarks = False
     
-        Call warnAboutAlwaysSaveAs
+    Call warnAboutAlwaysSaveAs
 
     If openingDocument = True Then
         If isMendeleyRunning() = True Then
@@ -217,7 +216,6 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
         Exit Function
     End If
     
-	
     Call sendWordProcessorVersion
     
     ' update combo box
@@ -228,7 +226,6 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     
     ' Subscribe to events (e.g. WindowSelectionChange) doing on refreshDocument as it
     ' doesn't work in initialise() when addExternalFunctions() is also called
-
     Dim citationNumberCount As Long
     citationNumberCount = 0
     
@@ -240,9 +237,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     marks = fnGetMarks(ZoteroUseBookmarks)
     
     Dim markName As String
-    
-        Dim thisField
-
+    Dim thisField
     Dim mark
 
     Dim citationNumber As Long
@@ -305,7 +300,6 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
         fieldText = ""
         markName = getMarkName(thisField)
 
-        
         If (isMendeleyCitationField(markName)) Then
             Dim stringLen As Long
             stringLen = extGetFormattedCitation(citationNumber)
@@ -370,10 +364,6 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
                 oDupRange.goLeft(0,False)
                 oDupRange.goRight(2,True)
                 oDupRange.String = ""
-
-            
-            'fieldText = bibliography
-            'Call applyFormatting(fieldText, thisField)
         End If
         
         If Not (fieldText = "") Then
@@ -389,10 +379,9 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
         If (newCitationStyle <> oldCitationStyle) Then
             ' set new citation style
             Call setCitationStyle(newCitationStyle)
-            
         End If
         
-          previouslySelectedField = getFieldAtSelection()
+        previouslySelectedField = getFieldAtSelection()
         If Not IsNull(previouslySelectedField) And Not IsEmpty(previouslySelectedField) Then
             previouslySelectedFieldResultText = getMarkText(previouslySelectedField)
         Else
@@ -400,7 +389,6 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
         End If
     End If
     
-	
     refreshDocument = True
 End Function
 
@@ -507,44 +495,43 @@ Sub setMendeleyUserAccount(value As String)
     Exit Sub
 CatchError:
     ActiveDocument.CustomDocumentProperties.Add Name:=MENDELEY_USER_ACCOUNT, _
-        LinkToContent:=False, value:=value, Type:=msoPropertyTypeString
+    LinkToContent:=False, value:=value, Type:=msoPropertyTypeString
 End Sub
 
-
 Function getFieldAtSelection()
-      Dim oRange
-      oRange = fnSelection()
+    Dim oRange
+    oRange = fnSelection()
 
-      ' from Zotero src:
-      Dim oBookmark, oRange1, oRange2, oField, oVC
-      Dim oPortionEnum1, oPortion1, oPortionEnum2, oPortion2, sName As String
+    ' from Zotero src:
+    Dim oBookmark, oRange1, oRange2, oField, oVC
+    Dim oPortionEnum1, oPortion1, oPortionEnum2, oPortion2, sName As String
 
-      oVC = thisComponent.currentController.viewCursor
-      oRange1 = oRange.Text.createTextCursorByRange(oRange)
-      oRange2 = oRange.Text.createTextCursorByRange(oRange)
-      oRange1.goleft(1, False)
-      oRange1.gotoStartOfParagraph (True)
-      oRange2.gotoEndOfParagraph (True)
-      oPortionEnum1 = oRange1.createEnumeration.nextElement.createEnumeration
-      While oPortionEnum1.hasMoreElements
-          oPortion1 = oPortionEnum1.nextElement
-          If Not (fnOOoObject(oPortion1) Is Nothing) And oPortion1.isStart Then
-              sName = fnOOoObject(oPortion1).Name
-              If (InStr(sName, MENDELEY_CITATION) > 0) Or (InStr(sName, MENDELEY_BIBLIOGRAPHY) > 0) Or (InStr(sName, MENDELEY_EDITED_CITATION) > 0) _
-                      Or (InStr(sName, CSL_CITATION) > 0) Or (InStr(sName, CSL_BIBLIOGRAPHY) > 0) Then
-                  oPortionEnum2 = oRange2.createEnumeration.nextElement.createEnumeration
-                  While oPortionEnum2.hasMoreElements
-                      oPortion2 = oPortionEnum2.nextElement
-                      If Not (fnOOoObject(oPortion2) Is Nothing) And Not oPortion2.isStart Then
-                          If fnOOoObject(oPortion2).Name = sName Then
-                              Set getFieldAtSelection = fnOOoObject(oPortion2)
-                              'If bSelect Then subSelect(getFieldAtSelection)
-                          End If
-                      End If
-                  Wend
-              End If
-          End If
-      Wend
+    oVC = thisComponent.currentController.viewCursor
+    oRange1 = oRange.Text.createTextCursorByRange(oRange)
+    oRange2 = oRange.Text.createTextCursorByRange(oRange)
+    oRange1.goleft(1, False)
+    oRange1.gotoStartOfParagraph (True)
+    oRange2.gotoEndOfParagraph (True)
+    oPortionEnum1 = oRange1.createEnumeration.nextElement.createEnumeration
+    While oPortionEnum1.hasMoreElements
+        oPortion1 = oPortionEnum1.nextElement
+        If Not (fnOOoObject(oPortion1) Is Nothing) And oPortion1.isStart Then
+            sName = fnOOoObject(oPortion1).Name
+            If (InStr(sName, MENDELEY_CITATION) > 0) Or (InStr(sName, MENDELEY_BIBLIOGRAPHY) > 0) Or (InStr(sName, MENDELEY_EDITED_CITATION) > 0) _
+                    Or (InStr(sName, CSL_CITATION) > 0) Or (InStr(sName, CSL_BIBLIOGRAPHY) > 0) Then
+                oPortionEnum2 = oRange2.createEnumeration.nextElement.createEnumeration
+                While oPortionEnum2.hasMoreElements
+                    oPortion2 = oPortionEnum2.nextElement
+                    If Not (fnOOoObject(oPortion2) Is Nothing) And Not oPortion2.isStart Then
+                        If fnOOoObject(oPortion2).Name = sName Then
+                            Set getFieldAtSelection = fnOOoObject(oPortion2)
+                            'If bSelect Then subSelect(getFieldAtSelection)
+                        End If
+                    End If
+                Wend
+            End If
+        End If
+    Wend
 End Function
 
 ' Returns connection status
@@ -601,7 +588,6 @@ Function isDocumentLinkedToCurrentUser() As Boolean
         isDocumentLinkedToCurrentUser = True
     Else
         Dim result ' As VbMsgBoxResult
-        
         Dim vbCrLf
         vbCrLf = Chr(13)
         
@@ -642,22 +628,22 @@ Sub applyFormatting(markup As String, mark)
     ' delete the whole field if we attempt to delete the first character
     ' (it gets deleted later)
 
-        mark = subSetMarkText(mark, markup)
-    
-        Dim range
-        Set range = fnMarkRange(mark)
+    mark = subSetMarkText(mark, markup)
 
-        Dim subRange 'As range
-        Set subRange = range.Text.createTextCursorByRange(range)
-        range.setPropertyValue("CharEscapement", 0)
-        range.setPropertyValue("CharEscapementHeight", 100)
+    Dim range
+    Set range = fnMarkRange(mark)
+
+    Dim subRange 'As range
+    Set subRange = range.Text.createTextCursorByRange(range)
+    range.setPropertyValue("CharEscapement", 0)
+    range.setPropertyValue("CharEscapementHeight", 100)
     
     Dim startPosition As Long
     Dim endPosition As Long
-    
-        startPosition = 0
-        endPosition = Len(range.Text.String)
-    
+
+    startPosition = 0
+    endPosition = Len(range.Text.String)
+
     Call applyStyleToTagPairs("i", subRange, startPosition, endPosition)
     Call applyStyleToTagPairs("b", subRange, startPosition, endPosition)
     Call applyStyleToTagPairs("u", subRange, startPosition, endPosition)
@@ -742,7 +728,7 @@ Function addUnicodeTags(inputString As String) As String
     outputStringPosition = 1
     
     For position = 1 To Len(inputString)
-            charCode = Asc(Mid(inputString, position, 1))
+        charCode = Asc(Mid(inputString, position, 1))
         
         If charCode < 0 Then
             charCode = 65536 + charCode
@@ -781,8 +767,8 @@ Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
     Dim startTag As String
     Dim endTag As String
     
-        Dim thisRange 'As Range
-        Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
+    Dim thisRange 'As Range
+    Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
     
     startTag = "<" + tag + ">"
     endTag = "</" + tag + ">"
@@ -794,18 +780,18 @@ Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
 
     Do While Not (rangeString(thisRange) = "") And Not (InStr(rangeString(thisRange), startTag) = 0)
         ' find and remove start tag
-            Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
+        Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
         
         Dim startTagPosition As Long
 
-            startTagPosition = InStr(fnReplace(rangeString(thisRange), Chr(13), ""), startTag) - 1
-            thisRange.goRight(startTagPosition, False)
-            thisRange.goRight(2 + Len(tag), True)
-            thisRange.String = ""
+        startTagPosition = InStr(fnReplace(rangeString(thisRange), Chr(13), ""), startTag) - 1
+        thisRange.goRight(startTagPosition, False)
+        thisRange.goRight(2 + Len(tag), True)
+        thisRange.String = ""
         
         ' find and remove end tag
         
-          Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
+        Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
 
         Dim endTagPosition As Long
         
@@ -822,65 +808,65 @@ Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
         
         ' apply style
         Select Case tag
-                Case "b"
-                    thisRange.setPropertyValue("CharWeight", 150)
-                Case "i"
-                    thisRange.setPropertyValue("CharPosture", 2)
-                Case "u"
-                    thisRange.setPropertyValue("CharUnderline", 1)
-                Case "sup"
-                    thisRange.setPropertyValue("CharEscapement", 33)
-                    thisRange.setPropertyValue("CharEscapementHeight", 58)
-                Case "sub"
-                    thisRange.setPropertyValue("CharEscapement", -33)
-                    thisRange.setPropertyValue("CharEscapementHeight", 58)
-                Case "second-field-align"
-                    ' Remove spaces at the end of the range
-                    ' (@todo remove this if fixed in Mendeley Desktop)
-                    Do While Right(rangeString(thisRange), 1) = " "
-                      Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
-                      thisRange.collapseToStart
-                      thisRange.goRight(endTagPosition-1,False)
-                      thisRange.goRight(1, True)
-                      thisRange.String = ""
-                      endTagPosition = endTagPosition - 1
-                    Loop
+            Case "b"
+                thisRange.setPropertyValue("CharWeight", 150)
+            Case "i"
+                thisRange.setPropertyValue("CharPosture", 2)
+            Case "u"
+                thisRange.setPropertyValue("CharUnderline", 1)
+            Case "sup"
+                thisRange.setPropertyValue("CharEscapement", 33)
+                thisRange.setPropertyValue("CharEscapementHeight", 58)
+            Case "sub"
+                thisRange.setPropertyValue("CharEscapement", -33)
+                thisRange.setPropertyValue("CharEscapementHeight", 58)
+            Case "second-field-align"
+                ' Remove spaces at the end of the range
+                ' (@todo remove this if fixed in Mendeley Desktop)
+                Do While Right(rangeString(thisRange), 1) = " "
+                  Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
+                  thisRange.collapseToStart
+                  thisRange.goRight(endTagPosition-1,False)
+                  thisRange.goRight(1, True)
+                  thisRange.String = ""
+                  endTagPosition = endTagPosition - 1
+                Loop
 
-                    If ((endTagPosition - startTagPosition) > maxFirstFieldLength) Then
-                        maxFirstFieldLength = endTagPosition - startTagPosition
-                    End If
+                If ((endTagPosition - startTagPosition) > maxFirstFieldLength) Then
+                    maxFirstFieldLength = endTagPosition - startTagPosition
+                End If
 
-                    ' remove subsequent spaces after the range
+                ' remove subsequent spaces after the range
+                Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
+                Call thisRange.collapseToStart
+                thisRange.goRight(endTagPosition,False)
+                thisRange.goRight(1, True)
+
+                Do While rangeString(thisRange) = " "
+                    thisRange.String = ""
                     Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
-                    Call thisRange.collapseToStart
+                    thisRange.collapseToStart
                     thisRange.goRight(endTagPosition,False)
-                    thisRange.goRight(1, True)
+                    thisRange.goRight(1,True)
+                Loop
+                ' Insert tab
+                Call thisRange.collapseToStart
+                thisRange.String = Chr(9)
+            Case "hanging-indent"
+                Call setHangingIndent(wholeRange)
 
-                    Do While rangeString(thisRange) = " "
-                        thisRange.String = ""
-                        Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
-                        thisRange.collapseToStart
-                        thisRange.goRight(endTagPosition,False)
-                        thisRange.goRight(1,True)
-                    Loop
-                    ' Insert tab
-                    Call thisRange.collapseToStart
-                    thisRange.String = Chr(9)
-                Case "hanging-indent"
-                    Call setHangingIndent(wholeRange)
-
-                Case "unicode"
-                    Dim characterCode As Long
-                    characterCode = thisRange.String
-                    thisRange.String = Chr(characterCode)
+            Case "unicode"
+                Dim characterCode As Long
+                characterCode = thisRange.String
+                thisRange.String = Chr(characterCode)
         End Select
 
-            ' remove extra space from after the tag
-            Call thisRange.collapseToEnd()
-            thisRange.goRight(1, True)
-            thisRange.String = ""
+        ' remove extra space from after the tag
+        Call thisRange.collapseToEnd()
+        thisRange.goRight(1, True)
+        thisRange.String = ""
 
-            Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
+        Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
     Loop
     
     If tag = "second-field-align" And maxFirstFieldLength > 0 Then
@@ -892,15 +878,15 @@ Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
 End Sub
 
 Sub setHangingIndent(range As range, Optional length As Long)
-        If IsMissing(length) Then
-            length = 40
-        End If
-        range.setPropertyValue("ParaLeftMargin", Int(TWIPS_TO_100TH_MM * length * 20))
-        range.setPropertyValue("ParaFirstLineIndent", Int(-TWIPS_TO_100TH_MM * length * 20))
+    If IsMissing(length) Then
+        length = 40
+    End If
+    range.setPropertyValue("ParaLeftMargin", Int(TWIPS_TO_100TH_MM * length * 20))
+    range.setPropertyValue("ParaFirstLineIndent", Int(-TWIPS_TO_100TH_MM * length * 20))
 End Sub
 
 Function rangeString(range As range) As String
-        rangeString = range.String
+    rangeString = range.String
 End Function
 
 Sub applyStyleToIndividualTags(tag As String, wholeRange As range, _
@@ -911,18 +897,18 @@ Sub applyStyleToIndividualTags(tag As String, wholeRange As range, _
     
     startTag = "<" + tag + ">"
     endTag = "</" + tag + ">"
-    
-        Dim thisRange
-        Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
+
+    Dim thisRange
+    Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
 
     Do While Not (rangeString(thisRange) = "") And Not (InStr(rangeString(thisRange), startTag) = 0)
         ' find and remove start tag
         Dim startTagPosition As Long
         
-            startTagPosition = InStr(fnReplace(rangeString(thisRange), Chr(13), ""), startTag) - 1
-            thisRange.goRight(startTagPosition, False)
-            thisRange.goRight(2 + Len(tag), True)
-            thisRange.String = ""
+        startTagPosition = InStr(fnReplace(rangeString(thisRange), Chr(13), ""), startTag) - 1
+        thisRange.goRight(startTagPosition, False)
+        thisRange.goRight(2 + Len(tag), True)
+        thisRange.String = ""
 
         ' apply formatting
         Select Case tag
@@ -930,7 +916,7 @@ Sub applyStyleToIndividualTags(tag As String, wholeRange As range, _
               thisRange.String = Chr(13)
         End Select
         
-            Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
+        Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
     Loop
 End Sub
 
@@ -943,7 +929,7 @@ Sub checkForCitationEdit()
     
     ' TODO: deal with edits of bibliographies
     Dim objectExists As Boolean
-  objectExists = True
+    objectExists = True
     If Not (previouslySelectedField Is Nothing) And Not IsMissing(previouslySelectedField) And Not IsEmpty(previouslySelectedField) And objectExists Then
         If Not (previouslySelectedField.result.Text = previouslySelectedFieldResultText) Then
             

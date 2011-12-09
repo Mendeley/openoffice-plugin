@@ -84,9 +84,9 @@ End Function
 
 'Returns the current selection
 Function fnSelection()
-        Dim oVC
-        Set oVC = thisComponent.currentController.viewCursor
-        fnSelection = oVC.Text.createTextCursorByRange(oVC)
+    Dim oVC
+    Set oVC = thisComponent.currentController.viewCursor
+    fnSelection = oVC.Text.createTextCursorByRange(oVC)
 End Function
 
 Function fnOOoObject(oObject) As Object
@@ -121,22 +121,22 @@ Function fnAddMark(oRange, sName As String) 'As Field
         sMarkText = INSERT_CITATION_TEXT
     End If
     
-        If ZoteroUseBookmarks Then
-            'OOo automatically creates a unique bookmark name allowing for more than one bibliography
-            oField = thisComponent.createInstance("com.sun.star.text.Bookmark")
-        ElseIf isMendeleyBibliographyField(sName) Then
-            'Create a document section for the bibliography
-            sName = sName & REFERENCEMARK_RANDOM_DATA_SEPARATOR & fnGenerateRandomString(REFERENCEMARK_RANDOM_STRING_LENGTH)
-            oField = thisComponent.createInstance("com.sun.star.text.TextSection")
-        Else
-            'Allow for more than one citation of same item in same position by creating a unique ReferenceMark name
-            sName = sName & REFERENCEMARK_RANDOM_DATA_SEPARATOR & fnGenerateRandomString(REFERENCEMARK_RANDOM_STRING_LENGTH)
-            oField = thisComponent.createInstance("com.sun.star.text.ReferenceMark")
-        End If
-        oField.setName (sName)
-        oRange.String = sMarkText
-        oRange.text.insertTextContent(oRange, oField, true)
-        Set fnAddMark = oField
+    If ZoteroUseBookmarks Then
+        'OOo automatically creates a unique bookmark name allowing for more than one bibliography
+        oField = thisComponent.createInstance("com.sun.star.text.Bookmark")
+    ElseIf isMendeleyBibliographyField(sName) Then
+        'Create a document section for the bibliography
+        sName = sName & REFERENCEMARK_RANDOM_DATA_SEPARATOR & fnGenerateRandomString(REFERENCEMARK_RANDOM_STRING_LENGTH)
+        oField = thisComponent.createInstance("com.sun.star.text.TextSection")
+    Else
+        'Allow for more than one citation of same item in same position by creating a unique ReferenceMark name
+        sName = sName & REFERENCEMARK_RANDOM_DATA_SEPARATOR & fnGenerateRandomString(REFERENCEMARK_RANDOM_STRING_LENGTH)
+        oField = thisComponent.createInstance("com.sun.star.text.ReferenceMark")
+    End If
+    oField.setName (sName)
+    oRange.String = sMarkText
+    oRange.text.insertTextContent(oRange, oField, true)
+    Set fnAddMark = oField
 End Function
 
 ' Saves sName in document properties, if necessary, then returns the appropriate bookmark name
@@ -149,62 +149,61 @@ Function fnSetFullBookmarkName(sName) As String
 End Function
 
 Function fnRenameMark(oMark, sNewname As String)
-        If oMark.supportsService("com.sun.star.text.Bookmark") Then
-            If (Left(oMark.Name, 11) = "ZOTERO_BREF") Then
-                Call subSetProperty(oMark.Name, sNewname)
-            Else
-                oMark.Name = fnSetFullBookmarkName(sNewname)
-            End If
-        ElseIf oMark.supportsService("com.sun.star.text.TextSection") Then
-            oMark.Name = sNewname
-        ElseIf oMark.supportsService("com.sun.star.text.ReferenceMark") Then
-            'The only way of renaming a referencemark is to delete it and recreate it with the new name
-            'The process below loses any text formatting.
-            Dim sString As String, oRange, oField
-
-            oRange = oMark.Anchor
-
-
-            ' Next two lines are on purpose: when the field is in a
-      ' table if we don't force a read from oRange.Text.String
-      ' the line insertTextContent fails because oRange.text is NULL
-      ' (!!!!) (at least in OO.org 3.1.1 Build 9420 in Linux)
-            Dim ForceRead as String
-            ForceRead = oRange.Text.String
-
-            sString = oRange.String
-            oRange.String = sString
-            oField = thisComponent.createInstance("com.sun.star.text.ReferenceMark")
-            oField.Name = sNewname & REFERENCEMARK_RANDOM_DATA_SEPARATOR & fnGenerateRandomString(REFERENCEMARK_RANDOM_STRING_LENGTH)
-            oRange.text.insertTextContent(oRange, oField, true)
-            Set oMark = oField
+    If oMark.supportsService("com.sun.star.text.Bookmark") Then
+        If (Left(oMark.Name, 11) = "ZOTERO_BREF") Then
+            Call subSetProperty(oMark.Name, sNewname)
+        Else
+            oMark.Name = fnSetFullBookmarkName(sNewname)
         End If
+    ElseIf oMark.supportsService("com.sun.star.text.TextSection") Then
+        oMark.Name = sNewname
+    ElseIf oMark.supportsService("com.sun.star.text.ReferenceMark") Then
+        'The only way of renaming a referencemark is to delete it and recreate it with the new name
+        'The process below loses any text formatting.
+        Dim sString As String, oRange, oField
+
+        oRange = oMark.Anchor
+
+        ' Next two lines are on purpose: when the field is in a
+        ' table if we don't force a read from oRange.Text.String
+        ' the line insertTextContent fails because oRange.text is NULL
+        ' (!!!!) (at least in OO.org 3.1.1 Build 9420 in Linux)
+        Dim ForceRead as String
+        ForceRead = oRange.Text.String
+
+        sString = oRange.String
+        oRange.String = sString
+        oField = thisComponent.createInstance("com.sun.star.text.ReferenceMark")
+        oField.Name = sNewname & REFERENCEMARK_RANDOM_DATA_SEPARATOR & fnGenerateRandomString(REFERENCEMARK_RANDOM_STRING_LENGTH)
+        oRange.text.insertTextContent(oRange, oField, true)
+        Set oMark = oField
+    End If
     Set fnRenameMark = oMark
 End Function
 
 Function getMarkName(mark) As String
-        If mark.supportsService("com.sun.star.text.ReferenceMark") Then
-            Dim length As Long
-            Dim separator As String
-            separator = REFERENCEMARK_RANDOM_DATA_SEPARATOR
-            getMarkName = mark.Name
-            length = Len(getMarkName) - Len(separator) - REFERENCEMARK_RANDOM_STRING_LENGTH
-            getMarkName = Left(getMarkName, length)
-        Else
-            getMarkName = mark.Name
-        End If
+    If mark.supportsService("com.sun.star.text.ReferenceMark") Then
+        Dim length As Long
+        Dim separator As String
+        separator = REFERENCEMARK_RANDOM_DATA_SEPARATOR
+        getMarkName = mark.Name
+        length = Len(getMarkName) - Len(separator) - REFERENCEMARK_RANDOM_STRING_LENGTH
+        getMarkName = Left(getMarkName, length)
+    Else
+        getMarkName = mark.Name
+    End If
 End Function
 
 Function getMarkText(mark) As String
-        getMarkText = mark.Anchor.String
+    getMarkText = mark.Anchor.String
 End Function
 
 ' NOTE: getMarkTextWithFormattingTags() and getTaggedRichTextFromRange() are not being
 '       currently used because they are too slow to use on all citations in a document.
 '       Keeping the code here just in case they can be optimised, or for occassional use
 Function getMarkTextWithFormattingTags(mark) As String
-        ' Not implemented for OpenOffice!!
-        getMarkTextWithFormattingTags = mark.Anchor.String
+    ' Not implemented for OpenOffice!!
+    getMarkTextWithFormattingTags = mark.Anchor.String
 End Function
 
 
@@ -253,45 +252,45 @@ Function fnGetMarks(bBookmarks As Boolean)
 
     i = 0
     nCount = 0
-        nCount = thisComponent.Bookmarks.Count + thisComponent.ReferenceMarks.Count + thisComponent.TextSections.Count
-        Dim mBookmarks, mReferenceMarks, mTextSections
-        ReDim mMarks(nCount)
-        mBookmarks = thisComponent.Bookmarks.ElementNames
-        mReferenceMarks = thisComponent.ReferenceMarks.ElementNames
-        mTextSections = thisComponent.TextSections.ElementNames
-        For j = 0 To UBound(mBookmarks)
-            oRef = thisComponent.Bookmarks.getByname(mBookmarks(j))
-            If (Left(mBookmarks(j), 9) = "Mendeley_" Or InStr(mBookmarks(j), "CSL_CITATION") > 0 Or InStr(mBookmarks(j), "CSL_BIBLIOGRAPHY") > 0) Then
-                If bBookmarks Then
-                    Set mMarks(i) = oRef
-                Else
-                    Set mMarks(i) = fnConvert(oRef)
-                End If
-                i = i + 1
+    nCount = thisComponent.Bookmarks.Count + thisComponent.ReferenceMarks.Count + thisComponent.TextSections.Count
+    Dim mBookmarks, mReferenceMarks, mTextSections
+    ReDim mMarks(nCount)
+    mBookmarks = thisComponent.Bookmarks.ElementNames
+    mReferenceMarks = thisComponent.ReferenceMarks.ElementNames
+    mTextSections = thisComponent.TextSections.ElementNames
+    For j = 0 To UBound(mBookmarks)
+        oRef = thisComponent.Bookmarks.getByname(mBookmarks(j))
+        If (Left(mBookmarks(j), 9) = "Mendeley_" Or InStr(mBookmarks(j), "CSL_CITATION") > 0 Or InStr(mBookmarks(j), "CSL_BIBLIOGRAPHY") > 0) Then
+            If bBookmarks Then
+                Set mMarks(i) = oRef
+            Else
+                Set mMarks(i) = fnConvert(oRef)
             End If
-        Next
-        For j = 0 To UBound(mReferenceMarks)
-            oRef = thisComponent.ReferenceMarks.getByname(mReferenceMarks(j))
-            If (Left(mReferenceMarks(j), 9) = "Mendeley " Or InStr(mReferenceMarks(j), "CSL_CITATION") > 0 Or InStr(mReferenceMarks(j), "CSL_BIBLIOGRAPHY") > 0)  Then
-                If Not bBookmarks Then
-                    Set mMarks(i) = oRef
-                Else
-                    Set mMarks(i) = fnConvert(oRef)
-                End If
-                i = i + 1
+            i = i + 1
+        End If
+    Next
+    For j = 0 To UBound(mReferenceMarks)
+        oRef = thisComponent.ReferenceMarks.getByname(mReferenceMarks(j))
+        If (Left(mReferenceMarks(j), 9) = "Mendeley " Or InStr(mReferenceMarks(j), "CSL_CITATION") > 0 Or InStr(mReferenceMarks(j), "CSL_BIBLIOGRAPHY") > 0)  Then
+            If Not bBookmarks Then
+                Set mMarks(i) = oRef
+            Else
+                Set mMarks(i) = fnConvert(oRef)
             End If
-        Next
-        For j = 0 To UBound(mTextSections)
-            oRef = thisComponent.TextSections.getByname(mTextSections(j))
-            If (Left(mTextSections(j), 9) = "Mendeley " Or InStr(mTextSections(j), "CSL_CITATION") > 0 Or InStr(mTextSections(j), "CSL_BIBLIOGRAPHY") > 0) Then
-                If Not bBookmarks Then
-                    Set mMarks(i) = oRef
-                Else
-                    Set mMarks(i) = fnConvert(oRef)
-                End If
-                i = i + 1
+            i = i + 1
+        End If
+    Next
+    For j = 0 To UBound(mTextSections)
+        oRef = thisComponent.TextSections.getByname(mTextSections(j))
+        If (Left(mTextSections(j), 9) = "Mendeley " Or InStr(mTextSections(j), "CSL_CITATION") > 0 Or InStr(mTextSections(j), "CSL_BIBLIOGRAPHY") > 0) Then
+            If Not bBookmarks Then
+                Set mMarks(i) = oRef
+            Else
+                Set mMarks(i) = fnConvert(oRef)
             End If
-        Next
+            i = i + 1
+        End If
+    Next
     If i = 0 Then
         fnGetMarks = Array()
     Else
@@ -440,26 +439,26 @@ End Function
 '  ZOTERO_ERROR otherwise
 Function fnLocationType(oRange)
     Dim nLocation As Long, oText
-        On Error GoTo InvalidSelection
-        oText = oRange.Text
-        On Error GoTo 0
-        If oText.getImplementationName = "SwXCell" Then
-            ' oText = oText.createTextCursor.textTable.Anchor.Text
-            nLocation = ZOTERO_TABLE
-        Else
-            Select Case oText.getImplementationName
-            Case "SwXBodyText"
-                nLocation = ZOTERO_MAIN
-            Case "SwXFootnote"
-                If oText.supportsService("com.sun.star.text.Endnote") Then
-                    nLocation = ZOTERO_ENDNOTE
-                Else
-                    nLocation = ZOTERO_FOOTNOTE
-                End If
-            Case Else
-                nLocation = ZOTERO_ERROR
-            End Select
-        End If
+    On Error GoTo InvalidSelection
+    oText = oRange.Text
+    On Error GoTo 0
+    If oText.getImplementationName = "SwXCell" Then
+        ' oText = oText.createTextCursor.textTable.Anchor.Text
+        nLocation = ZOTERO_TABLE
+    Else
+        Select Case oText.getImplementationName
+        Case "SwXBodyText"
+            nLocation = ZOTERO_MAIN
+        Case "SwXFootnote"
+            If oText.supportsService("com.sun.star.text.Endnote") Then
+                nLocation = ZOTERO_ENDNOTE
+            Else
+                nLocation = ZOTERO_FOOTNOTE
+            End If
+        Case Else
+            nLocation = ZOTERO_ERROR
+        End Select
+    End If
     fnLocationType = nLocation
     Exit Function
 InvalidSelection:
@@ -477,84 +476,84 @@ End Sub
 Function subSetMarkText(oMark, sReplace As String)
     Dim oDupRange, nLen As Long, oRange, nNextParagraphBreak As Long, nLastParagraphBreak As Long
    
-        subSetMarkText = oMark
+    subSetMarkText = oMark
 
-        Set oRange = fnMarkRange(oMark)
-        If oMark.supportsService("com.sun.star.text.Bookmark") Then
-            Dim nReturnIndex, sParagraphBreak
-            sParagraphBreak = Chr(13)
+    Set oRange = fnMarkRange(oMark)
+    If oMark.supportsService("com.sun.star.text.Bookmark") Then
+        Dim nReturnIndex, sParagraphBreak
+        sParagraphBreak = Chr(13)
 
-            ' Hack to include paragraph breaks in bookmarks
-            oRange.String = fnReplace(sReplace, sParagraphBreak, Chr(10))
+        ' Hack to include paragraph breaks in bookmarks
+        oRange.String = fnReplace(sReplace, sParagraphBreak, Chr(10))
 
-            nReturnIndex = InStr(sReplace, sParagraphBreak)
-            While (nReturnIndex)
-                oDupRange = oRange.Text.createTextCursorByRange(oRange)
-                oDupRange.collapseToStart
-                oDupRange.goRight(nReturnIndex-1, False)
-                oDupRange.goRight(1, True)
-                oRange.Text.insertControlCharacter(oDupRange, 0, True)
-                nReturnIndex = InStr(nReturnIndex + 1, sReplace, sParagraphBreak)
-            Wend
-        ElseIf oMark.supportsService("com.sun.star.text.TextSection") Then
-            oRange.String = sReplace
-        ElseIf oMark.supportsService("com.sun.star.text.ReferenceMark") Then
-            ' In OpenOffice 3.2, creating a SwXTextCursor from SwXTextRange
-            ' and then changing the contents of SwXTextCursor deletes the anchor
-            ' of the SwXTextRange, that it's needed later on
-            ' Instead of it, inserts the new citation after the first character of the
-            ' field (SwXTextRange), then deletes the first character, then deletes the
-            ' old field.
-
-            nLen = Len(oRange.String)
+        nReturnIndex = InStr(sReplace, sParagraphBreak)
+        While (nReturnIndex)
             oDupRange = oRange.Text.createTextCursorByRange(oRange)
+            oDupRange.collapseToStart
+            oDupRange.goRight(nReturnIndex-1, False)
+            oDupRange.goRight(1, True)
+            oRange.Text.insertControlCharacter(oDupRange, 0, True)
+            nReturnIndex = InStr(nReturnIndex + 1, sReplace, sParagraphBreak)
+        Wend
+    ElseIf oMark.supportsService("com.sun.star.text.TextSection") Then
+        oRange.String = sReplace
+    ElseIf oMark.supportsService("com.sun.star.text.ReferenceMark") Then
+        ' In OpenOffice 3.2, creating a SwXTextCursor from SwXTextRange
+        ' and then changing the contents of SwXTextCursor deletes the anchor
+        ' of the SwXTextRange, that it's needed later on
+        ' Instead of it, inserts the new citation after the first character of the
+        ' field (SwXTextRange), then deletes the first character, then deletes the
+        ' old field.
 
-            if nLen > 1 Then
-                ' In this case it mantains the same field and changes the contents. See the comment
-                ' of r28041 for more informattion
+        nLen = Len(oRange.String)
+        oDupRange = oRange.Text.createTextCursorByRange(oRange)
 
-                ' Inserts the citation after the first character
-                oDupRange.collapseToStart
-                oDupRange.goRight(1, False)
-                oDupRange.String = sReplace
+        if nLen > 1 Then
+            ' In this case it mantains the same field and changes the contents. See the comment
+            ' of r28041 for more informattion
 
-                ' Remove the first character
-                oDupRange = fnMarkRange(oMark)
-                oDupRange = oDupRange.Text.createTextCursorByRange(oDupRange)
-                oDupRange.collapseToStart
-                oDupRange.goRight(1,True)
-                oDupRange.String = ""
+            ' Inserts the citation after the first character
+            oDupRange.collapseToStart
+            oDupRange.goRight(1, False)
+            oDupRange.String = sReplace
 
-                ' Remove the last part (part that was originally here)
-                oDupRange = fnMarkRange(oMark)
-                oDupRange = oDupRange.Text.createTextCursorByRange(oDupRange)
-                oDupRange.collapseToEnd
-                oDupRange.goLeft(nLen - 1,True)
-                oDupRange.String = ""
-            Else
-                    ' For more information about the bug that this code is workarounding:
-                ' see Mendeley ticket #7938
-                    ' In OpenOffice 3.2 I have not been able to edit the contents of one
-                ' field that the total length is 1 (e.g. "Nature Journal" style for
-                ' firsts entries. So it deletes the field and creates a new one
-                ' that happens to be longer (contains the standard text added by
-                ' fnAddMark and calls subSetMarkText again that will edit the citation
-                ' with the above code (nLen > 1)
-                Dim fieldName as String
+            ' Remove the first character
+            oDupRange = fnMarkRange(oMark)
+            oDupRange = oDupRange.Text.createTextCursorByRange(oDupRange)
+            oDupRange.collapseToStart
+            oDupRange.goRight(1,True)
+            oDupRange.String = ""
 
-                ' 14: is the random number that OpenOffice adds automatically
-                ' to the field name
-                fieldName = Left(oMark.Name, Len(oMark.Name) - 14)
-
-                oDupRange.String = "" ' deletes the field
-
-                Dim thisField
-                subSetMarkText = fnAddMark(oDupRange, fieldName)
-                subSetMarkText = subSetMarkText(subSetMarkText, sReplace)
-            End If
+            ' Remove the last part (part that was originally here)
+            oDupRange = fnMarkRange(oMark)
+            oDupRange = oDupRange.Text.createTextCursorByRange(oDupRange)
+            oDupRange.collapseToEnd
+            oDupRange.goLeft(nLen - 1,True)
+            oDupRange.String = ""
         Else
-            Print "shouldn't get here"
+                ' For more information about the bug that this code is workarounding:
+            ' see Mendeley ticket #7938
+                ' In OpenOffice 3.2 I have not been able to edit the contents of one
+            ' field that the total length is 1 (e.g. "Nature Journal" style for
+            ' firsts entries. So it deletes the field and creates a new one
+            ' that happens to be longer (contains the standard text added by
+            ' fnAddMark and calls subSetMarkText again that will edit the citation
+            ' with the above code (nLen > 1)
+            Dim fieldName as String
+
+            ' 14: is the random number that OpenOffice adds automatically
+            ' to the field name
+            fieldName = Left(oMark.Name, Len(oMark.Name) - 14)
+
+            oDupRange.String = "" ' deletes the field
+
+            Dim thisField
+            subSetMarkText = fnAddMark(oDupRange, fieldName)
+            subSetMarkText = subSetMarkText(subSetMarkText, sReplace)
         End If
+    Else
+        Print "shouldn't get here"
+    End If
 End Function
 
 Function fnConvert(oMark)
@@ -564,18 +563,14 @@ Function fnConvert(oMark)
     Dim spaceAdded As Boolean
     spaceAdded = False
     
-    
     markText = getMarkText(oMark)
     sMarkName = fnMarkName(oMark)
     Set oRange = fnMarkRange(oMark)
     
-    
     Call subDeleteMark(oMark, True)
     Set fnConvert = fnAddMark(oRange, sMarkName)
 
-        fnConvert = subSetMarkText(fnConvert, markText)
-    
-    
+    fnConvert = subSetMarkText(fnConvert, markText)
 End Function
 
 
@@ -590,12 +585,12 @@ Function fnGetFullBookmarkName(sName As String) As String
 End Function
 
 Function fnMarkName(oMark) As String
-        fnMarkName = oMark.Name
-        If oMark.supportsService("com.sun.star.text.Bookmark") Then
-            fnMarkName = fnGetFullBookmarkName(fnMarkName)
-        ElseIf Mid(fnMarkName, Len(fnMarkName)-REFERENCEMARK_RANDOM_STRING_LENGTH-Len(REFERENCEMARK_RANDOM_DATA_SEPARATOR)+1, 4) = REFERENCEMARK_RANDOM_DATA_SEPARATOR Then
-          fnMarkName = Left(fnMarkName, Len(fnMarkName)-REFERENCEMARK_RANDOM_STRING_LENGTH-Len(REFERENCEMARK_RANDOM_DATA_SEPARATOR))
-        End If
+    fnMarkName = oMark.Name
+    If oMark.supportsService("com.sun.star.text.Bookmark") Then
+        fnMarkName = fnGetFullBookmarkName(fnMarkName)
+    ElseIf Mid(fnMarkName, Len(fnMarkName)-REFERENCEMARK_RANDOM_STRING_LENGTH-Len(REFERENCEMARK_RANDOM_DATA_SEPARATOR)+1, 4) = REFERENCEMARK_RANDOM_DATA_SEPARATOR Then
+      fnMarkName = Left(fnMarkName, Len(fnMarkName)-REFERENCEMARK_RANDOM_STRING_LENGTH-Len(REFERENCEMARK_RANDOM_DATA_SEPARATOR))
+    End If
 End Function
 
 Function fnPrefix(ByVal sName As String) As String
@@ -614,15 +609,15 @@ End Function
 
 ' Replaces a string with another
 Function fnReplace(sString, sSearch, sReplace) As String
-        Dim substrings
-        substrings = Split(sString, sSearch)
-        fnReplace = Join(substrings, sReplace)
+    Dim substrings
+    substrings = Split(sString, sSearch)
+    fnReplace = Join(substrings, sReplace)
 End Function
 
 Function fnOtherTextInNote(oRange) As Boolean
     'Dim nMarkLength As Long, nNoteLength As Long, oFootnote
     
-        fnOtherTextInNote = Len(oRange.Text.String) > Len(oRange.String)
+    fnOtherTextInNote = Len(oRange.Text.String) > Len(oRange.String)
 End Function
 
 Sub subDeleteNote(oRange)
@@ -640,28 +635,28 @@ Sub subDeleteMark(oMark, Optional bDontDeleteNote As Boolean)
         End If
     End If
     
-        Dim oVC, fnSelection
-        ' Check to see if we need to delete the invisible character used to
-        ' separate the reference mark from the user's text
-        oDupRange = thisComponent.currentController.viewCursor.Text.createTextCursorByRange(oMark.Anchor)
-        oDupRange.collapseToEnd
-        oDupRange.goRight(1, True)
-        If(oDupRange.String = Chr(0) Or oDupRange.String = Chr(8288)) Then  ' have invisible character
-            oDupRange.String = ""
-        End If
+    Dim oVC, fnSelection
+    ' Check to see if we need to delete the invisible character used to
+    ' separate the reference mark from the user's text
+    oDupRange = thisComponent.currentController.viewCursor.Text.createTextCursorByRange(oMark.Anchor)
+    oDupRange.collapseToEnd
+    oDupRange.goRight(1, True)
+    If(oDupRange.String = Chr(0) Or oDupRange.String = Chr(8288)) Then  ' have invisible character
+        oDupRange.String = ""
+    End If
 
-        If oMark.supportsService("com.sun.star.text.Bookmark") Then
-            'Make sure any properties are gone
-            Call subSetProperty(oMark.Name, "")
+    If oMark.supportsService("com.sun.star.text.Bookmark") Then
+        'Make sure any properties are gone
+        Call subSetProperty(oMark.Name, "")
 
-            oMark.Anchor.String = ""
-            oMark.dispose
-        ElseIf oMark.supportsService("com.sun.star.text.TextSection") Then
-            oMark.Anchor.String = ""
-            oMark.dispose
-        ElseIf oMark.supportsService("com.sun.star.text.ReferenceMark") Then
-            oMark.Anchor.String = ""
-        End If
+        oMark.Anchor.String = ""
+        oMark.dispose
+    ElseIf oMark.supportsService("com.sun.star.text.TextSection") Then
+        oMark.Anchor.String = ""
+        oMark.dispose
+    ElseIf oMark.supportsService("com.sun.star.text.ReferenceMark") Then
+        oMark.Anchor.String = ""
+    End If
 End Sub
 
 
@@ -700,5 +695,5 @@ Function convertUuidsListToString(allUuidsList) As String
 End Function
 
 Function activeDocumentPath() As String
-  activeDocumentPath = thisComponent.URL
+    activeDocumentPath = thisComponent.URL
 End Function

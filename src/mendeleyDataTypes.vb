@@ -23,8 +23,8 @@ Option Explicit
 ' Tries to redim the array as less as possible but allows to grow up
 
 Type DynamicArrayType
-' In OO.org Basic Public Type is not available. So when we are declaring
-' currentCitationsArray in mendeleyMain it uses Variant
+    ' In OO.org Basic Public Type is not available. So when we are declaring
+    ' currentCitationsArray in mendeleyMain it uses Variant
     currentSize As Long
     ArrayContents As Variant
 End Type
@@ -35,8 +35,8 @@ End Type
 ' This is more efficient than a normal string for lots of small string concatenations.
 
 Type DynamicStringType
-' In OO.org Basic Public Type is not available. So when we are declaring
-' currentCitationsArray in mendeleyMain it uses Variant
+    ' In OO.org Basic Public Type is not available. So when we are declaring
+    ' currentCitationsArray in mendeleyMain it uses Variant
     length As Long
     contents As String
 End Type

@@ -22,12 +22,12 @@
 Option Explicit
 
 Function testsPath() As String
-	' Read path from environment variable
-	testsPath = Environ("MENDELEY_OO_TEST_FILES")
-	If testsPath = "" Then
-		MsgBox "Please ensure the MENDELEY_OO_TEST_FILES environment variable is set to " & Chr(13) &_
-		       "the directory containing your *.odt test files before running the tests."
-	End If
+    ' Read path from environment variable
+    testsPath = Environ("MENDELEY_OO_TEST_FILES")
+    If testsPath = "" Then
+        MsgBox "Please ensure the MENDELEY_OO_TEST_FILES environment variable is set to " & Chr(13) &_
+               "the directory containing your *.odt test files before running the tests."
+    End If
 End Function
 
 Function outputPath() As String
@@ -35,7 +35,7 @@ Function outputPath() As String
 End Function
 
 Function crLf() As String
-	crLf = Chr(13) & Chr(10)
+    crLf = Chr(13) & Chr(10)
 End Function
 
 Sub runUnitTests()
@@ -62,96 +62,96 @@ Sub exportExpected(documentName)
     ' Export expected txt file       
     dim exportProperties(1) as new com.sun.star.beans.PropertyValue
     exportProperties(0).Name = "FilterName"
-   	exportProperties(0).Value = "Text"
-	ThisComponent.storeToUrl("file:///" & outputPath() & documentName & "-expected.txt", exportProperties())
+    exportProperties(0).Value = "Text"
+    ThisComponent.storeToUrl("file:///" & outputPath() & documentName & "-expected.txt", exportProperties())
 End Sub
 
 Sub exportActual(documentName)
     ' Export expected txt file       
     dim exportProperties(1) as new com.sun.star.beans.PropertyValue
     exportProperties(0).Name = "FilterName"
-   	exportProperties(0).Value = "Text"
-	ThisComponent.storeToUrl("file:///" & outputPath() & documentName & "-actual.txt", exportProperties())
+    exportProperties(0).Value = "Text"
+    ThisComponent.storeToUrl("file:///" & outputPath() & documentName & "-actual.txt", exportProperties())
 End Sub
 
 Sub exportAsOdt(documentName)
     ' Export expected txt file       
     dim exportProperties(1) as new com.sun.star.beans.PropertyValue
     exportProperties(0).Name = "FilterName"
-   	exportProperties(0).Value = "writer8"
-	ThisComponent.storeToUrl("file:///" & outputPath() & documentName & ".odt", exportProperties())
+    exportProperties(0).Value = "writer8"
+    ThisComponent.storeToUrl("file:///" & outputPath() & documentName & ".odt", exportProperties())
 End Sub
 
 Sub appendText(textToAppend)
-	Call thisComponent.getText().insertString(thisComponent.getText().end(), textToAppend, false)
+    Call thisComponent.getText().insertString(thisComponent.getText().end(), textToAppend, false)
 End Sub
 
 Function newDocument()
-	newDocument = StarDesktop.loadComponentFromURL( "private:factory/swriter", "_blank", 0, Array() )
+    newDocument = StarDesktop.loadComponentFromURL( "private:factory/swriter", "_blank", 0, Array() )
     Call setCitationStyle(DEFAULT_CITATION_STYLE)
 End Function
 
 Function documentText() As String
-	Dim result As String
-	result = thisComponent.getText().getString()
-		
-	documentText = result
+    Dim result As String
+    result = thisComponent.getText().getString()
+    
+    documentText = result
 End Function
 
 Function compareStrings(actual As String, expected As String, location As String) As Boolean
-	Dim index As Long
-	
-	compareStrings = True
-	
-	'If Not (Len(actual) = Len(expected)) Then
-	'	MsgBox "actual and expected lengths don't match: " & Len(actual) & ", " & Len(expected)
-	'	compareStrings = False
-	'	'Exit Function
-	'End If
+    Dim index As Long
 
-	Dim partialExpected As String
-	Dim partialActual   As String
-	Dim actualIndex As Long
-	
-	actualIndex = 0
-	
-	index = 0
+    compareStrings = True
 
-ContinueLoop:	
-	While index < Len(expected)
-		index = index+1
+    'If Not (Len(actual) = Len(expected)) Then
+    '    MsgBox "actual and expected lengths don't match: " & Len(actual) & ", " & Len(expected)
+    '    compareStrings = False
+    '    'Exit Function
+    'End If
 
-		Dim actualChar As Integer
-		Dim expectedChar As Integer
-		
-		partialExpected = mid(expected, index, 1)
-		expectedChar = Asc(partialExpected)
-		
-		If expectedChar = 8288 Then
-			Goto ContinueLoop
-		End If
-		
-		' skip Chr(8288) in input (using Replace() didn't work)
-		actualChar = 8288
-		While actualChar = 8288
-			actualIndex = actualIndex + 1
-			partialActual = mid(actual, actualIndex, 1)
-			actualChar = Asc(partialActual)
-		Wend
-		
-		If actualChar <> expectedChar Then
-			MsgBox "Test failed at " & location & Chr(13) &_
-				   "Character index: " & index & Chr(13) &_
-				   "Actual Character: " & actualChar & Chr(13) &_
-				   "Expected Character: " & expectedChar & Chr(13) &_
-			       "Actual:   " & actual & Chr(13) &_
-			       "Expected: " & expected
-			compareStrings = False
-			Exit Function
-		End If
-	Wend
-	
-	' todo: check there's not more of the actual string left to parse, but ignoring the 8288 characters
+    Dim partialExpected As String
+    Dim partialActual   As String
+    Dim actualIndex As Long
+
+    actualIndex = 0
+
+    index = 0
+
+ContinueLoop:    
+    While index < Len(expected)
+        index = index+1
+
+        Dim actualChar As Integer
+        Dim expectedChar As Integer
+        
+        partialExpected = mid(expected, index, 1)
+        expectedChar = Asc(partialExpected)
+        
+        If expectedChar = 8288 Then
+            Goto ContinueLoop
+        End If
+        
+        ' skip Chr(8288) in input (using Replace() didn't work)
+        actualChar = 8288
+        While actualChar = 8288
+            actualIndex = actualIndex + 1
+            partialActual = mid(actual, actualIndex, 1)
+            actualChar = Asc(partialActual)
+        Wend
+        
+        If actualChar <> expectedChar Then
+            MsgBox "Test failed at " & location & Chr(13) &_
+                   "Character index: " & index & Chr(13) &_
+                   "Actual Character: " & actualChar & Chr(13) &_
+                   "Expected Character: " & expectedChar & Chr(13) &_
+                   "Actual:   " & actual & Chr(13) &_
+                   "Expected: " & expected
+            compareStrings = False
+            Exit Function
+        End If
+    Wend
+    
+    ' todo: check there's not more of the actual string left to parse, but ignoring the 8288 characters
 End Function
 
 ' -- tests --
@@ -166,19 +166,19 @@ Sub testRefreshDocument()
     
     Do While filename <> ""
         documentName = Left(filename, Len(filename) - Len(".odt"))
-	    outputDocumentName = "refreshDocument/" & documentName
+        outputDocumentName = "refreshDocument/" & documentName
         
         Dim url
         url = ConvertToUrl(testsPath & "/" & documentName & ".odt")
-		Dim noArgs() 'An empty array for the arguments
-		Dim doc
-		doc = StarDesktop.LoadComponentFromUrl(url, "_blank", 0, Array())
+        Dim noArgs() 'An empty array for the arguments
+        Dim doc
+        doc = StarDesktop.LoadComponentFromUrl(url, "_blank", 0, Array())
         
         ' Export expected txt file
         Dim expectedString
         expectedString = documentText()
         'Call exportExpected("refreshDocument/" & outputDocumentName)
-	    
+        
         ' refresh and export actual xml
         If Not refreshDocument(False) Then
             thisComponent.Text.setString("refreshDocument() failed")
@@ -242,13 +242,13 @@ Sub testExportWithoutFieldsSimple()
     
     Call initTests(testsPath, outputPath)
     
-	oDesktop = createUnoService("com.sun.star.frame.Desktop")
-	sUrl = "my_file.txt" 
-	mFileProperties(0).Name = "FilterName" 
-	mFileProperties(0).Value = "scalc: Text - txt - csv (StarCalc)" 
-	mFileProperties(1).Name = "FilterFlags" 
-	mFileProperties(1).Value = "FIX,,0,1,0/2/13/2/14/2/59/2/60/1" 
-	oDocument =oDesktop.loadComponentFromURL(sUrl,"_blank",0,mFileProperties()) 
+    oDesktop = createUnoService("com.sun.star.frame.Desktop")
+    sUrl = "my_file.txt" 
+    mFileProperties(0).Name = "FilterName" 
+    mFileProperties(0).Value = "scalc: Text - txt - csv (StarCalc)" 
+    mFileProperties(1).Name = "FilterFlags" 
+    mFileProperties(1).Value = "FIX,,0,1,0/2/13/2/14/2/59/2/60/1" 
+    oDocument =oDesktop.loadComponentFromURL(sUrl,"_blank",0,mFileProperties()) 
     
     ' Add a citation and bibliogrphy
     Call privateInsertCitation("{80fd12bc-8c23-498c-a845-f29cd215dbec}")
@@ -327,7 +327,7 @@ Sub testExportOpenOfficeFromFile()
 End Sub
 
 Sub testInsertCitation()
-	Call newDocument()
+    Call newDocument()
 
     ' Add a citation at start
     Call privateInsertCitation("{80fd12bc-8c23-498c-a845-f29cd215dbec}")
@@ -336,8 +336,8 @@ Sub testInsertCitation()
     Call privateInsertCitation("{ac45152c-4707-4d3c-928d-2cc59aa386fa}")
     
     compareStrings(documentText(),_
-    	"(The Mendeley Support Team, 2011) some more test" & crLf() &_
-    	"New paragraph.(Chumbe, Macleod, Barker, Moffat, & Rist, n.d.)", "testInsertCitation")
+        "(The Mendeley Support Team, 2011) some more test" & crLf() &_
+        "New paragraph.(Chumbe, Macleod, Barker, Moffat, & Rist, n.d.)", "testInsertCitation")
     Call thisComponent.close(false)
 End Sub
 
@@ -362,7 +362,7 @@ Sub testChangeCitationStyle()
 End Sub
 
 Sub testEditCitation()
-	Call newDocument()
+    Call newDocument()
     
     ' Add a citation at start
     Call privateInsertCitation("{80fd12bc-8c23-498c-a845-f29cd215dbec}")
@@ -389,7 +389,7 @@ Sub testMergeCitations()
     Call appendText(" ")
     Call privateInsertCitation("{ac45152c-4707-4d3c-928d-2cc59aa386fa}")
         
-	' select whole document
+    ' select whole document
     thisComponent.getCurrentController().select(thisComponent.getText())
     Call mergeCitations
     Call compareStrings(documentText(), "(Chumbe, Macleod, Barker, Moffat, & Rist, n.d.; The Mendeley Support Team, 2011)", "mergeCitationsSingleGap")
@@ -421,7 +421,7 @@ Sub testMergeCitations()
     'thisComponent.getCurrentController().select(thisComponent.getText().getEnd())
     Call privateInsertCitation("{ac45152c-4707-4d3c-928d-2cc59aa386fa}")
     Call appendText ("gap")
-	'thisComponent.getCurrentController().select(thisComponent.getText().getEnd())
+    'thisComponent.getCurrentController().select(thisComponent.getText().getEnd())
     Call privateInsertCitation("{d98145e4-d617-4370-b157-08e4ad40151d}")
     Call appendText ("gap")
     Call privateInsertCitation("{d8695892-e5ce-4731-8e42-5921db85182b}")
@@ -430,7 +430,7 @@ Sub testMergeCitations()
     
     Call mergeCitations
     Call compareStrings(documentText(), "gap(Chumbe, Macleod, Barker, Moffat, & Rist, n.d.; Devbhandari et al., 2007; Hu, Chinenov, Kerppola, Hughes, & Arbor, 2002; The Mendeley Support Team, 2011)gap", "mergeCitationsFourAtOnce")
-        
+    
     Call thisComponent.close(false)
 End Sub
 
@@ -487,7 +487,7 @@ Sub testApplyFormatting()
     Call appendText (" end")
     
     Call applyFormatting(" <b>bold</b> ", mark)
-	Call compareStrings(documentText(), "start=end" & crLf() & "start = end" & crLf() & _
-		"start  =  end" & crLf() & "start  bold  end", "applyFormatting")
+    Call compareStrings(documentText(), "start=end" & crLf() & "start = end" & crLf() & _
+        "start  =  end" & crLf() & "start  bold  end", "applyFormatting")
     Call thisComponent.close(false)
 End Sub
