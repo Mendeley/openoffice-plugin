@@ -1,4 +1,3 @@
-
 ' ***** BEGIN LICENSE BLOCK *****
 '
 ' Copyright (c) 2009, 2010, 2011 Mendeley Ltd.
@@ -98,60 +97,27 @@ Function documentText() As String
     documentText = result
 End Function
 
+Function normaliseString(inputString As String) As String
+    ' Strip out all instances of Chr(8288)
+    ' these are zero width non-breaking spaces
+    ' if it turns out they are important we can remove this and add them to the expected strings
+    normaliseString = Replace(inputString, Chr(8288), "")
+    Exit Function
+End Function
+
 Function compareStrings(actual As String, expected As String, location As String) As Boolean
-    Dim index As Long
-
     compareStrings = True
-
-    'If Not (Len(actual) = Len(expected)) Then
-    '    MsgBox "actual and expected lengths don't match: " & Len(actual) & ", " & Len(expected)
-    '    compareStrings = False
-    '    'Exit Function
-    'End If
-
-    Dim partialExpected As String
-    Dim partialActual   As String
-    Dim actualIndex As Long
-
-    actualIndex = 0
-
-    index = 0
-
-ContinueLoop:    
-    While index < Len(expected)
-        index = index+1
-
-        Dim actualChar As Integer
-        Dim expectedChar As Integer
-        
-        partialExpected = mid(expected, index, 1)
-        expectedChar = Asc(partialExpected)
-        
-        If expectedChar = 8288 Then
-            Goto ContinueLoop
-        End If
-        
-        ' skip Chr(8288) in input (using Replace() didn't work)
-        actualChar = 8288
-        While actualChar = 8288
-            actualIndex = actualIndex + 1
-            partialActual = mid(actual, actualIndex, 1)
-            actualChar = Asc(partialActual)
-        Wend
-        
-        If actualChar <> expectedChar Then
-            MsgBox "Test failed at " & location & Chr(13) &_
-                   "Character index: " & index & Chr(13) &_
-                   "Actual Character: " & actualChar & Chr(13) &_
-                   "Expected Character: " & expectedChar & Chr(13) &_
-                   "Actual:   " & actual & Chr(13) &_
-                   "Expected: " & expected
-            compareStrings = False
-            Exit Function
-        End If
-    Wend
     
-    ' todo: check there's not more of the actual string left to parse, but ignoring the 8288 characters
+    If normaliseString(actual) <> normaliseString(expected) Then
+        MsgBox "Test failed at " & location & Chr(13) &_
+                "Len(actual):   " & Len(actual) & Chr(13) &_
+                "Len(expected):   " & Len(expected) & Chr(13) &_
+               "Actual:   " & actual & Chr(13) &_
+               "Expected: " & expected
+               
+        compareStrings = False
+        Exit Function
+    End If
 End Function
 
 ' -- tests --
