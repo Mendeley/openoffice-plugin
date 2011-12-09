@@ -780,10 +780,6 @@ EndOfSub:
 End Sub
 
 Sub exportAsBookmarks()
-    Call exportCompatibleOpenOffice
-End Sub
-
-Sub exportCompatibleOpenOffice()
     dim oFileDialog
     dim sFilePickerArgs
 
