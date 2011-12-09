@@ -18,6 +18,9 @@
 
 ' author: steve.ridout@mendeley.com
 
+' Note: The UUIDs in these tests refer to documents in the tests/testDatabase@test.com@local.sqlite
+' Mendeley Desktop database. See the README.txt for instructions to run the tests.
+
 Option Explicit
 
 Function testsPath() As String
@@ -140,10 +143,8 @@ Sub testRefreshDocument()
         Dim doc
         doc = StarDesktop.LoadComponentFromUrl(url, "_blank", 0, Array())
         
-        ' Export expected txt file
         Dim expectedString
         expectedString = documentText()
-        'Call exportExpected("refreshDocument/" & outputDocumentName)
         
         ' refresh and export actual xml
         If Not refreshDocument(False) Then
@@ -159,6 +160,7 @@ Sub testRefreshDocument()
     Loop
 End Sub
 
+' TODO: port this function from WinWord VBA to OpenOffice basic
 Sub testExportOpenOfficeSimple()
     Dim testsPath As String
     Dim documentName As String
@@ -201,6 +203,7 @@ Sub testExportOpenOfficeSimple()
     Call Kill(outputPath & "exportOO-exported.doc")
 End Sub
 
+' TODO: port this function from WinWord VBA to OpenOffice basic
 Sub testExportWithoutFieldsSimple()
     Dim testsPath As String
     Dim documentName As String
@@ -307,6 +310,7 @@ Sub testInsertCitation()
     Call thisComponent.close(false)
 End Sub
 
+' TODO: port this function from WinWord VBA to OpenOffice basic
 Sub testChangeCitationStyle()
     Call newDocument()
     
@@ -400,6 +404,7 @@ Sub testMergeCitations()
     Call thisComponent.close(false)
 End Sub
 
+' TODO: port this function from WinWord VBA to OpenOffice basic
 Sub testInsertBibliography()
     Dim testsPath As String
     Dim outputPath As String
