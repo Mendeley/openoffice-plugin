@@ -69,16 +69,19 @@
 # output:
 #   Mendeley-$PLUGIN_VERSION.oxt  # Plugin for OpenOffice (Windows, Mac, Linux)
 
+use strict;
 use File::Copy;
 use File::Path;
 use Config;
 
 mkdir "temp";
 
-$SEVENZIP_LOCATION="7za.exe";
+my $SEVENZIP_LOCATION="7za.exe";
 
-$PLUGIN_VERSION = $ARGV[0];
-$DEBUG_MODE = $ARGV[1];
+my $PLUGIN_VERSION = $ARGV[0];
+my $DEBUG_MODE = $ARGV[1];
+
+my $COPY_FAILED_MESSAGE = "copy failed: $!";
 
 print "OpenOffice Plugin Version: $PLUGIN_VERSION\n";
 
@@ -92,15 +95,15 @@ processSourceFile("external/zoteroLib.vb", "zoteroLib-OpenOffice.vb", "ZoteroLib
 # (which is actually a zip archive)
 mkdir "Mendeley";
 copy("temp/mendeleyMain-OpenOffice.vb", "Mendeley/mendeleyMain.xba")
-	or die "copy failed: $!";
+	or die $COPY_FAILED_MESSAGE;
 copy("temp/mendeleyLib-OpenOffice.vb", "Mendeley/mendeleyLib.xba")
-	or die "copy failed: $!";
+	or die $COPY_FAILED_MESSAGE;
 copy("temp/mendeleyDataTypes-OpenOffice.vb", "Mendeley/mendeleyDataTypes.xba")
-	or die "copy failed: $!";
+	or die $COPY_FAILED_MESSAGE;
 copy("temp/mendeleyUnitTests-OpenOffice.vb", "Mendeley/mendeleyUnitTests.xba")
-	or die "copy failed: $!";
+	or die $COPY_FAILED_MESSAGE;
 copy("temp/zoteroLib-OpenOffice.vb", "Mendeley/zoteroLib.xba")
-	or die "copy failed: $!";
+	or die $COPY_FAILED_MESSAGE;
 	
 # TODO: refactor the copy commands into a function or use the Perl ones
 # system ("svn export MendeleyEmptyExtension.oxt MendeleyEmptyExtensionTemp.oxt");
@@ -130,7 +133,7 @@ if (not chdir("MendeleyEmptyExtensionTemp.oxt/"))
 open(FP_DESCRIPTION_ORIG,"description.xml") || die ("Could not open description.xml");
 open(FP_DESCRIPTION_NEW, ">description.xml.new") ||die ("Could not open description.xml.new");
 
-while ($line = <FP_DESCRIPTION_ORIG>)
+while (my $line = <FP_DESCRIPTION_ORIG>)
 {
 	$line =~ s/%PLUGIN_VERSION%/$PLUGIN_VERSION/;
 	print FP_DESCRIPTION_NEW $line;
@@ -187,7 +190,7 @@ sub processSourceFile
 	print OPEN_OFFICE "<!DOCTYPE script:module PUBLIC \"-//OpenOffice.org//DTD OfficeDocument 1.0//EN\" \"module.dtd\">\n";
 	print OPEN_OFFICE "<script:module xmlns:script=\"http://openoffice.org/2000/script\" script:name=\"$moduleName\" script:language=\"StarBasic\">\n";
 	
-	$line = <SOURCE_FILE>;
+	my $line = <SOURCE_FILE>;
 
 	while($line)
 	{
