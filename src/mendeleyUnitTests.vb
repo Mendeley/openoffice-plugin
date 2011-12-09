@@ -345,7 +345,7 @@ Sub testEditCitation()
     Call textCursor.goRight(1, false)
     thisComponent.getCurrentController().select(textCursor)
     
-    ' Add new citation within first one (will act as an edit and replace the first one)
+    ' Add a new citation within the first one (acts as an edit and replaces the first one)
     Call privateInsertCitation("{ac45152c-4707-4d3c-928d-2cc59aa386fa}")
     Call compareStrings(documentText(), "(Chumbe, Macleod, Barker, Moffat, & Rist, n.d.)", "editCitation2")
     Call thisComponent.close(false)
