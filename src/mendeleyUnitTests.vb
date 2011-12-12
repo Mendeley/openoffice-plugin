@@ -53,11 +53,6 @@ Sub runUnitTests()
     Call testChangeCitationStyle
     Call testInsertBibliography
     Call testExportOpenOfficeSimple
-
-    ' TODO: port these tests from Word VBA to OpenOffice Basic
-    'Call testExportWithoutFieldsSimple
-    
-    'Call Application.Quit
 End Sub
 
 ' -- utility functions --
@@ -209,97 +204,6 @@ Sub testExportOpenOfficeSimple()
 
     Call compareStrings(documentText(), expectedString, "export-OO")
     Call thisComponent.close(false)
-End Sub
-
-Sub testExportWithoutFieldsSimple()
-    Dim testsPath As String
-    Dim documentName As String
-    Dim outputPath As String
-    
-    Call initTests(testsPath, outputPath)
-    
-    oDesktop = createUnoService("com.sun.star.frame.Desktop")
-    sUrl = "my_file.txt" 
-    mFileProperties(0).Name = "FilterName" 
-    mFileProperties(0).Value = "scalc: Text - txt - csv (StarCalc)" 
-    mFileProperties(1).Name = "FilterFlags" 
-    mFileProperties(1).Value = "FIX,,0,1,0/2/13/2/14/2/59/2/60/1" 
-    oDocument =oDesktop.loadComponentFromURL(sUrl,"_blank",0,mFileProperties()) 
-    
-    ' Add a citation and bibliogrphy
-    Call privateInsertCitation("{80fd12bc-8c23-498c-a845-f29cd215dbec}")
-    ActiveDocument.range.InsertAfter (" some more test" & vbCrLf & "New paragraph." & vbCrLf)
-    Call ActiveDocument.Select
-    Call Selection.Collapse(wdCollapseEnd)
-    Call insertBibliography
-    
-    ' Export as expected text file
-    Application.DisplayAlerts = wdAlertsNone
-    Call ActiveDocument.SaveAs(outputPath & "exportWithoutFields-expected.txt", wdFormatText)
-    Application.DisplayAlerts = wdAlertsAll
-    
-    Dim exportedFilename As String
-    exportedFilename = outputPath & "exportWithoutFields-exported.doc"
-    
-    ' output without mendeley fields
-    Call removeMendeleyFields(ActiveDocument())
-    Application.DisplayAlerts = wdAlertsNone
-    Call ActiveDocument.SaveAs(exportedFilename)
-    Application.DisplayAlerts = wdAlertsAll
-    Call ActiveDocument.Close
-    Application.Documents.Open (outputPath & "exportWithoutFields-exported.doc")
-    
-    Application.DisplayAlerts = wdAlertsNone
-    Call ActiveDocument.SaveAs(outputPath & "exportWithoutFields-actual.txt", wdFormatText)
-    Application.DisplayAlerts = wdAlertsAll
-    
-    Call ActiveDocument.Close
-    
-    ' clean up .doc so it's not read when doing the refreshDocuments test
-    Call Kill(outputPath & "exportWithoutFields-exported.doc")
-End Sub
-
-' this would be a better test since it's a real document with more complexity,
-' but currently there's a bug which needs fixing (#17064) so it's disabled
-Sub testExportOpenOfficeFromFile()
-    Dim testsPath As String
-    Dim documentName As String
-    Dim outputPath As String
-    
-    Call initTests(testsPath, outputPath)
-        
-    ' search for all .docx files
-    Dim filename
-    filename = Dir(testsPath & "*.docx")
-    
-    If filename = "" Then
-        MsgBox "Whoops, file not found"
-    End If
-    
-    Set eventClassModuleInstance.App = Nothing
-    Application.Documents.Open (testsPath & filename)
-    
-    ' refresh and export expected xml
-    If Not refreshDocument(False) Then
-        ActiveDocument.range.Text = "refreshDocument() failed"
-    End If
-    
-    ' Export as expected text file
-    Application.DisplayAlerts = wdAlertsNone
-    Call ActiveDocument.SaveAs(outputPath & "exportOO-expected.txt", wdFormatText)
-    Application.DisplayAlerts = wdAlertsAll
-    
-    Dim exportedFilename As String
-    exportedFilename = outputPath & "exportOO-exported.doc"
-    
-    ' output as oo compatible
-    Call privateExportCompatibleOpenOffice(exportedFilename)
-    Call ActiveDocument.Close
-    Application.Documents.Open (outputPath & "exportOO-exported.doc")
-    
-    Application.DisplayAlerts = wdAlertsNone
-    Call ActiveDocument.SaveAs(outputPath & "exportOO-actual.txt", wdFormatText)
-    Application.DisplayAlerts = wdAlertsAll
 End Sub
 
 Sub testInsertCitation()
