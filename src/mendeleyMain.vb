@@ -779,7 +779,7 @@ EndOfSub:
     uiDisabled = False
 End Sub
 
-Sub exportAsBookmarks()
+Sub exportCompatibleMSWord()
     dim oFileDialog
     dim sFilePickerArgs
 
@@ -803,8 +803,12 @@ Sub exportAsBookmarks()
     end if
 
     oFileDialog.Dispose()
+    
+    Call exportAsBookmarks(sFileUrl)
+End Sub
 
-    If sFileUrl <> "" Then
+Sub exportAsBookmarks(fileUrl)
+    If fileUrl <> "" Then
         Dim marks
         ZoteroUseBookmarks = True
         marks = fnGetMarks(ZoteroUseBookmarks)
@@ -812,7 +816,7 @@ Sub exportAsBookmarks()
         dim exportProperties(1) as new com.sun.star.beans.PropertyValue
         exportProperties(0).Name = "FilterName"
         exportProperties(0).Value = "MS Word 97"
-        ThisComponent.storeToUrl(sFileUrl, exportProperties())
+        ThisComponent.storeToUrl(fileUrl, exportProperties())
     End If
 End Sub
 

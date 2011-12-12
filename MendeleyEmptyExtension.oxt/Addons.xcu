@@ -111,7 +111,7 @@
 						<value>com.sun.star.text.TextDocument</value>
 					</prop>
 					<prop oor:name="URL" oor:type="xs:string">
-						<value>macro:///Mendeley.mendeleyMain.exportAsBookmarks</value>
+						<value>macro:///Mendeley.mendeleyMain.exportCompatibleMSWord</value>
 					</prop>
 					<prop oor:name="Title" oor:type="xs:string">
 						<value>Export MS Word Compatible</value>

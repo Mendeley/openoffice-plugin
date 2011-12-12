@@ -33,7 +33,7 @@ Function testsPath() As String
 End Function
 
 Function outputPath() As String
-    outputPath = testsPath() & "output/"
+    outputPath = testsPath() & "/output"
 End Function
 
 Function crLf() As String
@@ -43,16 +43,18 @@ End Function
 Sub runUnitTests()
     unitTest = True
     
+    Call MkDir(outputPath())
+    
     Call testInsertCitation
     Call testEditCitation
     Call testMergeCitations
     Call testApplyFormatting
     Call testRefreshDocument
-    
+    Call testChangeCitationStyle
+    Call testInsertBibliography
+    Call testExportOpenOfficeSimple
+
     ' TODO: port these tests from Word VBA to OpenOffice Basic
-    'Call testChangeCitationStyle
-    'Call testInsertBibliography
-    'Call testExportOpenOfficeSimple
     'Call testExportWithoutFieldsSimple
     
     'Call Application.Quit
@@ -101,22 +103,34 @@ Function documentText() As String
 End Function
 
 Function normaliseString(inputString As String) As String
+	Dim result
     ' Strip out all instances of Chr(8288)
     ' these are zero width non-breaking spaces
     ' if it turns out they are important we can remove this and add them to the expected strings
-    normaliseString = Replace(inputString, Chr(8288), "")
-    Exit Function
+    result = Replace(inputString, Chr(8288), "")
+
+	' normalise line endings to LF
+    result = Replace(result, crLf(), Chr(10))
+    result = Replace(result, Chr(13), Chr(10))
+        
+    normaliseString = result
 End Function
 
 Function compareStrings(actual As String, expected As String, location As String) As Boolean
     compareStrings = True
     
-    If normaliseString(actual) <> normaliseString(expected) Then
+    Dim normalisedActual As String
+    Dim normalisedExpected As String
+    
+    normalisedActual = normaliseString(actual)
+    normalisedExpected = normaliseString(expected)
+    
+    If normalisedActual <> normalisedExpected Then
         MsgBox "Test failed at " & location & Chr(13) &_
-                "Len(actual):   " & Len(actual) & Chr(13) &_
-                "Len(expected):   " & Len(expected) & Chr(13) &_
-               "Actual:   " & actual & Chr(13) &_
-               "Expected: " & expected
+                "Len(actual):   " & Len(normalisedActual) & Chr(13) &_
+                "Len(expected):   " & Len(normalisedExpected) & Chr(13) &_
+               "Actual:   " & normalisedActual & Chr(13) &_
+               "Expected: " & normalisedExpected
                
         compareStrings = False
         Exit Function
@@ -143,8 +157,10 @@ Sub testRefreshDocument()
         Dim doc
         doc = StarDesktop.LoadComponentFromUrl(url, "_blank", 0, Array())
         
+        ' Export expected txt file
         Dim expectedString
         expectedString = documentText()
+        'Call exportExpected("refreshDocument/" & outputDocumentName)
         
         ' refresh and export actual xml
         If Not refreshDocument(False) Then
@@ -160,50 +176,41 @@ Sub testRefreshDocument()
     Loop
 End Sub
 
-' TODO: port this function from WinWord VBA to OpenOffice basic
 Sub testExportOpenOfficeSimple()
-    Dim testsPath As String
     Dim documentName As String
-    Dim outputPath As String
-    
-    Call initTests(testsPath, outputPath)
 
     Call newDocument()
     
     ' Add a citation and bibliogrphy
     Call privateInsertCitation("{80fd12bc-8c23-498c-a845-f29cd215dbec}")
-    ActiveDocument.range.InsertAfter (" some more test" & vbCrLf & "New paragraph." & vbCrLf)
+    appendText (" some more test" & Chr(13) & "New paragraph." & Chr(13))
     
-    Call ActiveDocument.Select
-    Call Selection.Collapse(wdCollapseEnd)
+'    Call ActiveDocument.Select
+'    Call Selection.Collapse(wdCollapseEnd)
     Call insertBibliography
     
     ' Export as expected text file
-    Application.DisplayAlerts = wdAlertsNone
-    Call ActiveDocument.SaveAs(outputPath & "exportOO-expected.txt", wdFormatText)
-    Application.DisplayAlerts = wdAlertsAll
-    
-    Dim exportedFilename As String
-    exportedFilename = outputPath & "exportOO-exported.doc"
+	Dim expectedString As String
+	expectedString = documentText()
+	    
+    Dim exportedFileUrl
+    exportedFileUrl = ConvertToUrl(outputPath() & "/exportOO-exported.doc")
     
     ' output as oo compatible
-    Application.DisplayAlerts = wdAlertsNone
-    Call privateExportCompatibleOpenOffice(exportedFilename)
-    Application.DisplayAlerts = wdAlertsAll
-    Call ActiveDocument.Close
-    Application.Documents.Open (outputPath & "exportOO-exported.doc")
+    Call exportAsBookmarks(exportedFileUrl)
+    Call thisComponent.close(false)
     
-    Application.DisplayAlerts = wdAlertsNone
-    Call ActiveDocument.SaveAs(outputPath & "exportOO-actual.txt", wdFormatText)
-    Application.DisplayAlerts = wdAlertsAll
-    
-    Call ActiveDocument.Close
-    
-    ' clean up .doc so it's not read when doing the refreshDocuments test
-    Call Kill(outputPath & "exportOO-exported.doc")
+    Dim noArgs() 'An empty array for the arguments
+    StarDesktop.LoadComponentFromUrl(exportedFileUrl, "_blank", 0, Array())
+
+	' TODO: The exported file has an extra newline at the end.
+	'       Fix issue, then remove the following line:
+	expectedString = expectedString & Chr(10)
+
+    Call compareStrings(documentText(), expectedString, "export-OO")
+    Call thisComponent.close(false)
 End Sub
 
-' TODO: port this function from WinWord VBA to OpenOffice basic
 Sub testExportWithoutFieldsSimple()
     Dim testsPath As String
     Dim documentName As String
@@ -310,7 +317,6 @@ Sub testInsertCitation()
     Call thisComponent.close(false)
 End Sub
 
-' TODO: port this function from WinWord VBA to OpenOffice basic
 Sub testChangeCitationStyle()
     Call newDocument()
     
@@ -321,12 +327,12 @@ Sub testChangeCitationStyle()
     
     Call setCitationStyle("http://www.zotero.org/styles/apa")
     Call refreshDocument(False)
-    Call compareStrings(documentText(), "expected", "changeCitation-APA")
+    Call compareStrings(documentText(), "(The Mendeley Support Team, 2011) (Chumbe, Macleod, Barker, Moffat, & Rist, n.d.)", "changeCitation-APA")
     
     Call setCitationStyle("http://www.zotero.org/styles/ieee")
     Call refreshDocument(False)
     
-    Call compareStrings(documentText(), "expected", "changeCitation-IEEE")
+    Call compareStrings(documentText(), "[1] [2]", "changeCitation-IEEE")
     
     Call thisComponent.close(false)
 End Sub
@@ -345,7 +351,7 @@ Sub testEditCitation()
     Call textCursor.goRight(1, false)
     thisComponent.getCurrentController().select(textCursor)
     
-    ' Add a new citation within the first one (acts as an edit and replaces the first one)
+    ' Add new citation within first one (will act as an edit and replace the first one)
     Call privateInsertCitation("{ac45152c-4707-4d3c-928d-2cc59aa386fa}")
     Call compareStrings(documentText(), "(Chumbe, Macleod, Barker, Moffat, & Rist, n.d.)", "editCitation2")
     Call thisComponent.close(false)
@@ -404,26 +410,20 @@ Sub testMergeCitations()
     Call thisComponent.close(false)
 End Sub
 
-' TODO: port this function from WinWord VBA to OpenOffice basic
 Sub testInsertBibliography()
-    Dim testsPath As String
-    Dim outputPath As String
-    Call initTests(testsPath, outputPath)
-    
-    ' uninitialize
-    Set eventClassModuleInstance.App = Nothing
-
     Call newDocument()
     
     ' Add a citation at start
     Call privateInsertCitation("{80fd12bc-8c23-498c-a845-f29cd215dbec}")
-    ActiveDocument.range.InsertAfter (" some more test" & vbCrLf & "New paragraph." & vbCrLf)
-    Call ActiveDocument.Select
-    Call Selection.Collapse(wdCollapseEnd)
+    appendText (" some more test" & Chr(13) & "New paragraph." & Chr(13))
+	' removed: select end
     Call insertBibliography
     
-    Call ActiveDocument.SaveAs(outputPath & "insertBibliography.txt", wdFormatText)
-    Call ActiveDocument.Close
+    Call compareStrings(documentText(), "(The Mendeley Support Team, 2011) some more test" + crLf() +_
+		"New paragraph." + crLf() +_
+		"The Mendeley Support Team. (2011). Getting Started with Mendeley. Mendeley Desktop. London: Mendeley Ltd. Retrieved from http://www.mendeley.com" + crLf() + _
+		"", "insertBibliography")
+    Call thisComponent.close(false)
 End Sub
 
 Sub testApplyFormatting()
