@@ -659,12 +659,15 @@ Sub subDeleteMark(oMark, Optional bDontDeleteNote As Boolean)
     End If
 End Sub
 
-
 Function isMendeleyCitationField(code As String) As Boolean
     isMendeleyCitationField = (startsWith(code, MENDELEY_CITATION) And Len(code) > Len(MENDELEY_CITATION)) _
         Or (startsWith(code, MENDELEY_EDITED_CITATION) And Len(code) > Len(MENDELEY_EDITED_CITATION)) _
         Or (startsWith(code, MENDELEY_CITATION_MAC) And Len(code) > Len(MENDELEY_CITATION_MAC)) _
         Or InStr(code, CSL_CITATION) > 0
+End Function
+
+Function isStandardCslCitationField(code As String) As Boolean
+    isStandardCslCitationField = InStr(code, CSL_CITATION) > 0
 End Function
 
 Function isMendeleyBibliographyField(code As String) As Boolean

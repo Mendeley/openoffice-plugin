@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 # BEGIN LICENSE ECL 1.0
 # This Educational Community License (the "License") applies
 # to any original work of authorship (the "Original Work") whose owner
@@ -85,6 +87,7 @@ my $COPY_FAILED_MESSAGE = "copy failed: $!";
 
 print "OpenOffice Plugin Version: $PLUGIN_VERSION\n";
 
+# OO.org basic source files
 processSourceFile("src/mendeleyMain.vb", "mendeleyMain-OpenOffice.vb", "Mendeley");
 processSourceFile("src/mendeleyLib.vb", "mendeleyLib-OpenOffice.vb", "MendeleyLib");
 processSourceFile("src/mendeleyDataTypes.vb", "mendeleyDataTypes-OpenOffice.vb", "MendeleyDataTypes");
@@ -115,6 +118,22 @@ else
 {
 	system ("cp -r MendeleyEmptyExtension.oxt MendeleyEmptyExtensionTemp.oxt");
 }
+
+# python source files
+open(PYTHON_DESTINATION, ">MendeleyEmptyExtensionTemp.oxt/Scripts/MendeleyDesktopAPI.py");
+open(PYTHON_HTTP_CLIENT, "<src/MendeleyHttpClient.py");
+open(PYTHON_DESKTOP_API, "<src/MendeleyDesktopApi.py");
+while(<PYTHON_HTTP_CLIENT>)
+{
+	print PYTHON_DESTINATION $_;
+}
+while(<PYTHON_DESKTOP_API>)
+{
+	print PYTHON_DESTINATION $_;
+}
+close(PYTHON_DESTINATION);
+close(PYTHON_HTTP_CLIENT);
+close(PYTHON_DESKTOP_API);
 
 if (not chdir("MendeleyEmptyExtensionTemp.oxt/"))
 {

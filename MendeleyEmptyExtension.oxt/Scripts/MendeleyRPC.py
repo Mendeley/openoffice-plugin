@@ -41,7 +41,7 @@ class MendeleyRPC(unohelper.Base, XJob):
         q = args[0].Value
         q=q.encode('utf-8')
         headers = {"Content-Type": "utf8/xml"}
-        h1=httplib.HTTPConnection("127.0.0.1:50002")
+        h1=httplib.HTTPConnection("localhost:5002")
         h1.request("POST","",q,headers)
         response=h1.getresponse()
         data=response.read()

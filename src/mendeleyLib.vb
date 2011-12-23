@@ -219,10 +219,10 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     Call sendWordProcessorVersion
     
     ' update combo box
-        ' Tell Mendeley Desktop what citation style to use
-        Dim newStyle As String
-        newStyle = getCitationStyleId()
-        Call extGetStringResult(extSetCitationStyle(newStyle))
+    ' Tell Mendeley Desktop what citation style to use
+    Dim newStyle As String
+    newStyle = getCitationStyleId()
+    Call apiSetCitationStyle(newStyle)
     
     ' Subscribe to events (e.g. WindowSelectionChange) doing on refreshDocument as it
     ' doesn't work in initialise() when addExternalFunctions() is also called
@@ -231,7 +231,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     
     Dim bibliography As String
 
-    Call extGetStringResult(extResetCitations)
+    Call apiResetCitations
     
     Dim marks
     marks = fnGetMarks(ZoteroUseBookmarks)
@@ -259,8 +259,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
         
         If isMendeleyCitationField(markName) Then
             citationNumber = citationNumber + 1
-            
-            Call extGetStringResult(extAddCitation(addUnicodeTags(markName)))
+            Call apiAddCitation(addUnicodeTags(markName))
             
             ' Just send an empty string if the displayed text is a temporary placeholder
             Dim displayedText As String
@@ -269,7 +268,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
             If displayedText = INSERT_CITATION_TEXT Or displayedText = MERGING_TEXT Then
                 displayedText = ""
             End If
-            Call extGetStringResult(extAddFormattedCitation(addUnicodeTags(displayedText)))
+            Call apiAddFormattedCitation(addUnicodeTags(displayedText))
             
         End If
     Next
@@ -280,7 +279,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     ' Now that we've compiled the list of uuids, give them to Mendeley Desktop
     ' and tell it to format the citations and bibliography
     Dim status As String
-    status = extGetStringResult(extFormatCitationsAndBibliography)
+    status = apiFormatCitationsAndBibliography
         
     If Left(status, Len("failed")) = "failed" Then
         Call extGetStringResult(extBringPluginToForeground)
@@ -301,17 +300,14 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
         markName = getMarkName(thisField)
 
         If (isMendeleyCitationField(markName)) Then
-            Dim stringLen As Long
-            stringLen = extGetFormattedCitation(citationNumber)
-            fieldText = extGetStringResult(stringLen)
+			fieldText = apiGetFormattedCitation(citationNumber)
 
-            Dim previousFormattedCitation As String
-            stringLen = extGetPreviouslyFormattedCitation(citationNumber)
-            previousFormattedCitation = formatUnicode(extGetStringResult(stringLen))
+			' no longer used
+            'Dim previousFormattedCitation As String
+            'previousFormattedCitation = formatUnicode(apiGetPreviouslyFormattedCitation(citationNumber))
             
             Dim jsonData As String
-            stringLen = extGetCitationJson(citationNumber)
-            jsonData = extGetStringResult(stringLen)
+            jsonData = apiGetCitationJson(citationNumber)
 
             If currentDocumentPath <> activeDocumentPath() Then
                 Exit Function
@@ -374,7 +370,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     
     If Not unitTest Then
         Dim newCitationStyle As String
-        newCitationStyle = extGetStringResult(extGetCitationStyleId())
+        newCitationStyle = extGetStringResult(apiGetCitationStyleId())
         
         If (newCitationStyle <> oldCitationStyle) Then
             ' set new citation style
@@ -438,7 +434,7 @@ End Function
 
 Sub setCitationStyle(style As String)
     Call subSetProperty(MENDELEY_CITATION_STYLE, style)
-    Call extGetStringResult(extSetCitationStyle(style))
+    Call apiSetCitationStyle(style)
 End Sub
 
 Function getCitationStyleId() As String

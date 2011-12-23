@@ -133,10 +133,74 @@ Global seedGenerated As Boolean
 
 Global unitTest As Boolean
 
+Dim mendeleyApi
 
 Global Const JSON_CSL_CITATION = "CSL_CITATION "
 Global Const JSON_PREVIOUS = "MendeleyPrevious"
 Global Const JSON_URL = "MendeleyUrl"
+
+Function testFunc()
+
+	'mendeleyApiCall("setNumberTest", "5 4 3 2 1")
+	'MsgBox mendeleyApiCall("getNumberTest", "")
+	'Exit Function
+	apiResetCitations()
+	apiSetCitationStyle("http://www.zotero.org/styles/apa")
+	apiAddCitation("Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
+	apiAddFormattedCitation("formattedCitation1")
+	
+	mendeleyApiCall("formatCitationsAndBibliography", "")
+	
+	MsgBox "citation 1: " + mendeleyApiCall("getCitationCluster", "0")
+	MsgBox "formatted citation 1: " + mendeleyApiCall("getFormattedCitation", "0")
+End Function
+
+Function mendeleyApiCall(functionName As String, argument As String) As String
+	If IsEmpty(mendeleyApi) Then
+		mendeleyApi = createUnoService("com.sun.star.task.MendeleyDesktopAPI")
+	End If
+	
+	Dim mArgs(0 to 1) As New com.sun.star.beans.NamedValue
+	mArgs(0).Name = "function name"
+	mArgs(0).Value = functionName
+	mArgs(1).Name = "argument"
+	mArgs(1).Value = argument
+	
+	Dim returnVal
+	returnVal = mendeleyApi.Execute(mArgs)
+	'MsgBox "from API: " + returnVal
+	mendeleyApiCall = returnVal
+End Function
+Function apiResetCitations() As String
+    apiResetCitations = mendeleyApiCall("resetCitations", "")
+End Function
+Function apiFormatCitationsAndBibliography() As String
+    apiFormatCitationsAndBibliography = mendeleyApiCall("formatCitationsAndBibliography", "")
+End Function
+Function apiAddCitation(ByVal fieldCode As String) As String
+    apiAddCitation = mendeleyApiCall("addCitationCluster", fieldCode)
+End Function
+Function apiAddFormattedCitation(ByVal displayedText As String) As String
+    apiAddFormattedCitation = mendeleyApiCall("addFormattedCitation", displayedText)
+End Function
+Function apiGetCitationJson(ByVal index As Long) As String
+    apiGetCitationJson = mendeleyApiCall("getCitationCluster", index)
+End Function
+Function apiGetFormattedCitation(ByVal index As Long) As String
+    apiGetFormattedCitation = mendeleyApiCall("getFormattedCitation", index)
+End Function
+Function apiGetFormattedBibliography() As String
+    apiGetFormattedBibliography = mendeleyApiCall("getFormattedBibliography", "")
+End Function
+'Function apiGetPreviouslyFormattedCitation(ByVal index As Long) As String
+'    apiGetPreviouslyFormattedCitation = mendeleyRpcCall("getPreviouslyFormattedCitation", index)
+'End Function
+Function apiGetCitationStyleId() As String
+    apiGetCitationStyleId = mendeleyApiCall("getCitationStyleId", "")
+End Function
+Function apiSetCitationStyle(ByVal styleId As String) As String
+    apiSetCitationStyle = mendeleyApiCall("setCitationStyle", styleId)
+End Function
 
 ' - HTTP requests instead of linking to the LinkToMendeleyVba2.dll for OpenOffice
 Function mendeleyRpcCall(functionName As String, argument As String, optional quitOnError As Boolean) As String
@@ -187,35 +251,8 @@ End Function
 Function extGetUserAccount() As Long
     extGetUserAccount = mendeleyRpcCall("getUserAccount", "")
 End Function
-Function extGetFormattedBibliography() As Long
-    extGetFormattedBibliography = mendeleyRpcCall("getFormattedBibliography", "")
-End Function
-Function extResetCitations() As Long
-    extResetCitations = mendeleyRpcCall("resetCitations", "")
-End Function
-Function extFormatCitationsAndBibliography() As Long
-    extFormatCitationsAndBibliography = mendeleyRpcCall("formatCitationsAndBibliography", "")
-End Function
 Function extGetCitationStyleFromDialogServerSide(ByVal styleId As String) As Long
     extGetCitationStyleFromDialogServerSide = mendeleyRpcCall("getCitationStyleFromDialogServerSide", styleId)
-End Function
-Function extAddCitation(ByVal uuids As String) As Long
-    extAddCitation = mendeleyRpcCall("addCitation", uuids)
-End Function
-Function extAddFormattedCitation(ByVal displayedText As String) As Long
-    extAddFormattedCitation = mendeleyRpcCall("addFormattedCitation", displayedText)
-End Function
-Function extGetFormattedCitation(ByVal index As Long) As Long
-    extGetFormattedCitation = mendeleyRpcCall("getFormattedCitation", index)
-End Function
-Function extGetPreviouslyFormattedCitation(ByVal index As Long) As Long
-    extGetPreviouslyFormattedCitation = mendeleyRpcCall("getPreviouslyFormattedCitation", index)
-End Function
-Function extGetCitationJson(ByVal index As Long) As Long
-    extGetCitationJson = mendeleyRpcCall("getCitationJson", index)
-End Function
-Function extSetCitationStyle(ByVal style As String) As Long
-    extSetCitationStyle = mendeleyRpcCall("setCitationStyle", style)
 End Function
 Function extBringPluginToForeground() As Long
     extBringPluginToForeground = mendeleyRpcCall("bringPluginToForeground", "")
@@ -246,9 +283,6 @@ Function extUndoManualFormat(ByVal fieldCode) As Long
 End Function
 Function extSetWordProcessor(ByVal wordProcessor) As Long
     extSetWordProcessor = mendeleyRpcCall("setWordProcessor", wordProcessor)
-End Function
-Function extGetCitationStyleId() As Long
-    extGetCitationStyleId = mendeleyRpcCall("getCitationStyleId", "")
 End Function
 Function extTestGetFieldCode(ByVal fieldCode) As Long
     extTestGetFieldCode = mendeleyRpcCall("testGetFieldCode", fieldCode)
