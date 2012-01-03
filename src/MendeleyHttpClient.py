@@ -82,11 +82,6 @@ class MendeleyHttpClient():
         # TODO: check if it's correct that the server escapes quotation marks:
         data = data.replace('\\"', '"')
 
-        # remove quotation mark from start and end of string
-        # TODO: why are these present?
-        #if data[0] == '"' and data[len(data) - 1] == '"':
-        #    data = data[1:len(data) - 1]
-        
         print "data: " + data
 
         print "response Content-Type = " + response.getheader("Content-Type")
