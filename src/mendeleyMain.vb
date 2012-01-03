@@ -222,9 +222,6 @@ ErrorHandler:
         End
     End If
 End Function
-Function extGetCitationUuidsFromDialog (ByVal buttonText As String) As Long
-    extGetCitationUuidsFromDialog = mendeleyRpcCall("getCitationUuidsFromDialog", buttonText)
-End Function
 Function privateExtGetStringResult (ByRef result As String) As Long
     result = mendeleyRpcCall("getStringResult", result)
 End Function
@@ -236,12 +233,6 @@ Function extCheckConnectionAndSetupIfNeeded() As Long
     Else
         extCheckConnectionAndSetupIfNeeded = rpcResult
     End If
-End Function
-Function extGetCitationStyleNames() As Long
-    extGetCitationStyleNames = mendeleyRpcCall("getCitationStyleNames", "")
-End Function
-Function extGetCitationStyle() As Long
-    extGetCitationStyle = mendeleyRpcCall("getCitationStyle", "")
 End Function
 Function extLaunchMendeley() As Long
     ' Don't know how to launch mendeley without linking to dll so present info to user instead
