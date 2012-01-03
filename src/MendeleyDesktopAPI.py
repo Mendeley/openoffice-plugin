@@ -2,6 +2,10 @@
 
 # Mendeley Desktop API
 
+# To run tests, open MendeleyDesktop and run this script
+# (it knows that it's in test mode because "import unohelper"
+#  will fail when run outside of the OpenOffice.org environment)
+
 import re
 
 try:

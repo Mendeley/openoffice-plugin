@@ -3,6 +3,7 @@
 import httplib
 
 # to run test from command prompt:
+# open Mendeley Desktop with testDatabase@test.com@local.sqlite
 # python -c "from MendeleyHttpClient import test; test()"
 
 # simplejson is json 
