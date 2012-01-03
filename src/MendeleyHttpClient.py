@@ -2,6 +2,11 @@
 
 import httplib
 
+# Mendeley HTTP Client
+
+# A client for communicating with the HTTP/JSON Mendeley Desktop Word
+# processor API
+
 # to run test from command prompt:
 # open Mendeley Desktop with testDatabase@test.com@local.sqlite
 # python -c "from MendeleyHttpClient import test; test()"
@@ -116,4 +121,3 @@ def test():
     for cluster in response.citationClusters:
         print "cluster: " + str(cluster["citationCluster"])
         print "formatted Citation: " + str(cluster["formattedText"])
-

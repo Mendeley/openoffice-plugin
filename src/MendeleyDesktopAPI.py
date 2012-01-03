@@ -2,6 +2,11 @@
 
 # Mendeley Desktop API
 
+# This provides a wrapper for OpenOffice basic to use the
+# HTTP/JSON Mendeley Desktop Word Processor API.
+# It is responsible for building the python dictionaries which represent
+# the JSON requests and providing accessor functions for the server responses.
+
 # To run tests, open MendeleyDesktop and run this script
 # (it knows that it's in test mode because "import unohelper"
 #  will fail when run outside of the OpenOffice.org environment)
@@ -136,4 +141,3 @@ else:
     print "Returned citation JSON: " + api.getCitationCluster(1)
     print "Returned formatted citation: " + api.getFormattedCitation(1)
     
-
