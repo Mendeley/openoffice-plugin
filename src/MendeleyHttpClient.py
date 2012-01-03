@@ -89,10 +89,10 @@ class MendeleyHttpClient():
         
         print "data: " + data
 
-        # TODO: check if data content-type == request accept type
         print "response Content-Type = " + response.getheader("Content-Type")
         if response.getheader("Content-Type") != responseData.contentType():
-            print "FATAL ERROR: server returned wrong content-type"
+			# TODO: abort if the wrong content type is returned
+            print "WARNING: server returned wrong content-type"
             #return
         
         responseData.__dict__.update(json.loads(data))
