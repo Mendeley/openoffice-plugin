@@ -90,15 +90,21 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         return json.dumps(self._formattedCitationsResponse.__dict__)
 
     def getCitationCluster(self, index):
-        return json.dumps(self._formattedCitationsResponse.citationClusters[int(index)]["citationCluster"])
+        return "ADDIN CSL_CITATION " + json.dumps(self._formattedCitationsResponse.citationClusters[int(index)]["citationCluster"])
 #        return "citation cluster"
 
     def getFormattedCitation(self, index):
-        return str(self._formattedCitationsResponse.citationClusters[int(index)]["formattedText"])
+        return self._formattedCitationsResponse.citationClusters[int(index)]["formattedText"]
 #        return json.dumps(self._formattedCitationsResponse.__dict__)
 
-    def getFormattedBibliography(self):
-        return self.formattedBibliography.join("<br/>")
+    def getFormattedBibliography(self, unused):
+        # a single string is interpreted as a file name
+        if (type(self._formattedCitationsResponse.bibliography) == type(u"unicode string")
+                or type(self._formattedCitationsResponse.bibliography) == type("string")):
+            return self._formattedCitationsResponse.bibliography;
+        else:
+            return "<br/>".join(self._formattedCitationsResponse.bibliography)
+		
 
     # for testing
     def setNumberTest(self, number):
@@ -114,7 +120,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         functionArg  = str(args[1].Value)
         if hasattr(self, functionName):
             statement = 'self.' + functionName + '("' + functionArg.encode('string_escape').replace('"', '\\"') + '")'
-            return str(eval(statement))
+            return eval(statement)
         else:
             raise Exception("ERROR: Function " + functionName + " doesn't exist")
 
@@ -140,4 +146,6 @@ else:
     print ""
     print "Returned citation JSON: " + api.getCitationCluster(1)
     print "Returned formatted citation: " + api.getFormattedCitation(1)
+    print ""
+    print "Returned bibligraphy: " + api.getFormattedBibliography("")
     

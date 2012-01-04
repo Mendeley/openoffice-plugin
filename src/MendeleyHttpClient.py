@@ -18,7 +18,7 @@ except ImportError: import json
 # For communicating with the Mendeley Desktop HTTP API
 class MendeleyHttpClient():
     HOST = "127.0.0.1" # much faster than "localhost"
-    PORT = "5001"
+    PORT = "5000"
     API_VERSION = "1.0"
 
     def __init__(self):
@@ -78,12 +78,6 @@ class MendeleyHttpClient():
         data = response.read()
         data = data.decode('utf-8')
 
-        # unescape quotation marks
-        # TODO: check if it's correct that the server escapes quotation marks:
-        data = data.replace('\\"', '"')
-
-        print "data: " + data
-
         print "response Content-Type = " + response.getheader("Content-Type")
         if response.getheader("Content-Type") != responseData.contentType():
 			# TODO: abort if the wrong content type is returned
@@ -113,6 +107,18 @@ def test():
             )
     print "response: " + json.dumps(response.__dict__)
 
+    response = client.formattedCitationsAndBibliography_Interactive(
+			"http://www.zotero.org/styles/apa", 
+			[
+				{
+					"formattedText": "",
+					"citationCluster": json.loads("{\"citationItems\": [{\"uris\": [\"http://local/documents/?uuid=ac45152c-4707-4d3c-928d-2cc59aa386fa\"], \"id\": \"ITEM-1\", \"itemData\": {\"title\": \"Overcoming the obstacles of harvesting and searching digital repositories from federated searching toolkits , and embedding them in VLEs Heriot-Watt University Library\", \"author\": [{\"given\": \"Santiago\", \"family\": \"Chumbe\"}, {\"given\": \"Roddy\", \"family\": \"Macleod\"}, {\"given\": \"Phil\", \"family\": \"Barker\"}, {\"given\": \"Malcolm\", \"family\": \"Moffat\"}, {\"given\": \"Roger\", \"family\":\"Rist\"}], \"note\": \"<m:note/>\", \"container-title\": \"Language\", \"type\": \"article-journal\", \"id\": \"ITEM-1\"}}], \"properties\": {\"noteIndex\": 0}, \"schema\": \"https://github.com/citation-style-language/schema/raw/master/csl-citation.json\"}")
+				}
+			]
+			)
+    print " "
+    print "response 2: " + json.dumps(response.__dict__) + "\n"
+
     for cluster in response.citationClusters:
-        print "cluster: " + str(cluster["citationCluster"])
-        print "formatted Citation: " + str(cluster["formattedText"])
+        print "cluster: " + json.dumps(cluster["citationCluster"])
+        print "formatted Citation: " + json.dumps(cluster["formattedText"])

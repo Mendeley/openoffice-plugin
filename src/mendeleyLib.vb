@@ -333,7 +333,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
             End If
         
             If bibliography = "" Then
-                bibliography = bibliography + extGetStringResult(extGetFormattedBibliography())
+                bibliography = bibliography + apiGetFormattedBibliography()
             End If
                 oRange = fnMarkRange(thisField)
                 oRange.setPropertyValue("ParaFirstLineIndent",0)
