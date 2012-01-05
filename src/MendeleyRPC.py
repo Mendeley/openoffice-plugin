@@ -24,12 +24,30 @@
 #
 # author: steve.ridout@mendeley.com
 
-import unohelper
 import httplib
 
-from com.sun.star.task import XJob
+try:
+    import unohelper
+    from com.sun.star.task import XJob
+   
+    g_ImplementationHelper = unohelper.ImplementationHelper()
+    openOfficeMode = True
+except:
+    openOfficeMode = False
+    print "-- test mode --"
+    from MendeleyHttpClient import *
 
-g_ImplementationHelper = unohelper.ImplementationHelper()
+    class unohelper():
+        def __init__(self, ctx):
+            pass
+
+        class Base():
+            def __init__(self, ctx):
+                pass
+
+    class XJob():
+        def __init__(self, ctx):
+            pass
 
 class MendeleyRPC(unohelper.Base, XJob):
     #The component must have a ctor with the component context as argument
@@ -41,12 +59,14 @@ class MendeleyRPC(unohelper.Base, XJob):
         q = args[0].Value
         q=q.encode('utf-8')
         headers = {"Content-Type": "utf8/xml"}
-        h1=httplib.HTTPConnection("localhost:50002")
+        h1=httplib.HTTPConnection("127.0.0.1:50002")
         h1.request("POST","",q,headers)
         response=h1.getresponse()
         data=response.read()
         data=data.decode('utf-8')
-        #h1.close()
+        h1.close()
         return data
 
-g_ImplementationHelper.addImplementation(MendeleyRPC, "org.openoffice.pyuno.MendeleyRPC", ("com.sun.star.task.MendeleyRPC",),)
+if openOfficeMode:
+    g_ImplementationHelper.addImplementation(
+        MendeleyRPC, "org.openoffice.pyuno.MendeleyRPC", ("com.sun.star.task.MendeleyRPC",),)

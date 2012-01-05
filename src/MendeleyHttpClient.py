@@ -21,16 +21,20 @@ class MendeleyHttpClient():
     HOST = "127.0.0.1" # much faster than "localhost"
     PORT = "5000"
     API_VERSION = "1.0"
+    lastRequestTime = -1
 
     def __init__(self):
         pass
 
     class Request(object):    
-        def __init__(self, verb, path, contentType, body):
+        def __init__(self, verb, path, contentType, acceptType, body):
             self._verb = verb
             self._path = path
             self._contentType = contentType
+            self._acceptType = acceptType
             self._body = body  # python dictionary
+            self._versionSuffix = ";version=" + MendeleyHttpClient.API_VERSION
+            self._rootPath = "mendeley/wordProcessorApi"
     
         def verb(self):
             return self._verb
@@ -38,48 +42,72 @@ class MendeleyHttpClient():
         def path(self):
             return self._path
     
+        def acceptType(self):
+            return self._acceptType + self._versionSuffix
+
         def contentType(self):
-            return self._contentType + ";version=" + MendeleyHttpClient.API_VERSION
-    
+            return self._contentType + self._versionSuffix
+
         def body(self):
             return json.dumps(self._body)
 
-    class Response(object):
-        def __init__(self, contentType):
-            self._contentType = contentType
-
-        def contentType(self):
-            return self._contentType + ";version=" + MendeleyHttpClient.API_VERSION
+    class GetRequest(Request):
+        def __init__(self, path, acceptType, body):
+            super(GetRequest, self).__init__(
+                "GET",
+                path,
+                "",
+                acceptType,
+                body)
+            
+    class PostRequest(Request):
+        def __init__(self, path, contentType, acceptType, body):
+            super(GetRequest, self).__init__(
+                "POST",
+                path,
+                contentType,
+                acceptType,
+                body)
 
     def formattedCitationsAndBibliography_Interactive(self, citationStyleUrl, citationClusters):
-        httpRequest = MendeleyHttpClient.Request(
+        request = self.Request(
             "POST",
             "/formattedCitationsAndBibliography/interactive",
-            "mendeley/wordProcessorDocument+json",
+            "mendeley/wordProcessorApi/documentToFormat+json",
+            "mendeley/wordProcessorApi/formattedDocument+json",
             {
                 "citationStyleUrl": citationStyleUrl,
                 "citationClusters": citationClusters
             }
             )
-
-        response = MendeleyHttpClient.Response(
-                "mendeley/formattedCitationsAndBibliography+json")
-
-        self.request(httpRequest, response)
-        return response
+        return self.request(request)
     
     def getUserAccount(self):
-        httpRequest = MendeleyHttpClient.Request(
+        request = MendeleyHttpClient.Request(
             "GET",
-            "/getUserAccount",
-            "","")
+            "/userAccount",
+            "",
+            "mendeley/getUserAccount+json",
+            "")
+        return self.request(request)
 
-        response = Response()
+    def citation_choose_interactive(self):
+        request = MendeleyHttpClient.Request(
+            "GET",
+            "/citation/choose/interactive",
+            "",
+            "mendeley/citationStyleUrl+json",
+            "")
+
+    # Need to define a class for this.
+    # I tried using a object() instance but it doesn't contain a __dict__
+    class Response:
+        pass
 
     # Sets up a connection to Mendeley Desktop, makes a HTTP request and
     # returns the data
-    def request(self, requestData, responseData):
-        headers = { "Content-Type" : requestData.contentType(), "Accept" : responseData.contentType() }
+    def request(self, requestData):
+        headers = { "Content-Type" : requestData.contentType(), "Accept" : requestData.acceptType() }
         startTime = time.time()
         connection = httplib.HTTPConnection(self.HOST + ":" + self.PORT)
         connection.request(requestData.verb(), requestData.path(), requestData.body(), headers)
@@ -87,53 +115,17 @@ class MendeleyHttpClient():
         data = response.read()
         data = data.decode('utf-8')
 
-        print "response Content-Type = " + response.getheader("Content-Type")
-        if response.getheader("Content-Type") != responseData.contentType():
+        if response.getheader("Content-Type") != requestData.contentType():
             # TODO: abort if the wrong content type is returned
-            print "WARNING: server returned wrong content-type"
+            #print "WARNING: server returned wrong content-type"
             #return
+            pass
+            with open("f:\MendeleyHttpClient.log", "a") as logFile:
+                logFile.write("WARNING: server returned wrong content-type\n")
         
-        responseData.__dict__.update(json.loads(data))
+        responseBody = MendeleyHttpClient.Response()
+        responseBody.__dict__.update(json.loads(data))
         connection.close()
-        endTime = time.time()
-        print ""
-        print "--- timing ---"
-        print "request: " + requestData.path() + " took " + str(1000 * (endTime - startTime)) + "ms"
-        return
+        self.lastRequestTime = 1000 * (time.time() - startTime)
+        return responseBody
 
-def test():
-    client = MendeleyHttpClient()
-
-    # this call should complete without requiring user interaction
-    response = client.formattedCitationsAndBibliography_Interactive(
-            "http://www.zotero.org/styles/apa",
-            [
-                {
-                    "citationCluster": json.loads("{ \"citationItems\" : [ { \"id\" : \"ITEM-1\", \"itemData\" : { \"author\" : [ { \"family\" : \"Smith\", \"given\" : \"John\" }, { \"family\" : \"Jr\", \"given\" : \"John Smith\" } ], \"id\" : \"ITEM-1\", \"issued\" : { \"date-parts\" : [ [ \"2001\" ] ] }, \"title\" : \"Title01\", \"type\" : \"article\" }, \"uris\" : [ \"http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74\" ] }, { \"id\" : \"ITEM-2\", \"itemData\" : { \"author\" : [ { \"family\" : \"Evans\", \"given\" : \"Gareth\" }, { \"family\" : \"Jr\", \"given\" : \"Gareth Evans\" } ], \"id\" : \"ITEM-2\", \"issued\" : { \"date-parts\" : [ [ \"2002\" ] ] }, \"title\" : \"Title02\", \"type\" : \"article\" }, \"uris\" : [ \"http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed\" ] } ], \"mendeley\" : { \"previouslyFormattedCitation\" : \"(Evans & Jr, 2002; Smith & Jr, 2001)\" }, \"properties\" : { \"noteIndex\" : 0 }, \"schema\" : \"https://github.com/citation-style-language/schema/raw/master/csl-citation.json\" }"),
-                    "formattedText": "(Evans & Jr, 2002; Smith & Jr, 2001)"
-                },
-                {
-                    "citationCluster": json.loads("{ \"citationItems\" : [ { \"id\" : \"ITEM-1\", \"itemData\" : { \"author\" : [ { \"family\" : \"Smith\", \"given\" : \"John\" }, { \"family\" : \"Jr\", \"given\" : \"John Smith\" } ], \"id\" : \"ITEM-1\", \"issued\" : { \"date-parts\" : [ [ \"2001\" ] ] }, \"title\" : \"Title01\", \"type\" : \"article\" }, \"uris\" : [ \"http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74\" ] }, { \"id\" : \"ITEM-2\", \"itemData\" : { \"author\" : [ { \"family\" : \"Evans\", \"given\" : \"Gareth\" }, { \"family\" : \"Jr\", \"given\" : \"Gareth Evans\" } ], \"id\" : \"ITEM-2\", \"issued\" : { \"date-parts\" : [ [ \"2002\" ] ] }, \"title\" : \"Title02\", \"type\" : \"article\" }, \"uris\" : [ \"http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed\" ] } ], \"mendeley\" : { \"previouslyFormattedCitation\" : \"(Evans & Jr, 2002; Smith & Jr, 2001)\" }, \"properties\" : { \"noteIndex\" : 0 }, \"schema\" : \"https://github.com/citation-style-language/schema/raw/master/csl-citation.json\" }"),
-                    "formattedText": "(Evans & Jr, 2002; Smith & Jr, 2001)"
-                }
-            ]
-            )
-    print "response: " + json.dumps(response.__dict__)
-
-    response = client.formattedCitationsAndBibliography_Interactive(
-            "http://www.zotero.org/styles/apa", 
-            [
-                {
-                    "formattedText": "",
-                    "citationCluster": json.loads("{\"citationItems\": [{\"uris\": [\"http://local/documents/?uuid=ac45152c-4707-4d3c-928d-2cc59aa386fa\"], \"id\": \"ITEM-1\", \"itemData\": {\"title\": \"Overcoming the obstacles of harvesting and searching digital repositories from federated searching toolkits , and embedding them in VLEs Heriot-Watt University Library\", \"author\": [{\"given\": \"Santiago\", \"family\": \"Chumbe\"}, {\"given\": \"Roddy\", \"family\": \"Macleod\"}, {\"given\": \"Phil\", \"family\": \"Barker\"}, {\"given\": \"Malcolm\", \"family\": \"Moffat\"}, {\"given\": \"Roger\", \"family\":\"Rist\"}], \"note\": \"<m:note/>\", \"container-title\": \"Language\", \"type\": \"article-journal\", \"id\": \"ITEM-1\"}}], \"properties\": {\"noteIndex\": 0}, \"schema\": \"https://github.com/citation-style-language/schema/raw/master/csl-citation.json\"}")
-                }
-            ]
-            )
-    print " "
-    print "response 2: " + json.dumps(response.__dict__) + "\n"
-
-
-
-    for cluster in response.citationClusters:
-        print "cluster: " + json.dumps(cluster["citationCluster"])
-        print "formatted Citation: " + json.dumps(cluster["formattedText"])

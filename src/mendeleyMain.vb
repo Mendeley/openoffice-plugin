@@ -27,7 +27,7 @@ Global previouslySelectedField
 Global previouslySelectedFieldResultText As String
 
 Global Const DEBUG_MODE = ${DEBUG_MODE}
-Private Const DEBUG_LOG_FILE = "file:///D:/tasks/OODebug/debugLog.txt"
+Private Const DEBUG_LOG_FILE = "file:///F:/oo-debugLog.txt"
 
 Global Const TEMPLATE_NAME_DURING_BUILD = "MendeleyPlugin"
 
@@ -159,6 +159,8 @@ Function mendeleyApiCall(functionName As String, argument As String) As String
 	If IsEmpty(mendeleyApi) Then
 		mendeleyApi = createUnoService("com.sun.star.task.MendeleyDesktopAPI")
 	End If
+	
+	debugLog("API call: " + functionName + "(""" + argument + """)")
 	
 	Dim mArgs(0 to 1) As New com.sun.star.beans.NamedValue
 	mArgs(0).Name = "function name"

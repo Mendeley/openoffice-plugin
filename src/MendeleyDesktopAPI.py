@@ -53,7 +53,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         self.ctx = ctx # component context
         self._client = MendeleyHttpClient()
         
-        self._formattedCitationsResponse = MendeleyHttpClient.FormattedCitationsAndBibliographyResponse()
+        self._formattedCitationsResponse = MendeleyHttpClient.Response()
 
         self.citationClusters = []
         self.citationStyleUrl = ""

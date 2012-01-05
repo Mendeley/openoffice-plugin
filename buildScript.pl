@@ -119,6 +119,9 @@ else
 	system ("cp -r MendeleyEmptyExtension.oxt MendeleyEmptyExtensionTemp.oxt");
 }
 
+# copy old python RPC module
+copy("src/MendeleyRPC.py", "MendeleyEmptyExtensionTemp.oxt/Scripts/MendeleyRPC.py") or die $COPY_FAILED_MESSAGE;
+
 # python source files
 open(PYTHON_DESTINATION, ">MendeleyEmptyExtensionTemp.oxt/Scripts/MendeleyDesktopAPI.py");
 open(PYTHON_HTTP_CLIENT, "<src/MendeleyHttpClient.py");
