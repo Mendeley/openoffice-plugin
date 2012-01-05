@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import httplib
+import time
 
 # Mendeley HTTP Client
 
@@ -43,12 +44,9 @@ class MendeleyHttpClient():
         def body(self):
             return json.dumps(self._body)
 
-    class FormattedCitationsAndBibliographyResponse:
-        def __init__(self):
-            self._contentType = "mendeley/formattedCitationsAndBibliography+json"
-            self.citationStyleUrl = ""
-            self.citationClusters = []
-            self.bibliography = ""
+    class Response(object):
+        def __init__(self, contentType):
+            self._contentType = contentType
 
         def contentType(self):
             return self._contentType + ";version=" + MendeleyHttpClient.API_VERSION
@@ -64,14 +62,25 @@ class MendeleyHttpClient():
             }
             )
 
-        response = MendeleyHttpClient.FormattedCitationsAndBibliographyResponse()
+        response = MendeleyHttpClient.Response(
+                "mendeley/formattedCitationsAndBibliography+json")
+
         self.request(httpRequest, response)
         return response
-        
+    
+    def getUserAccount(self):
+        httpRequest = MendeleyHttpClient.Request(
+            "GET",
+            "/getUserAccount",
+            "","")
+
+        response = Response()
+
     # Sets up a connection to Mendeley Desktop, makes a HTTP request and
     # returns the data
     def request(self, requestData, responseData):
         headers = { "Content-Type" : requestData.contentType(), "Accept" : responseData.contentType() }
+        startTime = time.time()
         connection = httplib.HTTPConnection(self.HOST + ":" + self.PORT)
         connection.request(requestData.verb(), requestData.path(), requestData.body(), headers)
         response = connection.getresponse()
@@ -80,12 +89,16 @@ class MendeleyHttpClient():
 
         print "response Content-Type = " + response.getheader("Content-Type")
         if response.getheader("Content-Type") != responseData.contentType():
-			# TODO: abort if the wrong content type is returned
+            # TODO: abort if the wrong content type is returned
             print "WARNING: server returned wrong content-type"
             #return
         
         responseData.__dict__.update(json.loads(data))
         connection.close()
+        endTime = time.time()
+        print ""
+        print "--- timing ---"
+        print "request: " + requestData.path() + " took " + str(1000 * (endTime - startTime)) + "ms"
         return
 
 def test():
@@ -108,16 +121,18 @@ def test():
     print "response: " + json.dumps(response.__dict__)
 
     response = client.formattedCitationsAndBibliography_Interactive(
-			"http://www.zotero.org/styles/apa", 
-			[
-				{
-					"formattedText": "",
-					"citationCluster": json.loads("{\"citationItems\": [{\"uris\": [\"http://local/documents/?uuid=ac45152c-4707-4d3c-928d-2cc59aa386fa\"], \"id\": \"ITEM-1\", \"itemData\": {\"title\": \"Overcoming the obstacles of harvesting and searching digital repositories from federated searching toolkits , and embedding them in VLEs Heriot-Watt University Library\", \"author\": [{\"given\": \"Santiago\", \"family\": \"Chumbe\"}, {\"given\": \"Roddy\", \"family\": \"Macleod\"}, {\"given\": \"Phil\", \"family\": \"Barker\"}, {\"given\": \"Malcolm\", \"family\": \"Moffat\"}, {\"given\": \"Roger\", \"family\":\"Rist\"}], \"note\": \"<m:note/>\", \"container-title\": \"Language\", \"type\": \"article-journal\", \"id\": \"ITEM-1\"}}], \"properties\": {\"noteIndex\": 0}, \"schema\": \"https://github.com/citation-style-language/schema/raw/master/csl-citation.json\"}")
-				}
-			]
-			)
+            "http://www.zotero.org/styles/apa", 
+            [
+                {
+                    "formattedText": "",
+                    "citationCluster": json.loads("{\"citationItems\": [{\"uris\": [\"http://local/documents/?uuid=ac45152c-4707-4d3c-928d-2cc59aa386fa\"], \"id\": \"ITEM-1\", \"itemData\": {\"title\": \"Overcoming the obstacles of harvesting and searching digital repositories from federated searching toolkits , and embedding them in VLEs Heriot-Watt University Library\", \"author\": [{\"given\": \"Santiago\", \"family\": \"Chumbe\"}, {\"given\": \"Roddy\", \"family\": \"Macleod\"}, {\"given\": \"Phil\", \"family\": \"Barker\"}, {\"given\": \"Malcolm\", \"family\": \"Moffat\"}, {\"given\": \"Roger\", \"family\":\"Rist\"}], \"note\": \"<m:note/>\", \"container-title\": \"Language\", \"type\": \"article-journal\", \"id\": \"ITEM-1\"}}], \"properties\": {\"noteIndex\": 0}, \"schema\": \"https://github.com/citation-style-language/schema/raw/master/csl-citation.json\"}")
+                }
+            ]
+            )
     print " "
     print "response 2: " + json.dumps(response.__dict__) + "\n"
+
+
 
     for cluster in response.citationClusters:
         print "cluster: " + json.dumps(cluster["citationCluster"])
