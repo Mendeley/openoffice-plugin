@@ -8,10 +8,6 @@ import time
 # A client for communicating with the HTTP/JSON Mendeley Desktop Word
 # processor API
 
-# to run test from command prompt:
-# open Mendeley Desktop with testDatabase@test.com@local.sqlite
-# python -c "from MendeleyHttpClient import test; test()"
-
 # simplejson is json 
 try: import simplejson as json
 except ImportError: import json
