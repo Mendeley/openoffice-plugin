@@ -76,4 +76,5 @@ quickNewApiCalls()
 makeOldApiCalls()
 quickNewApiCalls()
 makeOldApiCalls()
+slowNewApiCalls()
 

@@ -53,7 +53,7 @@ class MendeleyHttpClient():
 
     class GetRequest(Request):
         def __init__(self, path, acceptType, body):
-            super(GetRequest, self).__init__(
+            super(MendeleyHttpClient.GetRequest, self).__init__(
                 "GET",
                 path,
                 "",
@@ -62,7 +62,7 @@ class MendeleyHttpClient():
             
     class PostRequest(Request):
         def __init__(self, path, contentType, acceptType, body):
-            super(GetRequest, self).__init__(
+            super(MendeleyHttpClient.PostRequest, self).__init__(
                 "POST",
                 path,
                 contentType,
@@ -70,8 +70,7 @@ class MendeleyHttpClient():
                 body)
 
     def formattedCitationsAndBibliography_Interactive(self, citationStyleUrl, citationClusters):
-        request = self.Request(
-            "POST",
+        request = self.PostRequest(
             "/formattedCitationsAndBibliography/interactive",
             "mendeley/wordProcessorApi/documentToFormat+json",
             "mendeley/wordProcessorApi/formattedDocument+json",
@@ -83,19 +82,15 @@ class MendeleyHttpClient():
         return self.request(request)
     
     def getUserAccount(self):
-        request = MendeleyHttpClient.Request(
-            "GET",
+        request = self.GetRequest(
             "/userAccount",
-            "",
             "mendeley/getUserAccount+json",
             "")
         return self.request(request)
 
     def citation_choose_interactive(self):
-        request = MendeleyHttpClient.Request(
-            "GET",
+        request = MendeleyHttpClient.GetRequest(
             "/citation/choose/interactive",
-            "",
             "mendeley/citationStyleUrl+json",
             "")
 
