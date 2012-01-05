@@ -18,7 +18,8 @@ except ImportError: import json
 
 # For communicating with the Mendeley Desktop HTTP API
 class MendeleyHttpClient():
-    HOST = "127.0.0.1" # much faster than "localhost"
+    HOST = "127.0.0.1" # much faster than "localhost" on Windows
+                       # see http://cubicspot.blogspot.com/2010/07/fixing-slow-apache-on-localhost-under.html
     PORT = "5000"
     API_VERSION = "1.0"
     lastRequestTime = -1
