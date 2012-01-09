@@ -107,24 +107,27 @@ copy("temp/mendeleyUnitTests-OpenOffice.vb", "Mendeley/mendeleyUnitTests.xba")
 	or die $COPY_FAILED_MESSAGE;
 copy("temp/zoteroLib-OpenOffice.vb", "Mendeley/zoteroLib.xba")
 	or die $COPY_FAILED_MESSAGE;
+
+my $EXTENSION_TEMPLATE_DIR = "MendeleyEmptyExtension.oxt";
+my $EXTENSION_BUILD_DIR = "MendeleyEmptyExtensionTemp.oxt";
 	
 # TODO: refactor the copy commands into a function or use the Perl ones
-# system ("svn export MendeleyEmptyExtension.oxt MendeleyEmptyExtensionTemp.oxt");
+# system ("svn export $EXTENSION_TEMPLATE_DIR $EXTENSION_BUILD_DIR");
 if($Config{osname} eq "MSWin32")
 {
-	system ("xcopy /E /I /Y MendeleyEmptyExtension.oxt MendeleyEmptyExtensionTemp.oxt");
+	system ("xcopy /E /I /Y $EXTENSION_TEMPLATE_DIR $EXTENSION_BUILD_DIR");
 }
 else
 {
-	system ("cp -r MendeleyEmptyExtension.oxt MendeleyEmptyExtensionTemp.oxt");
+	system ("cp -r $EXTENSION_TEMPLATE_DIR $EXTENSION_BUILD_DIR");
 }
 
 # copy old python RPC module
-mkdir("MendeleyEmptyExtensionTemp.oxt/Scripts");
-copy("src/MendeleyRPC.py", "MendeleyEmptyExtensionTemp.oxt/Scripts/MendeleyRPC.py") or die $COPY_FAILED_MESSAGE;
+mkdir("$EXTENSION_BUILD_DIR/Scripts");
+copy("src/MendeleyRPC.py", "$EXTENSION_BUILD_DIR/Scripts/MendeleyRPC.py") or die $COPY_FAILED_MESSAGE;
 
 # python source files
-open(PYTHON_DESTINATION, ">MendeleyEmptyExtensionTemp.oxt/Scripts/MendeleyDesktopAPI.py");
+open(PYTHON_DESTINATION, ">$EXTENSION_BUILD_DIR/Scripts/MendeleyDesktopAPI.py");
 open(PYTHON_HTTP_CLIENT, "<src/MendeleyHttpClient.py");
 open(PYTHON_DESKTOP_API, "<src/MendeleyDesktopApi.py");
 while(<PYTHON_HTTP_CLIENT>)
@@ -139,18 +142,18 @@ close(PYTHON_DESTINATION);
 close(PYTHON_HTTP_CLIENT);
 close(PYTHON_DESKTOP_API);
 
-if (not chdir("MendeleyEmptyExtensionTemp.oxt/"))
+if (not chdir("$EXTENSION_BUILD_DIR/"))
 {
 	if($Config{osname} eq "MSWin32")
 	{
-		system ("xcopy /E /I /Y MendeleyEmptyExtension.oxt MendeleyEmptyExtensionTemp.oxt");
+		system ("xcopy /E /I /Y $EXTENSION_TEMPLATE_DIR $EXTENSION_BUILD_DIR");
 	}
 	else
 	{
-		system ("cp -r MendeleyEmptyExtension.oxt MendeleyEmptyExtensionTemp.oxt");
+		system ("cp -r $EXTENSION_TEMPLATE_DIR $EXTENSION_BUILD_DIR");
 	}
 	
-	chdir("MendeleyEmptyExtensionTemp.oxt/") or	die ("Couldn't svn export or copy MendeleyEmptyExtension.oxt");
+	chdir("$EXTENSION_BUILD_DIR/") or	die ("Couldn't svn export or copy $EXTENSION_TEMPLATE_DIR");
 }
 
 open(FP_DESCRIPTION_ORIG,"description.xml") || die ("Could not open description.xml");
@@ -185,7 +188,7 @@ else
   system("\"$SEVENZIP_LOCATION\" a -tzip MendeleyPlugin.oxt Mendeley\\");
 }
 rmtree("Mendeley") or die "rmtree failed: $!";
-rmtree("MendeleyEmptyExtensionTemp.oxt") or die "rmtree failed: $!";
+rmtree("$EXTENSION_BUILD_DIR") or die "rmtree failed: $!";
 move("MendeleyPlugin.oxt","Mendeley-$PLUGIN_VERSION.oxt") or die "move failed: $!";
 
 close(OPEN_OFFICE_MAIN);
