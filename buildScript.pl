@@ -120,6 +120,7 @@ else
 }
 
 # copy old python RPC module
+mkdir("MendeleyEmptyExtensionTemp.oxt/Scripts");
 copy("src/MendeleyRPC.py", "MendeleyEmptyExtensionTemp.oxt/Scripts/MendeleyRPC.py") or die $COPY_FAILED_MESSAGE;
 
 # python source files
