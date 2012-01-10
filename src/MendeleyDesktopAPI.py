@@ -34,16 +34,6 @@ except:
         def __init__(self, ctx):
             pass
 
-#import imp
-#import os
-#import sys
-
-#encoding = sys.getfilesystemencoding()
-#sourceDir = os.path.dirname(unicode(__file__, encoding))
-#sourceDir = os.path.dirname(unicode(sys.executable, encoding))
-#MendeleyHttpClient = imp.load_source('MendeleyHttpClient', 'f:/code/openoffice-plugin/MendeleyEmptyExtension.oxt/Scripts/MendeleyHttpClient.py')
-#MendeleyHttpClient = imp.load_source('MendeleyHttpClient', sourceDir + '/MendeleyHttpClient.py')
-
 if not testMode:
     g_ImplementationHelper = unohelper.ImplementationHelper()
 

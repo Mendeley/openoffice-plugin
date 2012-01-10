@@ -49,13 +49,13 @@ class MendeleyHttpClient():
             return json.dumps(self._body)
 
     class GetRequest(Request):
-        def __init__(self, path, acceptType, body):
+        def __init__(self, path, acceptType):
             super(MendeleyHttpClient.GetRequest, self).__init__(
                 "GET",
                 path,
                 "",
                 acceptType,
-                body)
+                "")
             
     class PostRequest(Request):
         def __init__(self, path, contentType, acceptType, body):
@@ -65,6 +65,15 @@ class MendeleyHttpClient():
                 contentType,
                 acceptType,
                 body)
+
+    class PutRequest(Request):
+        def __init__(self, path, contentType, body):
+            super(MendeleyHttpClient.PutRequest, self).__init__(
+                "PUT",
+                path,
+                contentType,
+                "",
+                "")
 
     def formattedCitationsAndBibliography_Interactive(self, citationStyleUrl, citationClusters):
         request = self.PostRequest(
@@ -78,23 +87,113 @@ class MendeleyHttpClient():
             )
         return self.request(request)
     
-    def getUserAccount(self):
+    def citation_choose_interactive(self):
         request = self.GetRequest(
-            "/userAccount",
-            "mendeley/getUserAccount+json",
-            "")
+            "/citation/choose/interactive",
+            "mendeley/citationStyleUrl+json"
+            )
         return self.request(request)
 
-    def citation_choose_interactive(self):
-        request = MendeleyHttpClient.GetRequest(
-            "/citation/choose/interactive",
+    def citation_edit_interactive(self, citationCluster):
+        request = self.PostRequest(
+            "/citation/edit/interactive",
+            "mendeley/citationCluster+json",
+            "mendeley/editedCitationCluster+json",
+            citationCluster
+            )
+        return self.request(request)
+
+    def citation_update_interactive(self, formattedCitationCluster):
+        request = self.PostRequest(
+            "/citation/update/interactive",
+            "mendeley/formattedCitationCluster+json",
+            "mendeley/editedCitationCluster+json",
+            formattedCitationCluster
+            )
+        return self.request(request)
+
+    def citationStyle_choose_interactive(self, currentStyleUrl):
+        request = self.PostRequest(
+            "/citationStyle/choose/interactive",
             "mendeley/citationStyleUrl+json",
-            "")
+            "mendeley/citationStyleUrl+json",
+            currentStyleUrl
+            )
+        return self.request(request)
+
+    def styleName_getFromUrl(self, styleUrl):
+        request = self.PostRequest(
+            "/citationStyle/getNameFromUrl",
+            "mendeley/citationStyleUrl+json",
+            "mendeley/citationStyleName+json",
+            styleUrl
+            )
+        return self.request(request)
+
+    def bringPluginToForeground(self):
+        request = self.GetRequest(
+            "/bringPluginToForeground",
+            "mendeley/bringToForegroundSuccess+json"
+            )
+        return self.request(request)
+
+    def citationStyles_default(self):
+        request = self.GetRequest(
+            "/citationStyles/default",
+            "mendeley/citationStyles+json"
+            )
+        return self.request(request)
+
+    def citations_merge(self, citationClusters):
+        request = self.PostRequest(
+            "/citations/merge",
+            "mendeley/citationClusters+json",
+            "mendeley/citationCluster+json",
+            citationClusters
+            )
+        return self.request(request)
+
+    def citation_undoManualFormat(self, citationCluster):
+        request = self.PostRequest(
+            "/citation/undoManualFormat",
+            "mendeley/citationCluster+json",
+            "mendeley/citationCluster+json",
+            citationCluster
+            )
+        return self.request(request)
+
+    def wordProcessor_set(self, wordProcessor):
+        request = self.PostRequest(
+            "/wordProcessor/set",
+            "mendeley/wordProcessor+json",
+            "",
+            wordProcessor
+            )
+        return self.request(request)
+
+    def testMethods_citationCluster_getFromUuid(self, uuid):
+        request = self.PostRequest(
+            "/testMethods/citationCluster/getFromUuid",
+            "mendeley/referenceUuid+json",
+            "mendeley/citationCluster+json",
+            uuid
+            )
+        
+    def userAccount(self):
+        request = self.GetRequest(
+            "/userAccount",
+            "mendeley/getUserAccount+json")
+        return self.request(request)
 
     # Need to define a class for this.
     # I tried using a object() instance but it doesn't contain a __dict__
-    class Response:
+    class ResponseBody:
         pass
+
+    class Response:
+        def __init__(self, status, body):
+            self.status = status
+            self.body = body
 
     # Sets up a connection to Mendeley Desktop, makes a HTTP request and
     # returns the data
@@ -107,7 +206,7 @@ class MendeleyHttpClient():
         data = response.read()
         data = data.decode('utf-8')
 
-        if response.getheader("Content-Type") != requestData.contentType():
+        if response.getheader("Content-Type") != requestData.acceptType():
             # TODO: abort if the wrong content type is returned
             #print "WARNING: server returned wrong content-type"
             #return
@@ -115,9 +214,10 @@ class MendeleyHttpClient():
             with open("f:\MendeleyHttpClient.log", "a") as logFile:
                 logFile.write("WARNING: server returned wrong content-type\n")
         
-        responseBody = MendeleyHttpClient.Response()
+        responseBody = MendeleyHttpClient.ResponseBody()
+        #print "data = " + data
         responseBody.__dict__.update(json.loads(data))
         connection.close()
         self.lastRequestTime = 1000 * (time.time() - startTime)
-        return responseBody
+        return self.Response(response.status, responseBody)
 
