@@ -88,14 +88,17 @@ class TestMendeleyHttpClient(unittest.TestCase):
     def test_styleName_getFromUrl(self):
         response = self.client.styleName_getFromUrl(
                 {"citationStyleUrl": "http://www.zotero.org/styles/apa"})
+        self.assertEqual(response.status, 200)
         self.assertEqual(response.body.citationStyleName, "American Psychological Association 6th Edition")
 
     def test_bringPluginToForeground(self):
         response = self.client.bringPluginToForeground()
+        self.assertEqual(response.status, 200)
         self.assertEqual(response.body.success, True)
 
     def test_citationStyles_default(self):
         response = self.client.citationStyles_default()
+        self.assertEqual(response.status, 200)
         self.assertEqual(len(response.body.citationStyles), 10)
         
         self.assertTrue(len(response.body.citationStyles[0]["title"]) > 0)
@@ -109,6 +112,7 @@ class TestMendeleyHttpClient(unittest.TestCase):
                     {"citationCluster": json.loads(self.testClusters[1])}
                 ]
             })
+        self.assertEqual(response.status, 200)
         self.assertEqual(json.dumps(response.body.citationCluster),
             '{"mendeley": {}, "citationItems": [{"itemData": {"title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}, "title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "uris": ["http://unknownServer/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}, {"itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-2"}, "title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "uris": ["http://unknownServer/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "note": "<m:note/>", "type": "article", "id": "ITEM-2"}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
 
@@ -117,6 +121,7 @@ class TestMendeleyHttpClient(unittest.TestCase):
         citation["mendeley"]["manualFormat"] = "Test manual format"
         self.assertTrue("manualFormat" in citation["mendeley"])
         response = self.client.citation_undoManualFormat(citation)
+        self.assertEqual(response.status, 200)
         self.assertFalse("manualFormat" in response.body.citationCluster["mendeley"])
         
     def test_wordProcessor_set(self):
