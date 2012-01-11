@@ -28,8 +28,12 @@ class MendeleyHttpClient():
             try:
                 message = json.dumps(response)
             except:
-                # not sure why this works but the above doesn't
-                message = "status: " + str(response.status) + ", body: " + json.dumps(response.body.__dict__)
+                message = "status: " + str(response.status)
+                try:
+                    # not sure why this works but the above doesn't
+                    message += ", body: " + json.dumps(response.body.__dict__)
+                except:
+                    pass
             StandardError.__init__(self, message)
 
     class Request(object):    

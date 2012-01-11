@@ -16,5 +16,10 @@ class TestMendeleyDesktopAPI_Interactive(unittest.TestCase):
         chosenFieldCode = self.api.citation_choose_interactive()
         print "chosen field code = " + chosenFieldCode
     
+    def test_citation_edit_interactive(self):
+        editedCitation = self.api.citation_edit_interactive(
+            "Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
+        print "edited citation = " + editedCitation
+
 if __name__ == '__main__':
     unittest.main()

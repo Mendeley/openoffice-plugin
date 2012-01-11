@@ -48,21 +48,28 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         self.citationClusters = []
         self.citationStyleUrl = ""
         self.formattedBibliography = []
+
+        # used by citation_update_interactive
+        self.formattedText = ""
     
     def resetCitations(self, unused):
         self.citationClusters = []
 
-    def addCitationCluster(self, fieldCode):
+    def _citationClusterFromFieldCode(self, fieldCode):
         # remove ADDIN and CSL_CITATION from start
         pattern = re.compile("CSL_CITATION[ ]*({.*$)")
         match = pattern.search(fieldCode)
 
         if match == None:
-            self.citationClusters.append({"fieldCode" : fieldCode.decode('string_escape')})
+            result = {"fieldCode" : fieldCode.decode('string_escape')}
         else:
             bareJson = match.group(1)
             citationCluster = json.loads(bareJson)
-            self.citationClusters.append({"citationCluster" : citationCluster})
+            result = {"citationCluster" : citationCluster}
+        return result
+
+    def addCitationCluster(self, fieldCode):
+        self.citationClusters.append(self._citationClusterFromFieldCode(fieldCode))
 
     def addFormattedCitation(self, formattedCitation):
         self.citationClusters[len(self.citationClusters)-1]["formattedText"] = formattedCitation
@@ -74,8 +81,9 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         return self.citationStyleUrl
 
     def formatCitationsAndBibliography(self, unused):
-        self._formattedCitationsResponse = self._client.formattedCitationsAndBibliography_Interactive(
-                 self.citationStyleUrl, self.citationClusters).body
+        self._formattedCitationsResponse = \
+            self._client.formattedCitationsAndBibliography_Interactive(
+            self.citationStyleUrl, self.citationClusters).body
 
         return json.dumps(self._formattedCitationsResponse.__dict__)
 
@@ -104,27 +112,48 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
     def citation_choose_interactive(self):
         response = self._client.citation_choose_interactive()
-
         try:
             assert(response.status==200)
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
-
         return fieldCode
-     
+    
+    def citation_edit_interactive(self, fieldCode):
+        response = self._client.citation_edit_interactive(
+            self._citationClusterFromFieldCode(fieldCode))
+        try:
+            assert(response.status==200)
+            fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
+        except:
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+        return fieldCode
+    
+    def setDisplayedText(self, displayedText):
+        self.formattedText = displayedText
+
+    def citation_update_interactive(self, fieldCode):
+        citationCluster = self._citationClusterFromFieldCode(fieldCode)
+        citationCluster["formattedText"] = self.formattedText
+
+        response = self._client.citation_update_interactive(citationCluster)
+        try:
+            assert(response.status==200)
+            fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
+        except:
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+        return fieldCode
+
     def getFieldCodeFromUuid(self, documentUuid):
         response = self._client.testMethods_citationCluster_getFromUuid(
             {"documentUuid": documentUuid})
-
         try:
             assert(response.status==200)
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
-
         return fieldCode
-    
+
     def _fieldCodeFromCitationCluster(self, citationCluster):
         return "ADDIN CSL_CITATION " + json.dumps(citationCluster)
 
@@ -137,6 +166,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
     def getNumberTest(self, unused):
         return "number = " + str(self.number)
 
+    #TODO: refactor to allow multiple numbers of arguments
     def execute(self, args):
         functionName = str(args[0].Value)
         functionArg  = str(args[1].Value)

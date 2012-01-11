@@ -3,10 +3,30 @@ import MendeleyDesktopAPI
 import unittest
 
 class TestMendeleyDesktopAPI(unittest.TestCase):
-
     def setUp(self):
         self.api = MendeleyDesktopAPI.MendeleyDesktopAPI("component context (unused)")
 
+    def test__citationClusterFromFieldCode(self):
+        # new JSON parsable citaitons should be put in "citaitonCluster" as an
+        # object
+        newStyleFieldCode = 'ADDIN CSL_CITATION {"testClusterKey": "testClusterValue"}'
+        newCitationCluster = self.api._citationClusterFromFieldCode(newStyleFieldCode)
+        self.assertEqual(
+            newCitationCluster,
+            {
+                "citationCluster" : 
+                {
+                    "testClusterKey" : "testClusterValue"
+                }
+            })
+        
+        # old non-JSON parsable citations should be put in "fieldCode" as a
+        # string
+        oldStyleFieldCode = "Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}"
+        oldCitationCluster = self.api._citationClusterFromFieldCode(oldStyleFieldCode)
+        self.assertEqual(
+            oldCitationCluster, {"fieldCode" : oldStyleFieldCode})
+        
     def test__fieldCodeFromCitationCluster(self):
         fieldCode = self.api._fieldCodeFromCitationCluster({"testClusterKey": "testClusterValue"})
         self.assertEqual(fieldCode, 'ADDIN CSL_CITATION {"testClusterKey": "testClusterValue"}')
@@ -14,12 +34,17 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
     def test_testGetFieldCodeFromUuid(self):
         fieldCode = self.api.getFieldCodeFromUuid("{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
         print fieldCode
-
-    def test_
     
     def test_getUserAccount(self):
         userAccount = self.api.getUserAccount("")
         self.assertEqual(userAccount, "testDatabase@test.com@local")
+
+    def test_citation_update_interactive(self):
+        self.api.setDisplayedText("displayed text")
+        updatedCitation = self.api.citation_update_interactive(
+            "Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
+
+        self.assertEqual(updatedCitation, 'ADDIN CSL_CITATION {"citationItems": [{"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-1", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
 
     def test_formatCitationsAndBibliography(self):
         print "Format some citations and a bibliography"
