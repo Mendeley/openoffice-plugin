@@ -23,6 +23,15 @@ class MendeleyHttpClient():
     def __init__(self):
         pass
 
+    class UnexpectedResponse(StandardError):
+        def __init__(self, response):
+            try:
+                message = json.dumps(response)
+            except:
+                # not sure why this works but the above doesn't
+                message = "status: " + str(response.status) + ", body: " + json.dumps(response.body.__dict__)
+            StandardError.__init__(self, message)
+
     class Request(object):    
         def __init__(self, verb, path, contentType, acceptType, body):
             self._verb = verb
@@ -178,6 +187,7 @@ class MendeleyHttpClient():
             "mendeley/citationCluster+json",
             uuid
             )
+        return self.request(request)
         
     def userAccount(self):
         request = self.GetRequest(
@@ -216,7 +226,10 @@ class MendeleyHttpClient():
         
         responseBody = MendeleyHttpClient.ResponseBody()
         #print "data = " + data
-        responseBody.__dict__.update(json.loads(data))
+        try:
+            responseBody.__dict__.update(json.loads(data))
+        except:
+            responseBody = data
         connection.close()
         self.lastRequestTime = 1000 * (time.time() - startTime)
         return self.Response(response.status, responseBody)

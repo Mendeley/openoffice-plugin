@@ -203,6 +203,12 @@ End Function
 Function apiSetCitationStyle(ByVal styleId As String) As String
     apiSetCitationStyle = mendeleyApiCall("setCitationStyle", styleId)
 End Function
+Function apiGetUserAccount() As Long
+    apiGetUserAccount = mendeleyApiCall("getUserAccount", "")
+End Function
+Function extGetCitationStyleFromDialogServerSide(ByVal styleId As String) As Long
+    extGetCitationStyleFromDialogServerSide = mendeleyApiCall("citationStyle_choose_interactive", styleId)
+End Function
 
 ' - HTTP requests instead of linking to the LinkToMendeleyVba2.dll for OpenOffice
 Function mendeleyRpcCall(functionName As String, argument As String, optional quitOnError As Boolean) As String
@@ -240,12 +246,6 @@ Function extLaunchMendeley() As Long
     ' Don't know how to launch mendeley without linking to dll so present info to user instead
     MsgBox "Please run Mendeley Desktop before using the plugin.", Title:="Couldn't Connect To Mendeley Desktop"
     extLaunchMendeley = CONNECTION_MENDELEY_DESKTOP_NOT_FOUND
-End Function
-Function extGetUserAccount() As Long
-    extGetUserAccount = mendeleyRpcCall("getUserAccount", "")
-End Function
-Function extGetCitationStyleFromDialogServerSide(ByVal styleId As String) As Long
-    extGetCitationStyleFromDialogServerSide = mendeleyRpcCall("getCitationStyleFromDialogServerSide", styleId)
 End Function
 Function extBringPluginToForeground() As Long
     extBringPluginToForeground = mendeleyRpcCall("bringPluginToForeground", "")

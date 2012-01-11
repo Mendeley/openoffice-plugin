@@ -573,7 +573,7 @@ Function isDocumentLinkedToCurrentUser() As Boolean
     Dim currentMendeleyUser As String
     Dim thisDocumentUser As String
     
-    currentMendeleyUser = extGetStringResult(extGetUserAccount())
+    currentMendeleyUser = apiGetUserAccount()
     thisDocumentUser = fnGetProperty(MENDELEY_USER_ACCOUNT)
     
     ' remove server protocol from account string

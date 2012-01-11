@@ -19,7 +19,7 @@ try:
     testMode = False
 except:
     testMode = True
-    print "-- test mode --"
+    print "-- not running in OpenOffice environment --"
     from MendeleyHttpClient import *
 
     class unohelper():
@@ -94,7 +94,39 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             return self._formattedCitationsResponse.bibliography;
         else:
             return "<br/>".join(self._formattedCitationsResponse.bibliography)
-		
+        
+    def getUserAccount(self, unused):
+        return self._client.userAccount().body.account
+
+    def citationStyle_choose_interactive(self, styleId):
+        return self._client.citationStyle_choose_interactive(
+            {"citationStyleUrl": styleId}).body.citationStyleUrl
+
+    def citation_choose_interactive(self):
+        response = self._client.citation_choose_interactive()
+
+        try:
+            assert(response.status==200)
+            fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
+        except:
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+
+        return fieldCode
+     
+    def getFieldCodeFromUuid(self, documentUuid):
+        response = self._client.testMethods_citationCluster_getFromUuid(
+            {"documentUuid": documentUuid})
+
+        try:
+            assert(response.status==200)
+            fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
+        except:
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+
+        return fieldCode
+    
+    def _fieldCodeFromCitationCluster(self, citationCluster):
+        return "ADDIN CSL_CITATION " + json.dumps(citationCluster)
 
     # for testing
     def setNumberTest(self, number):
@@ -116,26 +148,3 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
 if not testMode:
     g_ImplementationHelper.addImplementation(MendeleyDesktopAPI, "org.openoffice.pyuno.MendeleyDesktopAPI", ("com.sun.star.task.MendeleyDesktopAPI",),)
-else:
-    print "--running unit test--"
-    
-    print "set up http client"
-    api = MendeleyDesktopAPI("component context")
-
-    print "Format some citations and a bibliography"
-    api.resetCitations("")
-    api.setCitationStyle("http://www.zotero.org/styles/apa")
-    api.addCitationCluster("ADDIN any old text can go here CSL_CITATION { \"citationItems\" : [ { \"id\" : \"ITEM-1\", \"itemData\" : { \"author\" : [ { \"family\" : \"Smith\", \"given\" : \"John\" }, { \"family\" : \"Jr\", \"given\" : \"John Smith\" } ], \"id\" : \"ITEM-1\", \"issued\" : { \"date-parts\" : [ [ \"2001\" ] ] }, \"title\" : \"Title01\", \"type\" : \"article\" }, \"uris\" : [ \"http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74\" ] }, { \"id\" : \"ITEM-2\", \"itemData\" : { \"author\" : [ { \"family\" : \"Evans\", \"given\" : \"Gareth\" }, { \"family\" : \"Jr\", \"given\" : \"Gareth Evans\" } ], \"id\" : \"ITEM-2\", \"issued\" : { \"date-parts\" : [ [ \"2002\" ] ] }, \"title\" : \"Title02\", \"type\" : \"article\" }, \"uris\" : [ \"http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed\" ] } ], \"mendeley\" : { \"previouslyFormattedCitation\" : \"(Evans & Jr, 2002; Smith & Jr, 2001)\" }, \"properties\" : { \"noteIndex\" : 0 }, \"schema\" : \"https://github.com/citation-style-language/schema/raw/master/csl-citation.json\" }")
-    api.addFormattedCitation("(Evans & Jr, 2002; Smith & Jr, 2001)")
-    api.addCitationCluster("Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
-    api.addFormattedCitation("test")
-    print "formatted citation and bib: " + api.formatCitationsAndBibliography("")
-
-    print "Returned citation JSON: " + api.getCitationCluster(0)
-    print "Returned formatted citation: " + api.getFormattedCitation(0)
-    print ""
-    print "Returned citation JSON: " + api.getCitationCluster(1)
-    print "Returned formatted citation: " + api.getFormattedCitation(1)
-    print ""
-    print "Returned bibligraphy: " + api.getFormattedBibliography("")
-    
