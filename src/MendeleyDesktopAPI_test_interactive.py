@@ -1,5 +1,4 @@
 import MendeleyDesktopAPI 
-
 import unittest
 
 # API functions that can't be tested without manual user interaction

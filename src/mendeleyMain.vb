@@ -1,4 +1,3 @@
-
 ' ***** BEGIN LICENSE BLOCK *****
 '
 ' Copyright (c) 2009, 2010, 2011 Mendeley Ltd.
@@ -20,7 +19,6 @@
 ' author: steve.ridout@mendeley.com
 
 Option Explicit
-
 
 ' These need to be Global as they are accessed from EventClassModule
 Global previouslySelectedField
@@ -140,10 +138,8 @@ Global Const JSON_PREVIOUS = "MendeleyPrevious"
 Global Const JSON_URL = "MendeleyUrl"
 
 Function testFunc()
+	testCallMultiple()
 
-	'mendeleyApiCall("setNumberTest", "5 4 3 2 1")
-	'MsgBox mendeleyApiCall("getNumberTest", "")
-	'Exit Function
 	apiResetCitations()
 	apiSetCitationStyle("http://www.zotero.org/styles/apa")
 	apiAddCitation("Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
@@ -155,7 +151,7 @@ Function testFunc()
 	MsgBox "formatted citation 1: " + mendeleyApiCall("getFormattedCitation", "0")
 End Function
 
-Function mendeleyApiCall(functionName As String, argument As String) As String
+Function mendeleyApiCallSingleArg(functionName As String, argument As String) As String
 	If IsEmpty(mendeleyApi) Then
 		mendeleyApi = createUnoService("com.sun.star.task.MendeleyDesktopAPI")
 	End If
@@ -170,14 +166,52 @@ Function mendeleyApiCall(functionName As String, argument As String) As String
 	
 	Dim returnVal
 	returnVal = mendeleyApi.Execute(mArgs)
-	'MsgBox "from API: " + returnVal
+	mendeleyApiCallSingleArg = returnVal
+End Function
+
+' arguments can be a single String argument or an Array of argument Strings
+Function mendeleyApiCall(functionName As String, Optional arguments) As String
+	If IsEmpty(mendeleyApi) Then
+		mendeleyApi = createUnoService("com.sun.star.task.MendeleyDesktopAPI")
+	End If
+	
+	If Not IsMissing(arguments) And Not IsArray(arguments) Then
+		' Note: I tried using ReDim mArgs(0 to 1) in this case
+		' but for some reason it didn't work, so using other function instead
+		mendeleyApiCall = mendeleyApiCallSingleArg(functionName, arguments)
+		Exit Function
+	End If
+	
+	Dim mArgs(0 to 0) As New com.sun.star.beans.NamedValue
+	mArgs(0).Name = "function name"
+	mArgs(0).Value = functionName
+	
+	If Not IsMissing(arguments) Then
+        ReDim mArgs(0 to UBound(arguments)) As New com.sun.star.beans.NamedValue 
+		Dim arg
+		For arg = 1 to UBound(arguments)
+			mArgs(arg).Name = "argument"
+			mArgs(arg).Value = arguments(arg)
+		Next	
+    End If
+
+	Dim returnVal
+	returnVal = mendeleyApi.Execute(mArgs)
 	mendeleyApiCall = returnVal
 End Function
+
+Sub testCallMultiple()
+	Dim arguments(1 to 2) As String
+	arguments(1) = "arg 1"
+	arguments(2) = "arg 2"
+	MsgBox "result = " + mendeleyApiCall("concatenateStringsTest", arguments)
+End Sub
+
 Function apiResetCitations() As String
-    apiResetCitations = mendeleyApiCall("resetCitations", "")
+    apiResetCitations = mendeleyApiCall("resetCitations")
 End Function
 Function apiFormatCitationsAndBibliography() As String
-    apiFormatCitationsAndBibliography = mendeleyApiCall("formatCitationsAndBibliography", "")
+    apiFormatCitationsAndBibliography = mendeleyApiCall("formatCitationsAndBibliography")
 End Function
 Function apiAddCitation(ByVal fieldCode As String) As String
     apiAddCitation = mendeleyApiCall("addCitationCluster", fieldCode)
@@ -192,22 +226,22 @@ Function apiGetFormattedCitation(ByVal index As Long) As String
     apiGetFormattedCitation = mendeleyApiCall("getFormattedCitation", index)
 End Function
 Function apiGetFormattedBibliography() As String
-    apiGetFormattedBibliography = mendeleyApiCall("getFormattedBibliography", "")
+    apiGetFormattedBibliography = mendeleyApiCall("getFormattedBibliography")
 End Function
 'Function apiGetPreviouslyFormattedCitation(ByVal index As Long) As String
 '    apiGetPreviouslyFormattedCitation = mendeleyRpcCall("getPreviouslyFormattedCitation", index)
 'End Function
 Function apiGetCitationStyleId() As String
-    apiGetCitationStyleId = mendeleyApiCall("getCitationStyleId", "")
+    apiGetCitationStyleId = mendeleyApiCall("getCitationStyleId")
 End Function
 Function apiSetCitationStyle(ByVal styleId As String) As String
     apiSetCitationStyle = mendeleyApiCall("setCitationStyle", styleId)
 End Function
-Function apiGetUserAccount() As Long
-    apiGetUserAccount = mendeleyApiCall("getUserAccount", "")
+Function apiGetUserAccount() As String
+    apiGetUserAccount = mendeleyApiCall("getUserAccount")
 End Function
-Function extGetCitationStyleFromDialogServerSide(ByVal styleId As String) As Long
-    extGetCitationStyleFromDialogServerSide = mendeleyApiCall("citationStyle_choose_interactive", styleId)
+Function apiGetCitationStyleFromDialogServerSide(ByVal styleId As String) As String
+    apiGetCitationStyleFromDialogServerSide = mendeleyApiCall("citationStyle_choose_interactive", styleId)
 End Function
 
 ' - HTTP requests instead of linking to the LinkToMendeleyVba2.dll for OpenOffice
@@ -724,7 +758,7 @@ Sub chooseCitationStyle()
     Call setMendeleyDocument(True)
         
     If launchMendeleyIfNecessary() = CONNECTION_CONNECTED Then
-        chosenStyle = extGetStringResult(extGetCitationStyleFromDialogServerSide(getCitationStyleId()))
+        chosenStyle = apiGetCitationStyleFromDialogServerSide(getCitationStyleId())
         Call setCitationStyle(chosenStyle)
         Call refreshDocument
     End If

@@ -52,7 +52,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         # used by citation_update_interactive
         self.formattedText = ""
     
-    def resetCitations(self, unused):
+    def resetCitations(self):
         self.citationClusters = []
 
     def _citationClusterFromFieldCode(self, fieldCode):
@@ -77,10 +77,10 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
     def setCitationStyle(self, citationStyleUrl):
         self.citationStyleUrl = citationStyleUrl
 
-    def getCitationStyleId(self, unused):
+    def getCitationStyleId(self):
         return self.citationStyleUrl
 
-    def formatCitationsAndBibliography(self, unused):
+    def formatCitationsAndBibliography(self):
         self._formattedCitationsResponse = \
             self._client.formattedCitationsAndBibliography_Interactive(
             self.citationStyleUrl, self.citationClusters).body
@@ -95,7 +95,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         return self._formattedCitationsResponse.citationClusters[int(index)]["formattedText"]
 #        return json.dumps(self._formattedCitationsResponse.__dict__)
 
-    def getFormattedBibliography(self, unused):
+    def getFormattedBibliography(self):
         # a single string is interpreted as a file name
         if (type(self._formattedCitationsResponse.bibliography) == type(u"unicode string")
                 or type(self._formattedCitationsResponse.bibliography) == type("string")):
@@ -103,7 +103,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         else:
             return "<br/>".join(self._formattedCitationsResponse.bibliography)
         
-    def getUserAccount(self, unused):
+    def getUserAccount(self):
         return self._client.userAccount().body.account
 
     def citationStyle_choose_interactive(self, styleId):
@@ -155,23 +155,58 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         return fieldCode
 
     def _fieldCodeFromCitationCluster(self, citationCluster):
-        return "ADDIN CSL_CITATION " + json.dumps(citationCluster)
+        return "ADDIN CSL_CITATION " + json.dumps(citationCluster, sort_keys=True)
+
+    def citation_undoManualFormat(self, fieldCode):
+        citationCluster = self._citationClusterFromFieldCode(fieldCode)
+        response = self._client.citation_undoManualFormat(citationCluster)
+        try:
+            assert(response.status==200)
+            fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
+        except:
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+        return fieldCode
+
+    def wordProcessor_set(self, wordProcessor, version):
+        response = self._client.wordProcessor_set(
+            {
+                "wordProcessor": wordProcessor,
+                "version": version
+            })
+
+        try:
+            assert(response.status==200)
+        except:
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+
+        return ""
 
     # for testing
     def setNumberTest(self, number):
         self.number = number.decode('string_escape')
-        return "from hello " + str(number)
+        return ""
 
     # for testing
-    def getNumberTest(self, unused):
-        return "number = " + str(self.number)
+    def getNumberTest(self):
+        return str(self.number)
+
+    # for testing
+    def concatenateStringsTest(self, string1, string2):
+        return str(string1) + str(string2)
 
     #TODO: refactor to allow multiple numbers of arguments
     def execute(self, args):
         functionName = str(args[0].Value)
-        functionArg  = str(args[1].Value)
+        statement = 'self.' + functionName + '('
+        for arg in range(1, len(args)):
+            statement += '"'
+            statement += args[arg].Value.encode('unicode_escape').replace('"', '\\"')
+            statement += '"'
+            if arg < len(args) - 1:
+                statement += ', '
+        statement += ')'
+
         if hasattr(self, functionName):
-            statement = 'self.' + functionName + '("' + functionArg.encode('string_escape').replace('"', '\\"') + '")'
             return eval(statement)
         else:
             raise Exception("ERROR: Function " + functionName + " doesn't exist")
