@@ -1,3 +1,5 @@
+*__Please Note:__  We are currently in the process of opening up the code and API for integration between Mendeley Desktop and word processors.  An extension built from the master branch in this repository will not work with current stable versions of Mendeley Desktop.  The stable version of the plugin is bundled with Mendeley Desktop and can be installed via Tools -> Install OpenOffice Plugin*
+
 # The Mendeley OpenOffice Extension
 
 This extension provides integration between Mendeley Desktop and OpenOffice/LibreOffice,
