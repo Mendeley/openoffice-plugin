@@ -60,7 +60,7 @@ Sub reportError()
 End Sub
 
 Sub sendWordProcessorVersion()
-      Call extGetStringResult(extSetWordProcessor("OpenOffice"))
+      Call apiSetWordProcessor("OpenOffice.org", "unknown")
 End Sub
 
 Function MakePropertyValue( Optional cName As String, Optional uValue ) As com.sun.star.beans.PropertyValue
@@ -917,6 +917,11 @@ Sub applyStyleToIndividualTags(tag As String, wholeRange As range, _
 End Sub
 
 Sub checkForCitationEdit()
+	' Note: this isn't currently used in the OpenOffice plugin
+	' it would be useful if we check for citation edits immediately
+	' after the user's cursor leaves a citation field as for the
+	' WinWord plugin
+
     ' We can't update the document until we've updated the previously
     ' selected field, so if the user cancels an edit, needUpdate is set
     ' to true and we UpdateDocument() at the end
@@ -940,20 +945,14 @@ Sub checkForCitationEdit()
             Dim displayedText As String
             displayedText = addUnicodeTags(getMarkText(previouslySelectedField))
             displayedText = Replace(displayedText, Chr(13), "<p>")
-            Call extGetStringResult(extSetDisplayedText(displayedText))
             
             Dim newMarkName As String
-            newMarkName = extGetStringResult(extCheckManualFormatAndGetFieldCode(markName))
+            newMarkName = apiUpdateCitation(markName, displayedText)
             
             If markName <> newMarkName Then
                 Call fnRenameMark(previouslySelectedField, newMarkName)
-                ' Disabled until we can send rich text formatting tags from the displayed
-                ' citations to Mendeley Desktop
-                'displayedText = extGetStringResult(extGetDisplayedText())
-                'Call subSetMarkText(previouslySelectedField, displayedText)
                 needUpdate = True
             End If
-                        
         End If
     End If
     

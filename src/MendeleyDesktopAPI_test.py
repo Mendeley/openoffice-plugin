@@ -6,8 +6,14 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
     def setUp(self):
         self.api = MendeleyDesktopAPI.MendeleyDesktopAPI("component context (unused)")
 
-        self.testCluster = {"citationItems": [{"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-1", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}
+        self.testCluster = \
+            {
+                "citationItems": [{"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-1", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}}],
+                "properties": {"noteIndex": 0},
+                "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"
+            }
         self.testUuid = '15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed'
+        self.testUuid2 = '55ff8735-3f3c-4c9f-87c3-8db322ba3f74'
 
     class NameValuePair:
         def __init__(self, name, value):
@@ -67,13 +73,12 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
             json.dumps(self.testCluster, sort_keys=True))
     
     def test_getUserAccount(self):
-        userAccount = self.api.getUserAccount("")
+        userAccount = self.api.getUserAccount()
         self.assertEqual(userAccount, "testDatabase@test.com@local")
 
     def test_citation_update_interactive(self):
-        self.api.setDisplayedText("displayed text")
         updatedCitation = self.api.citation_update_interactive(
-            "Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
+            "Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}", "displayed Text")
 
         self.assertEqual(updatedCitation,
             'ADDIN CSL_CITATION ' + json.dumps(self.testCluster, sort_keys=True))
@@ -82,35 +87,49 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         citation = self.api.citation_undoManualFormat(
             "Mendeley Edited Citation{" + self.testUuid + "}")
         
-        # an empty "mendeley" key gets added
-        testCluster = self.testCluster
-        testCluster["mendeley"] = {}
         self.assertEqual(citation,
-            'ADDIN CSL_CITATION ' + json.dumps(testCluster, sort_keys=True))
+            'ADDIN CSL_CITATION ' +
+            json.dumps(self.testCluster, sort_keys=True))
 
         # invariant on subsequent undos
         self.assertEqual(citation, self.api.citation_undoManualFormat(citation))
+
+    def test_citations_merge(self):
+        # merging two identical citations should remain the same
+        fieldCodes = []
+
+        fieldCodes.append('ADDIN CSL_CITATION ' + json.dumps(self.testCluster, sort_keys=True))
+        fieldCodes.append('ADDIN CSL_CITATION ' + json.dumps(self.testCluster, sort_keys=True))
+
+        mergedFieldCode = self.api.citations_merge(fieldCodes[0], fieldCodes[1])
+        self.assertEqual(mergedFieldCode, fieldCodes[0])
+
+        # TODO: test merging different citation clusters
+        fieldCodes[1] = 'Mendeley Citation{' + self.testUuid2 + '}'
+
+        mergedFieldCode = self.api.citations_merge(fieldCodes[0], fieldCodes[1])
+        self.assertEqual(mergedFieldCode, 'ADDIN CSL_CITATION {"citationItems": [{"id": "ITEM-1", "itemData": {"author": [{"family": "Evans", "given": "Gareth"}, {"family": "Jr", "given": "Gareth Evans"}], "id": "ITEM-1", "issued": {"date-parts": [["2002"]]}, "note": "<m:note/>", "title": "Title02", "type": "article"}, "uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"]}, {"id": "ITEM-2", "itemData": {"author": [{"family": "Smith", "given": "John"}, {"family": "Jr", "given": "John Smith"}], "id": "ITEM-2", "issued": {"date-parts": [["2001"]]}, "note": "<m:note/>", "title": "Title01", "type": "article"}, "uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"]}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
 
     def test_wordProcessor_set(self):
         response = self.api.wordProcessor_set("WinWord", 14.0)
         self.assertEqual(response, "")
 
     def test_formatCitationsAndBibliography(self):
-        self.api.resetCitations("")
+        self.api.resetCitations()
         self.api.setCitationStyle("http://www.zotero.org/styles/apa")
         self.api.addCitationCluster("ADDIN any old text can go here CSL_CITATION { \"citationItems\" : [ { \"id\" : \"ITEM-1\", \"itemData\" : { \"author\" : [ { \"family\" : \"Smith\", \"given\" : \"John\" }, { \"family\" : \"Jr\", \"given\" : \"John Smith\" } ], \"id\" : \"ITEM-1\", \"issued\" : { \"date-parts\" : [ [ \"2001\" ] ] }, \"title\" : \"Title01\", \"type\" : \"article\" }, \"uris\" : [ \"http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74\" ] }, { \"id\" : \"ITEM-2\", \"itemData\" : { \"author\" : [ { \"family\" : \"Evans\", \"given\" : \"Gareth\" }, { \"family\" : \"Jr\", \"given\" : \"Gareth Evans\" } ], \"id\" : \"ITEM-2\", \"issued\" : { \"date-parts\" : [ [ \"2002\" ] ] }, \"title\" : \"Title02\", \"type\" : \"article\" }, \"uris\" : [ \"http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed\" ] } ], \"mendeley\" : { \"previouslyFormattedCitation\" : \"(Evans & Jr, 2002; Smith & Jr, 2001)\" }, \"properties\" : { \"noteIndex\" : 0 }, \"schema\" : \"https://github.com/citation-style-language/schema/raw/master/csl-citation.json\" }")
         self.api.addFormattedCitation("(Evans & Jr, 2002; Smith & Jr, 2001)")
         self.api.addCitationCluster("Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
         self.api.addFormattedCitation("test")
-        print "formatted citation and bib: " + self.api.formatCitationsAndBibliography("")
-
-        print "Returned citation JSON: " + self.api.getCitationCluster(0)
-        print "Returned formatted citation: " + self.api.getFormattedCitation(0)
-        print ""
-        print "Returned citation JSON: " + self.api.getCitationCluster(1)
-        print "Returned formatted citation: " + self.api.getFormattedCitation(1)
-        print ""
-        print "Returned bibligraphy: " + self.api.getFormattedBibliography("")
+#        print "formatted citation and bib: " + self.api.formatCitationsAndBibliography()
+#
+#        print "Returned citation JSON: " + self.api.getCitationCluster(0)
+#        print "Returned formatted citation: " + self.api.getFormattedCitation(0)
+#        print ""
+#        print "Returned citation JSON: " + self.api.getCitationCluster(1)
+#        print "Returned formatted citation: " + self.api.getFormattedCitation(1)
+#        print ""
+#        print "Returned bibligraphy: " + self.api.getFormattedBibliography()
     
 if __name__ == '__main__':
     unittest.main()

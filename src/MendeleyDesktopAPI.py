@@ -49,9 +49,6 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         self.citationStyleUrl = ""
         self.formattedBibliography = []
 
-        # used by citation_update_interactive
-        self.formattedText = ""
-    
     def resetCitations(self):
         self.citationClusters = []
 
@@ -110,8 +107,9 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         return self._client.citationStyle_choose_interactive(
             {"citationStyleUrl": styleId}).body.citationStyleUrl
 
-    def citation_choose_interactive(self):
-        response = self._client.citation_choose_interactive()
+    def citation_choose_interactive(self, hintText):
+        response = self._client.citation_choose_interactive(
+            {"citationEditorHint": hintText})
         try:
             assert(response.status==200)
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
@@ -119,9 +117,10 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             raise MendeleyHttpClient.UnexpectedResponse(response)
         return fieldCode
     
-    def citation_edit_interactive(self, fieldCode):
-        response = self._client.citation_edit_interactive(
-            self._citationClusterFromFieldCode(fieldCode))
+    def citation_edit_interactive(self, fieldCode, hintText):
+        citationCluster = self._citationClusterFromFieldCode(fieldCode)
+        citationCluster["citationEditorHint"] = hintText
+        response = self._client.citation_edit_interactive(citationCluster)
         try:
             assert(response.status==200)
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
@@ -132,9 +131,9 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
     def setDisplayedText(self, displayedText):
         self.formattedText = displayedText
 
-    def citation_update_interactive(self, fieldCode):
+    def citation_update_interactive(self, fieldCode, formattedText):
         citationCluster = self._citationClusterFromFieldCode(fieldCode)
-        citationCluster["formattedText"] = self.formattedText
+        citationCluster["formattedText"] = formattedText
 
         response = self._client.citation_update_interactive(citationCluster)
         try:
@@ -166,6 +165,22 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
         return fieldCode
+
+    def citations_merge(self, *fieldCodes):
+        clusters = []
+
+        for fieldCode in fieldCodes:
+            clusters.append(self._citationClusterFromFieldCode(fieldCode))
+
+        response = self._client.citations_merge({"citationClusters": clusters})
+        try:
+            assert(response.status==200)
+            mergedFieldCode = \
+                self._fieldCodeFromCitationCluster(response.body.citationCluster)
+        except:
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+        
+        return mergedFieldCode
 
     def wordProcessor_set(self, wordProcessor, version):
         response = self._client.wordProcessor_set(

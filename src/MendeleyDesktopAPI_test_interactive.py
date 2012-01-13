@@ -12,12 +12,12 @@ class TestMendeleyDesktopAPI_Interactive(unittest.TestCase):
         print "chosen style = " + chosenStyle
 
     def test_citation_choose_interactive(self):
-        chosenFieldCode = self.api.citation_choose_interactive()
+        chosenFieldCode = self.api.citation_choose_interactive("hint text")
         print "chosen field code = " + chosenFieldCode
     
     def test_citation_edit_interactive(self):
         editedCitation = self.api.citation_edit_interactive(
-            "Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
+            "Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}", "hint text")
         print "edited citation = " + editedCitation
 
 if __name__ == '__main__':

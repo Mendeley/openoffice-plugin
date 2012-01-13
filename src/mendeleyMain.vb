@@ -24,7 +24,7 @@ Option Explicit
 Global previouslySelectedField
 Global previouslySelectedFieldResultText As String
 
-Global Const DEBUG_MODE = ${DEBUG_MODE}
+Global Const DEBUG_MODE = true
 Private Const DEBUG_LOG_FILE = "file:///F:/oo-debugLog.txt"
 
 Global Const TEMPLATE_NAME_DURING_BUILD = "MendeleyPlugin"
@@ -145,28 +145,10 @@ Function testFunc()
 	apiAddCitation("Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
 	apiAddFormattedCitation("formattedCitation1")
 	
-	mendeleyApiCall("formatCitationsAndBibliography", "")
+	apiFormatCitationsAndBibliography()
 	
 	MsgBox "citation 1: " + mendeleyApiCall("getCitationCluster", "0")
 	MsgBox "formatted citation 1: " + mendeleyApiCall("getFormattedCitation", "0")
-End Function
-
-Function mendeleyApiCallSingleArg(functionName As String, argument As String) As String
-	If IsEmpty(mendeleyApi) Then
-		mendeleyApi = createUnoService("com.sun.star.task.MendeleyDesktopAPI")
-	End If
-	
-	debugLog("API call: " + functionName + "(""" + argument + """)")
-	
-	Dim mArgs(0 to 1) As New com.sun.star.beans.NamedValue
-	mArgs(0).Name = "function name"
-	mArgs(0).Value = functionName
-	mArgs(1).Name = "argument"
-	mArgs(1).Value = argument
-	
-	Dim returnVal
-	returnVal = mendeleyApi.Execute(mArgs)
-	mendeleyApiCallSingleArg = returnVal
 End Function
 
 ' arguments can be a single String argument or an Array of argument Strings
@@ -174,27 +156,28 @@ Function mendeleyApiCall(functionName As String, Optional arguments) As String
 	If IsEmpty(mendeleyApi) Then
 		mendeleyApi = createUnoService("com.sun.star.task.MendeleyDesktopAPI")
 	End If
-	
-	If Not IsMissing(arguments) And Not IsArray(arguments) Then
-		' Note: I tried using ReDim mArgs(0 to 1) in this case
-		' but for some reason it didn't work, so using other function instead
-		mendeleyApiCall = mendeleyApiCallSingleArg(functionName, arguments)
-		Exit Function
-	End If
-	
+		
 	Dim mArgs(0 to 0) As New com.sun.star.beans.NamedValue
 	mArgs(0).Name = "function name"
 	mArgs(0).Value = functionName
-	
-	If Not IsMissing(arguments) Then
-        ReDim mArgs(0 to UBound(arguments)) As New com.sun.star.beans.NamedValue 
-		Dim arg
-		For arg = 1 to UBound(arguments)
-			mArgs(arg).Name = "argument"
-			mArgs(arg).Value = arguments(arg)
-		Next	
-    End If
 
+	If Not IsMissing(arguments) Then
+		If IsArray(arguments) Then
+	        ReDim Preserve mArgs(0 to UBound(arguments)) As New com.sun.star.beans.NamedValue 
+			Dim arg
+			For arg = 1 to UBound(arguments)
+				mArgs(arg).Name = "argument"
+				mArgs(arg).Value = arguments(arg)
+			Next	
+		Else
+	        ReDim Preserve mArgs(0 to 1) As New com.sun.star.beans.NamedValue 
+			mArgs(1).Name = "argument"
+			Dim argument As String
+			argument = arguments
+			mArgs(1).Value = argument
+		End If
+    End If
+    
 	Dim returnVal
 	returnVal = mendeleyApi.Execute(mArgs)
 	mendeleyApiCall = returnVal
@@ -213,35 +196,66 @@ End Function
 Function apiFormatCitationsAndBibliography() As String
     apiFormatCitationsAndBibliography = mendeleyApiCall("formatCitationsAndBibliography")
 End Function
-Function apiAddCitation(ByVal fieldCode As String) As String
+Function apiAddCitation(fieldCode As String) As String
     apiAddCitation = mendeleyApiCall("addCitationCluster", fieldCode)
 End Function
-Function apiAddFormattedCitation(ByVal displayedText As String) As String
+Function apiAddFormattedCitation(displayedText As String) As String
     apiAddFormattedCitation = mendeleyApiCall("addFormattedCitation", displayedText)
 End Function
-Function apiGetCitationJson(ByVal index As Long) As String
+Function apiGetCitationJson(index As Long) As String
     apiGetCitationJson = mendeleyApiCall("getCitationCluster", index)
 End Function
-Function apiGetFormattedCitation(ByVal index As Long) As String
+Function apiGetFormattedCitation(index As Long) As String
     apiGetFormattedCitation = mendeleyApiCall("getFormattedCitation", index)
 End Function
 Function apiGetFormattedBibliography() As String
     apiGetFormattedBibliography = mendeleyApiCall("getFormattedBibliography")
 End Function
-'Function apiGetPreviouslyFormattedCitation(ByVal index As Long) As String
-'    apiGetPreviouslyFormattedCitation = mendeleyRpcCall("getPreviouslyFormattedCitation", index)
-'End Function
 Function apiGetCitationStyleId() As String
     apiGetCitationStyleId = mendeleyApiCall("getCitationStyleId")
 End Function
-Function apiSetCitationStyle(ByVal styleId As String) As String
+Function apiSetCitationStyle(styleId As String) As String
     apiSetCitationStyle = mendeleyApiCall("setCitationStyle", styleId)
 End Function
 Function apiGetUserAccount() As String
     apiGetUserAccount = mendeleyApiCall("getUserAccount")
 End Function
-Function apiGetCitationStyleFromDialogServerSide(ByVal styleId As String) As String
+Function apiGetCitationStyleFromDialogServerSide(styleId As String) As String
     apiGetCitationStyleFromDialogServerSide = mendeleyApiCall("citationStyle_choose_interactive", styleId)
+End Function
+Function apiTestGetFieldCode(uuid As String) As String
+    apiTestGetFieldCode = mendeleyApiCall("getFieldCodeFromUuid", uuid)
+End Function
+Function apiSetWordProcessor(wordProcessor As String, version As String) As String
+	Dim args(1 to 2) As String
+	args(1) = wordProcessor
+	args(2) = version
+    apiSetWordProcessor = mendeleyApiCall("wordProcessor_set", args)
+End Function
+Function apiUndoManualFormat(fieldCode As String) As String
+    apiUndoManualFormat = mendeleyApiCall("citation_undoManualFormat", fieldCode)
+End Function
+Function apiCitationChoose(hintText As String) As String
+    apiCitationChoose = mendeleyApiCall("citation_choose_interactive", hintText)
+End Function
+Function apiCitationEdit(fieldCode As String, hintText As String) As String
+	Dim args(1 to 2) As String
+	args(1) = fieldCode
+	args(2) = hintText
+    apiCitationEdit = mendeleyApiCall("citation_edit_interactive", args)
+End Function
+Function apiUpdateFieldCode(ByVal fieldCode) As String
+	' Note: not currently used or tested - could be useful for checking
+	' for manual edits immediately after user edit as in WinWord
+    apiUpdateFieldCode = mendeleyApiCall("checkManualFormatAndGetFieldCode", fieldCode)
+End Function
+Function apiMergeCitations(fieldCodes) As String
+	Dim args(1 to (1 + UBound(fieldCodes) - LBound(fieldCodes)))
+	Dim index As Long
+	For index = LBound(fieldCodes) to UBound(fieldCodes)
+		args(index - LBound(fieldCodes) + 1) = fieldCodes(index)
+	Next
+    apiMergeCitations = mendeleyApiCall("citations_merge", args)
 End Function
 
 ' - HTTP requests instead of linking to the LinkToMendeleyVba2.dll for OpenOffice
@@ -284,35 +298,11 @@ End Function
 Function extBringPluginToForeground() As Long
     extBringPluginToForeground = mendeleyRpcCall("bringPluginToForeground", "")
 End Function
-Function extGetFieldCodeFromCitationEditor(ByVal uuids As String) As Long
-    extGetFieldCodeFromCitationEditor = mendeleyRpcCall("getFieldCodeFromCitationEditor", uuids)
-End Function
 Function extStartMerge() As Long
     extStartMerge = mendeleyRpcCall("startMerge", "")
 End Function
 Function extAddFieldCodeToMerge(ByVal fieldCodeToMerge As String) As Long
     extAddFieldCodeToMerge = mendeleyRpcCall("addFieldCodeToMerge", fieldCodeToMerge)
-End Function
-Function extGetMergedFieldCode() As Long
-    extGetMergedFieldCode = mendeleyRpcCall("getMergedFieldCode", "")
-End Function
-Function extSetDisplayedText(ByVal displayedText) As Long
-    extSetDisplayedText = mendeleyRpcCall("setDisplayedText", displayedText)
-End Function
-Function extCheckManualFormatAndGetFieldCode(ByVal fieldCode) As Long
-    extCheckManualFormatAndGetFieldCode = mendeleyRpcCall("checkManualFormatAndGetFieldCode", fieldCode)
-End Function
-Function extGetDisplayedText() As Long
-    extGetDisplayedText = mendeleyRpcCall("getDisplayedText", "")
-End Function
-Function extUndoManualFormat(ByVal fieldCode) As Long
-    extUndoManualFormat = mendeleyRpcCall("undoManualFormat", fieldCode)
-End Function
-Function extSetWordProcessor(ByVal wordProcessor) As Long
-    extSetWordProcessor = mendeleyRpcCall("setWordProcessor", wordProcessor)
-End Function
-Function extTestGetFieldCode(ByVal fieldCode) As Long
-    extTestGetFieldCode = mendeleyRpcCall("testGetFieldCode", fieldCode)
 End Function
 
 ' Allocates a string of the required length and calls extGetStringResult() to fill
@@ -418,7 +408,9 @@ Sub mergeCitations()
         GoTo EndOfSub
     End If
 
-    Call extGetStringResult(extStartMerge)
+    'Call extGetStringResult(extStartMerge)
+
+	Dim fieldCodesToMerge(0) As String
 
     For Each mark In allDocumentMarks
         Set thisField = mark
@@ -454,9 +446,11 @@ Sub mergeCitations()
             selectionToReplace.goRight(1, True)
         WEnd
 
-        Call extGetStringResult(extAddFieldCodeToMerge(markName))
-
+		ReDim Preserve fieldCodesToMerge(0 to count) As String
+		fieldCodesToMerge(count) = markName
         count = count + 1
+
+        'Call extGetStringResult(extAddFieldCodeToMerge(markName))
 
 SkipField:
 
@@ -469,7 +463,7 @@ SkipField:
     '''''''''''''''''''''''''''''''''''''''''''
 
     Dim newFieldCode As String
-    newFieldCode = extGetStringResult(extGetMergedFieldCode())
+    newFieldCode = apiMergeCitations(fieldCodesToMerge)
 
     Dim citeField
     Set citeField = fnAddMark(selectionToReplace,newFieldCode)
@@ -564,17 +558,18 @@ Sub privateInsertCitation(hintText As String)
         Dim stringLength As Long
         awaitingResponseFromMD = True
         
-        Dim hintAndFieldCode As String
-        hintAndFieldCode = hintText & ";" & markName
+        Dim fieldCode As String
         If unitTest Then
-            stringLength = extTestGetFieldCode(hintAndFieldCode)
+            fieldCode = apiTestGetFieldCode(hintText)
         Else
-            stringLength = extGetFieldCodeFromCitationEditor(hintAndFieldCode)
+        	If Len(markName) = 0 Then
+            	fieldCode = apiCitationChoose(markName, hintText)
+            Else
+            	fieldCode = apiCitationEdit(markName, hintText)
+            End If
         End If
 
         awaitingResponseFromMD = False
-        Dim fieldCode As String
-        fieldCode = extGetStringResult(stringLength)
         
         If (Right(fieldCode, Len("DoNotBringToForeground")) = "DoNotBringToForeground") Then
             fieldCode = Left(fieldCode, Len(fieldCode) - Len("DoNotBringToForeground"))
@@ -715,7 +710,7 @@ Sub undoEdit()
     markName = getMarkName(currentMark)
         
     Dim newMarkName As String
-    newMarkName = extGetStringResult(extUndoManualFormat(markName))
+    newMarkName = apiUndoManualFormat(markName)
     
     currentMark = fnRenameMark(currentMark, newMarkName)
     currentMark = subSetMarkText(currentMark, INSERT_CITATION_TEXT)
@@ -912,3 +907,4 @@ Function isUiDisabled() As Boolean
     End If
     isUiDisabled = uiDisabled
 End Function
+

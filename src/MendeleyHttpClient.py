@@ -100,17 +100,19 @@ class MendeleyHttpClient():
             )
         return self.request(request)
     
-    def citation_choose_interactive(self):
-        request = self.GetRequest(
+    def citation_choose_interactive(self, citationEditorHint):
+        request = self.PostRequest(
             "/citation/choose/interactive",
-            "mendeley/citationStyleUrl+json"
+            "mendeley/citationEditorHint+json",
+            "mendeley/citationStyleUrl+json",
+            citationEditorHint
             )
         return self.request(request)
 
     def citation_edit_interactive(self, citationCluster):
         request = self.PostRequest(
             "/citation/edit/interactive",
-            "mendeley/citationCluster+json",
+            "mendeley/citationClusterWithHint+json",
             "mendeley/editedCitationCluster+json",
             citationCluster
             )
