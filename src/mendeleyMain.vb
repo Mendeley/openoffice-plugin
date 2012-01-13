@@ -257,6 +257,10 @@ Function apiMergeCitations(fieldCodes) As String
 	Next
     apiMergeCitations = mendeleyApiCall("citations_merge", args)
 End Function
+Function apiBringPluginToForeground() As String
+	' Note: This doesn't work at the moment
+    apiBringPluginToForeground = mendeleyApiCall("bringPluginToForeground")
+End Function
 
 ' - HTTP requests instead of linking to the LinkToMendeleyVba2.dll for OpenOffice
 Function mendeleyRpcCall(functionName As String, argument As String, optional quitOnError As Boolean) As String
@@ -294,15 +298,6 @@ Function extLaunchMendeley() As Long
     ' Don't know how to launch mendeley without linking to dll so present info to user instead
     MsgBox "Please run Mendeley Desktop before using the plugin.", Title:="Couldn't Connect To Mendeley Desktop"
     extLaunchMendeley = CONNECTION_MENDELEY_DESKTOP_NOT_FOUND
-End Function
-Function extBringPluginToForeground() As Long
-    extBringPluginToForeground = mendeleyRpcCall("bringPluginToForeground", "")
-End Function
-Function extStartMerge() As Long
-    extStartMerge = mendeleyRpcCall("startMerge", "")
-End Function
-Function extAddFieldCodeToMerge(ByVal fieldCodeToMerge As String) As Long
-    extAddFieldCodeToMerge = mendeleyRpcCall("addFieldCodeToMerge", fieldCodeToMerge)
 End Function
 
 ' Allocates a string of the required length and calls extGetStringResult() to fill
@@ -576,11 +571,7 @@ Sub privateInsertCitation(hintText As String)
             bringToForeground = False
         Else
             bringToForeground = True
-            ' bring Word to foreground
-            ' (this call doesn't work reliably on all systems,
-            '  on my Windows 7 dev machine it's fine but on my
-            '  Win7 and WinXP VMs it works about 50% of the time)
-            Call extGetStringResult(extBringPluginToForeground)
+            Call apiBringPluginToForeground
         End If
                 
         ' check for null result:
@@ -630,10 +621,7 @@ EndOfSub:
     End If
     
     If bringToForeground Then
-        ' bring Word to foreground
-        '  (with limited testing this SEEMS to work all the time on all systems, presumably because
-        '   word has finished running the macro and is in a more responsive state.)
-        Call extGetStringResult(extBringPluginToForeground)
+        Call apiBringPluginToForeground
     End If
 End Sub
 

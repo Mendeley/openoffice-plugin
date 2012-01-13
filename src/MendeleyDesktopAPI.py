@@ -111,7 +111,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         response = self._client.citation_choose_interactive(
             {"citationEditorHint": hintText})
         try:
-            assert(response.status==200)
+            assert(response.status == 200)
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
@@ -122,7 +122,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         citationCluster["citationEditorHint"] = hintText
         response = self._client.citation_edit_interactive(citationCluster)
         try:
-            assert(response.status==200)
+            assert(response.status == 200)
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
@@ -137,7 +137,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
         response = self._client.citation_update_interactive(citationCluster)
         try:
-            assert(response.status==200)
+            assert(response.status == 200)
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
@@ -147,7 +147,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         response = self._client.testMethods_citationCluster_getFromUuid(
             {"documentUuid": documentUuid})
         try:
-            assert(response.status==200)
+            assert(response.status == 200)
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
@@ -160,7 +160,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         citationCluster = self._citationClusterFromFieldCode(fieldCode)
         response = self._client.citation_undoManualFormat(citationCluster)
         try:
-            assert(response.status==200)
+            assert(response.status == 200)
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
@@ -174,7 +174,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
         response = self._client.citations_merge({"citationClusters": clusters})
         try:
-            assert(response.status==200)
+            assert(response.status == 200)
             mergedFieldCode = \
                 self._fieldCodeFromCitationCluster(response.body.citationCluster)
         except:
@@ -190,10 +190,19 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             })
 
         try:
-            assert(response.status==200)
+            assert(response.status == 200)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
 
+        return ""
+
+    def bringPluginToForeground(self):
+        # TODO: maybe we need to send the window handle in an argument?
+        response = self._client.bringPluginToForeground()
+        try:
+            assert(response.status == 200)
+        except:
+            raise MendeleyHttpClient.UnexpectedResponse(response)
         return ""
 
     # for testing

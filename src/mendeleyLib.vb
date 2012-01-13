@@ -282,7 +282,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     status = apiFormatCitationsAndBibliography
         
     If Left(status, Len("failed")) = "failed" Then
-        Call extGetStringResult(extBringPluginToForeground)
+        Call apiBringPluginToForeground
         Exit Function
     End If
     
