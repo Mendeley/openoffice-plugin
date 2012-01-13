@@ -125,15 +125,10 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         self.api.addFormattedCitation("(Evans & Jr, 2002; Smith & Jr, 2001)")
         self.api.addCitationCluster("Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
         self.api.addFormattedCitation("test")
-#        print "formatted citation and bib: " + self.api.formatCitationsAndBibliography()
-#
-#        print "Returned citation JSON: " + self.api.getCitationCluster(0)
-#        print "Returned formatted citation: " + self.api.getFormattedCitation(0)
-#        print ""
-#        print "Returned citation JSON: " + self.api.getCitationCluster(1)
-#        print "Returned formatted citation: " + self.api.getFormattedCitation(1)
-#        print ""
-#        print "Returned bibligraphy: " + self.api.getFormattedBibliography()
-    
+        self.api.formatCitationsAndBibliography()
+
+        self.assertEqual(self.api.getCitationCluster(0), 'ADDIN CSL_CITATION {"mendeley": {"previouslyFormattedCitation": "(Evans & Jr, 2002; Smith & Jr, 2001)"}, "citationItems": [{"uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"], "id": "ITEM-1", "itemData": {"title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}}, {"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-2", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-2"}}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
+        self.assertEqual(self.api.getFormattedCitation(0), '(Evans & Jr, 2002; Smith & Jr, 2001)')
+   
 if __name__ == '__main__':
     unittest.main()

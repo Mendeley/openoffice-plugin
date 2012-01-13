@@ -25,9 +25,18 @@ class TestMendeleyDesktopAPI_Interactive(unittest.TestCase):
         self.api.setCitationStyle("http://www.zotero.org/styles/apa")
         self.api.addCitationCluster("ADDIN any old text can go here CSL_CITATION { \"citationItems\" : [ { \"id\" : \"ITEM-1\", \"itemData\" : { \"author\" : [ { \"family\" : \"Smith\", \"given\" : \"John\" }, { \"family\" : \"Jr\", \"given\" : \"John Smith\" } ], \"id\" : \"ITEM-1\", \"issued\" : { \"date-parts\" : [ [ \"2001\" ] ] }, \"title\" : \"Title01\", \"type\" : \"article\" }, \"uris\" : [ \"http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74\" ] }, { \"id\" : \"ITEM-2\", \"itemData\" : { \"author\" : [ { \"family\" : \"Evans\", \"given\" : \"Gareth\" }, { \"family\" : \"Jr\", \"given\" : \"Gareth Evans\" } ], \"id\" : \"ITEM-2\", \"issued\" : { \"date-parts\" : [ [ \"2002\" ] ] }, \"title\" : \"Title02\", \"type\" : \"article\" }, \"uris\" : [ \"http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed\" ] } ], \"mendeley\" : { \"previouslyFormattedCitation\" : \"(Evans & Jr, 2002; Smith & Jr, 2001)\" }, \"properties\" : { \"noteIndex\" : 0 }, \"schema\" : \"https://github.com/citation-style-language/schema/raw/master/csl-citation.json\" }")
         self.api.addFormattedCitation("(Evans & Jr, 2002; Smith & Jr, 2001)")
-        self.api.addCitationCluster("Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
-        self.api.addFormattedCitation("test")
         print "formatted: " + self.api.formatCitationsAndBibliography()
+        
+        returnedCluster = self.api.getCitationCluster(0)
+        returnedFormattedText = self.api.getFormattedCitation(0)
+
+        # new one, now with edit:
+        self.api.resetCitations()
+        self.api.addCitationCluster(returnedCluster)
+        self.api.addFormattedCitation("this is new!")
+
+        # this should prompt the user
+        self.api.formatCitationsAndBibliography()
 
 if __name__ == '__main__':
     unittest.main()
