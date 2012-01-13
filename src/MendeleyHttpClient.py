@@ -201,6 +201,12 @@ class MendeleyHttpClient():
             "mendeley/getUserAccount+json")
         return self.request(request)
 
+    def mendeleyDesktopVersion(self):
+        request = self.GetRequest(
+            "/mendeleyDesktopVersion",
+            "mendeley/mendeleyDesktopVersion+json")
+        return self.request(request)
+
     # Need to define a class for this.
     # I tried using a object() instance but it doesn't contain a __dict__
     class ResponseBody:

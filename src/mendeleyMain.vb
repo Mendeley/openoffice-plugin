@@ -79,13 +79,6 @@ Global Const TOOLTIP_EXPORT_OPENOFFICE = "Export a copy of the document compatib
 Global Const TOOLTIP_EXPORT_WITHOUT_MENDELEY_FIELDS = "Export the document without Mendeley data fields"
 Global Const TOOLTIP_EXPORT = "Export the document with different options"
 
-Global Const CONNECTION_CONNECTED = 0
-Global Const CONNECTION_VERSION_MISMATCH = 1
-Global Const CONNECTION_MENDELEY_DESKTOP_NOT_FOUND = 2
-Global Const CONNECTION_NOT_A_MENDELEY_DOCUMENT = 3
-
-Global Const MENDELEY_RPC_CONNECTION_FAILED = "MendeleyRpcConnectionFailed"
-
 Global Const CITATION_NUMBER = "citation-number"
 
 Global Const COULDNT_OPEN_MENDELEY_MESSAGE = "Couldn't open Mendeley Desktop. Please run Mendeley Desktop first.\n\n(download the latest version from www.mendeley.com if necessary)"
@@ -261,67 +254,20 @@ Function apiBringPluginToForeground() As String
 	' Note: This doesn't work at the moment
     apiBringPluginToForeground = mendeleyApiCall("bringPluginToForeground")
 End Function
+Function apiMendeleyDesktopVersion() As String
+    apiMendeleyDesktopVersion = mendeleyApiCall("mendeleyDesktopVersion")
+End Function
+Function apiConnected() As Boolean
+	On Error GoTo ErrorHandler
+	
+	apiConnected = True
+	Dim serverVersion As String
+	serverVersion = apiMendeleyDesktopVersion()
 
-' - HTTP requests instead of linking to the LinkToMendeleyVba2.dll for OpenOffice
-Function mendeleyRpcCall(functionName As String, argument As String, optional quitOnError As Boolean) As String
-    Dim mendeleyRpc
-    If IsEmpty(quitOnError) Then
-        quitOnError = true
-    End If
-    mendeleyRpc = createUnoService("com.sun.star.task.MendeleyRPC")
-    Dim mArgs(0) As New com.sun.star.beans.NamedValue
-    mArgs(0).Name = "meaningless"
-    mArgs(0).Value = functionName + Chr(13) + argument
-    On Error Goto ErrorHandler
-    mendeleyRpcCall = mendeleyRpc.Execute(mArgs)
-    Exit Function
+	Exit Function
 ErrorHandler:
-    mendeleyRpcCall = MENDELEY_RPC_CONNECTION_FAILED
-    If quitOnError Then
-        MsgBox "Connection to Mendeley lost"
-        End
-    End If
-End Function
-Function privateExtGetStringResult (ByRef result As String) As Long
-    result = mendeleyRpcCall("getStringResult", result)
-End Function
-Function extCheckConnectionAndSetupIfNeeded() As Long
-    Dim rpcResult As String
-    rpcResult = mendeleyRpcCall("checkConnectionAndSetupIfNeeded", "", false)
-    If (rpcResult = MENDELEY_RPC_CONNECTION_FAILED) Then
-        extCheckConnectionAndSetupIfNeeded = CONNECTION_MENDELEY_DESKTOP_NOT_FOUND
-    Else
-        extCheckConnectionAndSetupIfNeeded = rpcResult
-    End If
-End Function
-Function extLaunchMendeley() As Long
-    ' Don't know how to launch mendeley without linking to dll so present info to user instead
+	apiConnected = False
     MsgBox "Please run Mendeley Desktop before using the plugin.", Title:="Couldn't Connect To Mendeley Desktop"
-    extLaunchMendeley = CONNECTION_MENDELEY_DESKTOP_NOT_FOUND
-End Function
-
-' Allocates a string of the required length and calls extGetStringResult() to fill
-' it in with the result of the previous dll function call
-Public Function extGetStringResult(stringLength As Long) As String
-    Dim result As String
-    If stringLength < 0 Then
-        MsgBox "Connection with Mendeley Desktop lost. Please restart Mendeley Desktop and try again."
-        End
-    End If
-    If stringLength = 0 Then
-        extGetStringResult = result
-        Exit Function
-    End If
-    ' ensure sufficent space in string
-    If stringLength >= 65535 Then
-        MsgBox "Mendeley is trying to send a string of " & stringLength & " characters which exceeds the limit of 65535" & Chr(13) & _
-            "Please don't cite so many documents in the same in-line citation."
-        End
-    End If
-    ' ensure sufficent space in string
-    result = String(stringLength, " ")
-    privateExtGetStringResult (result)
-    extGetStringResult = result
 End Function
 
 ' initialise on word startup and on new / open document
@@ -399,11 +345,9 @@ Sub mergeCitations()
     Dim selectionToReplace
     Dim lastPossibleStartOfNextField
 
-    If Not (launchMendeleyIfNecessary() = CONNECTION_CONNECTED) Then
+    If Not apiConnected() Then
         GoTo EndOfSub
     End If
-
-    'Call extGetStringResult(extStartMerge)
 
 	Dim fieldCodesToMerge(0) As String
 
@@ -444,8 +388,6 @@ Sub mergeCitations()
 		ReDim Preserve fieldCodesToMerge(0 to count) As String
 		fieldCodesToMerge(count) = markName
         count = count + 1
-
-        'Call extGetStringResult(extAddFieldCodeToMerge(markName))
 
 SkipField:
 
@@ -501,10 +443,7 @@ Sub privateInsertCitation(hintText As String)
         End If
     End If
     
-    Dim connectionStatus As Long
-    connectionStatus = extCheckConnectionAndSetupIfNeeded()
-    If connectionStatus = CONNECTION_MENDELEY_DESKTOP_NOT_FOUND Then
-        MsgBox "Please run Mendeley Desktop before using the plugin"
+    If Not apiConnected() Then
         GoTo EndOfSub
     End If
     
@@ -542,7 +481,7 @@ Sub privateInsertCitation(hintText As String)
 
     Call setMendeleyDocument(True)
         
-    If connectionStatus = CONNECTION_CONNECTED Then
+    If apiConnected() Then
         If Not isDocumentLinkedToCurrentUser Then
             GoTo EndOfSub
         End If
@@ -647,7 +586,7 @@ Sub insertBibliography()
     
     Call setMendeleyDocument(True)
     
-    If Not (launchMendeleyIfNecessary() = CONNECTION_CONNECTED) Then
+    If Not apiConnected() Then
         GoTo EndOfSub
     End If
     
@@ -740,7 +679,7 @@ Sub chooseCitationStyle()
     
     Call setMendeleyDocument(True)
         
-    If launchMendeleyIfNecessary() = CONNECTION_CONNECTED Then
+    If apiConnected() Then
         chosenStyle = apiGetCitationStyleFromDialogServerSide(getCitationStyleId())
         Call setCitationStyle(chosenStyle)
         Call refreshDocument

@@ -201,14 +201,14 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     Call warnAboutAlwaysSaveAs
 
     If openingDocument = True Then
-        If isMendeleyRunning() = True Then
+        If apiConnected() = True Then
             Call setCitationStyle(getCitationStyleId())
         Else
             Exit Function
         End If
     End If
     
-    If launchMendeleyIfNecessary() <> CONNECTION_CONNECTED Then
+    If Not apiConnected() Then
         Exit Function
     End If
     
@@ -370,7 +370,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     
     If Not unitTest Then
         Dim newCitationStyle As String
-        newCitationStyle = extGetStringResult(apiGetCitationStyleId())
+        newCitationStyle = apiGetCitationStyleId()
         
         If (newCitationStyle <> oldCitationStyle) Then
             ' set new citation style
@@ -528,28 +528,6 @@ Function getFieldAtSelection()
             End If
         End If
     Wend
-End Function
-
-' Returns connection status
-Function launchMendeleyIfNecessary() As Long
-    ' Only need to launch Mendeley if the document contains the
-    ' MENDELEY property
-    If Not isMendeleyDocument Then
-        launchMendeleyIfNecessary = CONNECTION_NOT_A_MENDELEY_DOCUMENT
-        Exit Function
-    End If
-
-    launchMendeleyIfNecessary = extCheckConnectionAndSetupIfNeeded()
-    
-    If launchMendeleyIfNecessary = CONNECTION_MENDELEY_DESKTOP_NOT_FOUND Then
-        launchMendeleyIfNecessary = extLaunchMendeley()
-    End If
-End Function
-
-Function isMendeleyRunning() As Boolean
-    ' In OpenOffice we cannot know if it's running in that point, so tries to connect
-    ' and if possible to connect it's running
-    isMendeleyRunning = True
 End Function
 
 Function isMendeleyDocument() As Boolean
@@ -934,7 +912,7 @@ Sub checkForCitationEdit()
     If Not (previouslySelectedField Is Nothing) And Not IsMissing(previouslySelectedField) And Not IsEmpty(previouslySelectedField) And objectExists Then
         If Not (previouslySelectedField.result.Text = previouslySelectedFieldResultText) Then
             
-            If Not isMendeleyRunning() Then
+            If Not apiConnected() Then
                 ' Don't need do anything - this edit will get detected next time the user refreshes
                 Exit Sub
             End If

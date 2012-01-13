@@ -114,6 +114,10 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         response = self.api.wordProcessor_set("WinWord", 14.0)
         self.assertEqual(response, "")
 
+    def test_mendeleyDesktopVersion(self):
+        response = self.api.mendeleyDesktopVersion()
+        self.assertTrue(response >= "1.5")
+
     def test_formatCitationsAndBibliography(self):
         self.api.resetCitations()
         self.api.setCitationStyle("http://www.zotero.org/styles/apa")
