@@ -486,7 +486,7 @@ Sub privateInsertCitation(hintText As String)
             bringToForeground = True
             Call apiBringPluginToForeground
         End If
-                
+         
         ' check for null result:
         If (Len(fieldCode) = 0) Or ((Len(fieldCode) = 1) And (fieldCode = "")) Then
             ' MsgBox "No Citation Received from Mendeley"

@@ -1,40 +1,19 @@
 import MendeleyHttpClient
-import MendeleyRPC
 
 import json
 import time
 
 import unittest
 
-class OldApiClient():
-    def __init__(self):
-        self.oldClient = MendeleyRPC.MendeleyRPC("unused")
-
-    class Value:
-        def __init__(self, value):
-            self.Value = value
-
-    def request(self, functionName, argument):
-        startTime = time.time()
-        responseLength = self.oldClient.execute({0: self.Value(functionName + unichr(13) + argument)})
-        response = self.oldClient.execute({0: self.Value("getStringResult")})
-        print "old Api request: " + functionName + " took " + str(1000 * (time.time() - startTime)) + "ms"
-        return response
-
 class TestMendeleyHttpClient(unittest.TestCase):
 
     def setUp(self):
         self.client = MendeleyHttpClient.MendeleyHttpClient()
-        self.oldClient = OldApiClient()
         # todo: tidy up first is "formattedText" and "citationCluster", second just "citationCluster"
         self.testClusters = [
             '{"formattedText": "(Evans & Jr, 2002; Smith & Jr, 2001)", "citationCluster": {"mendeley": {"previouslyFormattedCitation": "(Evans & Jr, 2002; Smith & Jr, 2001)"}, "citationItems": [{"uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"], "id": "ITEM-1", "itemData": {"title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}}, {"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-2", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-2"}}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}}',
             '{"mendeley": {"previouslyFormattedCitation": "(Evans & Jr, 2002; Smith & Jr, 2001)"}, "citationItems": [{"uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"], "id": "ITEM-1", "itemData": {"title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}}, {"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-2", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-2"}}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}'
             ]
-
-    def test_simpleOldApiCall(self):
-        userAccount = self.oldClient.request("getUserAccount", "")
-        self.assertEqual(userAccount, "testDatabase@test.com@local")
 
     def test_simpleNewApiCall(self):
         response = self.client.userAccount()
