@@ -130,58 +130,37 @@ Global Const JSON_CSL_CITATION = "CSL_CITATION "
 Global Const JSON_PREVIOUS = "MendeleyPrevious"
 Global Const JSON_URL = "MendeleyUrl"
 
-Function testFunc()
-	testCallMultiple()
-
-	apiResetCitations()
-	apiSetCitationStyle("http://www.zotero.org/styles/apa")
-	apiAddCitation("Mendeley Citation{15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed}")
-	apiAddFormattedCitation("formattedCitation1")
-	
-	apiFormatCitationsAndBibliography()
-	
-	MsgBox "citation 1: " + mendeleyApiCall("getCitationCluster", "0")
-	MsgBox "formatted citation 1: " + mendeleyApiCall("getFormattedCitation", "0")
-End Function
-
 ' arguments can be a single String argument or an Array of argument Strings
 Function mendeleyApiCall(functionName As String, Optional arguments) As String
-	If IsEmpty(mendeleyApi) Then
-		mendeleyApi = createUnoService("com.sun.star.task.MendeleyDesktopAPI")
-	End If
-		
-	Dim mArgs(0 to 0) As New com.sun.star.beans.NamedValue
-	mArgs(0).Name = "function name"
-	mArgs(0).Value = functionName
+    If IsEmpty(mendeleyApi) Then
+        mendeleyApi = createUnoService("com.sun.star.task.MendeleyDesktopAPI")
+    End If
+        
+    Dim mArgs(0 to 0) As New com.sun.star.beans.NamedValue
+    mArgs(0).Name = "function name"
+    mArgs(0).Value = functionName
 
-	If Not IsMissing(arguments) Then
-		If IsArray(arguments) Then
-	        ReDim Preserve mArgs(0 to UBound(arguments)) As New com.sun.star.beans.NamedValue 
-			Dim arg
-			For arg = 1 to UBound(arguments)
-				mArgs(arg).Name = "argument"
-				mArgs(arg).Value = arguments(arg)
-			Next	
-		Else
-	        ReDim Preserve mArgs(0 to 1) As New com.sun.star.beans.NamedValue 
-			mArgs(1).Name = "argument"
-			Dim argument As String
-			argument = arguments
-			mArgs(1).Value = argument
-		End If
+    If Not IsMissing(arguments) Then
+        If IsArray(arguments) Then
+            ReDim Preserve mArgs(0 to UBound(arguments)) As New com.sun.star.beans.NamedValue 
+            Dim arg
+            For arg = 1 to UBound(arguments)
+                mArgs(arg).Name = "argument"
+                mArgs(arg).Value = arguments(arg)
+            Next    
+        Else
+            ReDim Preserve mArgs(0 to 1) As New com.sun.star.beans.NamedValue 
+            mArgs(1).Name = "argument"
+            Dim argument As String
+            argument = arguments
+            mArgs(1).Value = argument
+        End If
     End If
     
-	Dim returnVal
-	returnVal = mendeleyApi.Execute(mArgs)
-	mendeleyApiCall = returnVal
+    Dim returnVal
+    returnVal = mendeleyApi.Execute(mArgs)
+    mendeleyApiCall = returnVal
 End Function
-
-Sub testCallMultiple()
-	Dim arguments(1 to 2) As String
-	arguments(1) = "arg 1"
-	arguments(2) = "arg 2"
-	MsgBox "result = " + mendeleyApiCall("concatenateStringsTest", arguments)
-End Sub
 
 Function apiResetCitations() As String
     apiResetCitations = mendeleyApiCall("resetCitations")
@@ -220,9 +199,9 @@ Function apiTestGetFieldCode(uuid As String) As String
     apiTestGetFieldCode = mendeleyApiCall("getFieldCodeFromUuid", uuid)
 End Function
 Function apiSetWordProcessor(wordProcessor As String, version As String) As String
-	Dim args(1 to 2) As String
-	args(1) = wordProcessor
-	args(2) = version
+    Dim args(1 to 2) As String
+    args(1) = wordProcessor
+    args(2) = version
     apiSetWordProcessor = mendeleyApiCall("wordProcessor_set", args)
 End Function
 Function apiUndoManualFormat(fieldCode As String) As String
@@ -232,41 +211,41 @@ Function apiCitationChoose(hintText As String) As String
     apiCitationChoose = mendeleyApiCall("citation_choose_interactive", hintText)
 End Function
 Function apiCitationEdit(fieldCode As String, hintText As String) As String
-	Dim args(1 to 2) As String
-	args(1) = fieldCode
-	args(2) = hintText
+    Dim args(1 to 2) As String
+    args(1) = fieldCode
+    args(2) = hintText
     apiCitationEdit = mendeleyApiCall("citation_edit_interactive", args)
 End Function
 Function apiUpdateFieldCode(ByVal fieldCode) As String
-	' Note: not currently used or tested - could be useful for checking
-	' for manual edits immediately after user edit as in WinWord
+    ' Note: not currently used or tested - could be useful for checking
+    ' for manual edits immediately after user edit as in WinWord
     apiUpdateFieldCode = mendeleyApiCall("checkManualFormatAndGetFieldCode", fieldCode)
 End Function
 Function apiMergeCitations(fieldCodes) As String
-	Dim args(1 to (1 + UBound(fieldCodes) - LBound(fieldCodes)))
-	Dim index As Long
-	For index = LBound(fieldCodes) to UBound(fieldCodes)
-		args(index - LBound(fieldCodes) + 1) = fieldCodes(index)
-	Next
+    Dim args(1 to (1 + UBound(fieldCodes) - LBound(fieldCodes)))
+    Dim index As Long
+    For index = LBound(fieldCodes) to UBound(fieldCodes)
+        args(index - LBound(fieldCodes) + 1) = fieldCodes(index)
+    Next
     apiMergeCitations = mendeleyApiCall("citations_merge", args)
 End Function
 Function apiBringPluginToForeground() As String
-	' Note: This doesn't work at the moment
+    ' Note: This doesn't work at the moment
     apiBringPluginToForeground = mendeleyApiCall("bringPluginToForeground")
 End Function
 Function apiMendeleyDesktopVersion() As String
     apiMendeleyDesktopVersion = mendeleyApiCall("mendeleyDesktopVersion")
 End Function
 Function apiConnected() As Boolean
-	On Error GoTo ErrorHandler
-	
-	apiConnected = True
-	Dim serverVersion As String
-	serverVersion = apiMendeleyDesktopVersion()
+    On Error GoTo ErrorHandler
+    
+    apiConnected = True
+    Dim serverVersion As String
+    serverVersion = apiMendeleyDesktopVersion()
 
-	Exit Function
+    Exit Function
 ErrorHandler:
-	apiConnected = False
+    apiConnected = False
     MsgBox "Please run Mendeley Desktop before using the plugin.", Title:="Couldn't Connect To Mendeley Desktop"
 End Function
 
@@ -349,7 +328,7 @@ Sub mergeCitations()
         GoTo EndOfSub
     End If
 
-	Dim fieldCodesToMerge(0) As String
+    Dim fieldCodesToMerge(0) As String
 
     For Each mark In allDocumentMarks
         Set thisField = mark
@@ -385,8 +364,8 @@ Sub mergeCitations()
             selectionToReplace.goRight(1, True)
         WEnd
 
-		ReDim Preserve fieldCodesToMerge(0 to count) As String
-		fieldCodesToMerge(count) = markName
+        ReDim Preserve fieldCodesToMerge(0 to count) As String
+        fieldCodesToMerge(count) = markName
         count = count + 1
 
 SkipField:
@@ -454,7 +433,7 @@ Sub privateInsertCitation(hintText As String)
     
     ZoteroUseBookmarks = False
 
-        Dim selectedRange
+    Dim selectedRange
     Set selectedRange = fnSelection()
     If (selectedRange Is Nothing) Then Return
     
@@ -467,11 +446,6 @@ Sub privateInsertCitation(hintText As String)
         currentSelection = fnSelection()
 
         Dim position
-
-        'position = currentSelection.getPosition()
-
-        'thisComponent.getCaretPosition
-
     Else
         citationText = MENDELEY_CITATION
     End If
@@ -496,10 +470,10 @@ Sub privateInsertCitation(hintText As String)
         If unitTest Then
             fieldCode = apiTestGetFieldCode(hintText)
         Else
-        	If Len(markName) = 0 Then
-            	fieldCode = apiCitationChoose(markName, hintText)
+            If Len(markName) = 0 Then
+                fieldCode = apiCitationChoose(markName, hintText)
             Else
-            	fieldCode = apiCitationEdit(markName, hintText)
+                fieldCode = apiCitationEdit(markName, hintText)
             End If
         End If
 

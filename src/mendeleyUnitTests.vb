@@ -45,6 +45,7 @@ Sub runUnitTests()
     
     Call MkDir(outputPath())
     
+Call testApiCallMultipleArgs
     Call testInsertCitation
     Call testEditCitation
     Call testMergeCitations
@@ -53,6 +54,8 @@ Sub runUnitTests()
     Call testChangeCitationStyle
     Call testInsertBibliography
     Call testExportOpenOfficeSimple
+
+    unitTest = False
 End Sub
 
 ' -- utility functions --
@@ -98,13 +101,13 @@ Function documentText() As String
 End Function
 
 Function normaliseString(inputString As String) As String
-	Dim result
+    Dim result
     ' Strip out all instances of Chr(8288)
     ' these are zero width non-breaking spaces
     ' if it turns out they are important we can remove this and add them to the expected strings
     result = Replace(inputString, Chr(8288), "")
 
-	' normalise line endings to LF
+    ' normalise line endings to LF
     result = Replace(result, crLf(), Chr(10))
     result = Replace(result, Chr(13), Chr(10))
         
@@ -133,6 +136,15 @@ Function compareStrings(actual As String, expected As String, location As String
 End Function
 
 ' -- tests --
+
+Sub testApiCallMultipleArgs()
+    Dim arguments(1 to 2) As String
+    arguments(1) = "arg\n 1"
+    arguments(2) = "arg 2"
+    Dim result As String
+    result = mendeleyApiCall("concatenateStringsTest", arguments)
+    Call compareStrings(result, "arg\n 1arg 2", "testApiCallMultipleArgs")
+End Sub
 
 Sub testRefreshDocument()
     Dim documentName As String
@@ -185,9 +197,9 @@ Sub testExportOpenOfficeSimple()
     Call insertBibliography
     
     ' Export as expected text file
-	Dim expectedString As String
-	expectedString = documentText()
-	    
+    Dim expectedString As String
+    expectedString = documentText()
+        
     Dim exportedFileUrl
     exportedFileUrl = ConvertToUrl(outputPath() & "/exportOO-exported.doc")
     
@@ -198,9 +210,9 @@ Sub testExportOpenOfficeSimple()
     Dim noArgs() 'An empty array for the arguments
     StarDesktop.LoadComponentFromUrl(exportedFileUrl, "_blank", 0, Array())
 
-	' TODO: The exported file has an extra newline at the end.
-	'       Fix issue, then remove the following line:
-	expectedString = expectedString & Chr(10)
+    ' TODO: The exported file has an extra newline at the end.
+    '       Fix issue, then remove the following line:
+    expectedString = expectedString & Chr(10)
 
     Call compareStrings(documentText(), expectedString, "export-OO")
     Call thisComponent.close(false)
@@ -320,13 +332,13 @@ Sub testInsertBibliography()
     ' Add a citation at start
     Call privateInsertCitation("{80fd12bc-8c23-498c-a845-f29cd215dbec}")
     appendText (" some more test" & Chr(13) & "New paragraph." & Chr(13))
-	' removed: select end
+    ' removed: select end
     Call insertBibliography
     
     Call compareStrings(documentText(), "(The Mendeley Support Team, 2011) some more test" + crLf() +_
-		"New paragraph." + crLf() +_
-		"The Mendeley Support Team. (2011). Getting Started with Mendeley. Mendeley Desktop. London: Mendeley Ltd. Retrieved from http://www.mendeley.com" + crLf() + _
-		"", "insertBibliography")
+        "New paragraph." + crLf() +_
+        "The Mendeley Support Team. (2011). Getting Started with Mendeley. Mendeley Desktop. London: Mendeley Ltd. Retrieved from http://www.mendeley.com" + crLf() + _
+        "", "insertBibliography")
     Call thisComponent.close(false)
 End Sub
 
