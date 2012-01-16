@@ -113,16 +113,19 @@ class TestMendeleyHttpClient(unittest.TestCase):
                 ]
             })
         self.assertEqual(response.status, 200)
-        self.assertEqual(json.dumps(response.body.citationCluster),
-            '{"mendeley": {}, "citationItems": [{"itemData": {"title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}, "title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "uris": ["http://unknownServer/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}, {"itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-2"}, "title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "uris": ["http://unknownServer/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "note": "<m:note/>", "type": "article", "id": "ITEM-2"}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
+        self.assertEqual(json.dumps(response.body.citationCluster,sort_keys=True),
+            '{"citationItems": [{"id": "ITEM-1", "itemData": {"author": [{"family": "Smith", "given": "John"}, {"family": "Jr", "given": "John Smith"}], "id": "ITEM-1", "issued": {"date-parts": [["2001"]]}, "note": "<m:note/>", "title": "Title01", "type": "article"}, "uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"]}, {"id": "ITEM-2", "itemData": {"author": [{"family": "Evans", "given": "Gareth"}, {"family": "Jr", "given": "Gareth Evans"}], "id": "ITEM-2", "issued": {"date-parts": [["2002"]]}, "note": "<m:note/>", "title": "Title02", "type": "article"}, "uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"]}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
 
     def test_citation_undoManualFormat(self):
         citation = json.loads(self.testClusters[0])["citationCluster"]
-        citation["mendeley"]["manualFormat"] = "Test manual format"
-        self.assertTrue("manualFormat" in citation["mendeley"])
-        response = self.client.citation_undoManualFormat(citation)
+        citation["mendeley"]["manualFormatting"] = "Test manual format"
+        self.assertTrue("manualFormatting" in citation["mendeley"])
+        response = self.client.citation_undoManualFormat(
+            {"citationCluster" : citation } )
         self.assertEqual(response.status, 200)
-        self.assertFalse("manualFormat" in response.body.citationCluster["mendeley"])
+        self.assertFalse(
+            "mendeley" in response.body.citationCluster and
+            "manualFormatting" in response.body.citationCluster["mendeley"])
         
     def test_wordProcessor_set(self):
         response = self.client.wordProcessor_set(
