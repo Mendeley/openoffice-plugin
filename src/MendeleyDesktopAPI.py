@@ -197,7 +197,9 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         return ""
 
     def bringPluginToForeground(self):
-        # TODO: maybe we need to send the window handle in an argument?
+        # TODO: should send the window handle in an argument so
+        # the server knows which window to bring to the foreground
+
         response = self._client.bringPluginToForeground()
         try:
             assert(response.status == 200)
@@ -228,7 +230,6 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
     def concatenateStringsTest(self, string1, string2):
         return str(string1) + str(string2)
 
-    #TODO: refactor to allow multiple numbers of arguments
     def execute(self, args):
         functionName = str(args[0].Value)
         statement = 'self.' + functionName + '('
@@ -246,4 +247,6 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             raise Exception("ERROR: Function " + functionName + " doesn't exist")
 
 if not testMode:
-    g_ImplementationHelper.addImplementation(MendeleyDesktopAPI, "org.openoffice.pyuno.MendeleyDesktopAPI", ("com.sun.star.task.MendeleyDesktopAPI",),)
+    g_ImplementationHelper.addImplementation(MendeleyDesktopAPI,
+        "org.openoffice.pyuno.MendeleyDesktopAPI",
+        ("com.sun.star.task.MendeleyDesktopAPI",),)
