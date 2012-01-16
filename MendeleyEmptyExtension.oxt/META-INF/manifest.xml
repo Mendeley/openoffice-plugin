@@ -11,6 +11,5 @@
  <manifest:file-entry manifest:full-path="Office/UI/BasicIDEWindowState.xcu" manifest:media-type="application/vnd.sun.star.configuration-data"/>
  <manifest:file-entry manifest:full-path="Office/UI/MathWindowState.xcu" manifest:media-type="application/vnd.sun.star.configuration-data"/>
  <manifest:file-entry manifest:full-path="Office/UI/DrawWindowState.xcu" manifest:media-type="application/vnd.sun.star.configuration-data"/>
- <manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-component;type=Python" manifest:full-path="Scripts/MendeleyRPC.py"/>
  <manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-component;type=Python" manifest:full-path="Scripts/MendeleyDesktopAPI.py"/>
 </manifest:manifest>

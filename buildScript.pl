@@ -122,10 +122,6 @@ else
 	system ("cp -r $EXTENSION_TEMPLATE_DIR $EXTENSION_BUILD_DIR");
 }
 
-# copy old python RPC module
-mkdir("$EXTENSION_BUILD_DIR/Scripts");
-copy("src/MendeleyRPC.py", "$EXTENSION_BUILD_DIR/Scripts/MendeleyRPC.py") or die $COPY_FAILED_MESSAGE;
-
 # python source files
 open(PYTHON_DESTINATION, ">$EXTENSION_BUILD_DIR/Scripts/MendeleyDesktopAPI.py");
 open(PYTHON_HTTP_CLIENT, "<src/MendeleyHttpClient.py");
