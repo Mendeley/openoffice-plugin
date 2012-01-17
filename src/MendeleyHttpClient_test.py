@@ -112,8 +112,14 @@ class TestMendeleyHttpClient(unittest.TestCase):
                 "wordProcessor": "test processor",
                 "version": 999
             })
-
         self.assertEqual(response.status, 200)
+        
+        # incomplete request should generate 400 response
+        response = self.client.wordProcessor_set(
+            {
+                "wrong key" : "no!"
+            })
+        self.assertEqual(response.status, 400)
 
 if __name__ == '__main__':
     unittest.main()
