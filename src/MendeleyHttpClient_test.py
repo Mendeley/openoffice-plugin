@@ -1,9 +1,9 @@
 import MendeleyHttpClient
-
-import json
 import time
-
 import unittest
+# simplejson is json 
+try: import simplejson as json
+except ImportError: import json
 
 class TestMendeleyHttpClient(unittest.TestCase):
 

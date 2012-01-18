@@ -1,6 +1,8 @@
 import MendeleyDesktopAPI 
 import unittest
-import json
+# simplejson is json 
+try: import simplejson as json
+except ImportError: import json
 
 class TestMendeleyDesktopAPI(unittest.TestCase):
     def setUp(self):
