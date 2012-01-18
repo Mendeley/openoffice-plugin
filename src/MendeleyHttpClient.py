@@ -233,8 +233,6 @@ class MendeleyHttpClient():
             #print "WARNING: server returned wrong content-type"
             #return
             pass
-            with open("f:\MendeleyHttpClient.log", "a") as logFile:
-                logFile.write("WARNING: server returned wrong content-type\n")
         
         responseBody = MendeleyHttpClient.ResponseBody()
         #print "data = " + data

@@ -11,7 +11,9 @@
 # (it knows that it's in test mode because "import unohelper"
 #  will fail when run outside of the OpenOffice.org environment)
 
+import json
 import re
+from MendeleyHttpClient import MendeleyHttpClient
 
 try:
     import unohelper
@@ -20,7 +22,6 @@ try:
 except:
     testMode = True
     print "-- not running in OpenOffice environment --"
-    from MendeleyHttpClient import *
 
     class unohelper():
         def __init__(self, ctx):
