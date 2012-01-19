@@ -19,7 +19,7 @@ class TestMendeleyHttpClient(unittest.TestCase):
         response = self.client.userAccount()
         self.assertEqual(response.body.account, "testDatabase@test.com@local")
 
-    def test_slowNewApiCalls(self):
+    def test_formatCitationsAndBibliography(self):
         # this call should complete without requiring user interaction
 
         response1 = self.client.formattedCitationsAndBibliography_Interactive(
