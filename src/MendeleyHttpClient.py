@@ -91,8 +91,8 @@ class MendeleyHttpClient():
     def formattedCitationsAndBibliography_Interactive(self, citationStyleUrl, citationClusters):
         request = self.PostRequest(
             "/formattedCitationsAndBibliography/interactive",
-            "mendeley/wordProcessorApi/documentToFormat+json",
-            "mendeley/wordProcessorApi/formattedDocument+json",
+            "application/vnd.mendeley.documentToFormat+json",
+            "application/vnd.mendeley.formattedDocument+json",
             {
                 "citationStyleUrl": citationStyleUrl,
                 "citationClusters": citationClusters
@@ -103,8 +103,8 @@ class MendeleyHttpClient():
     def citation_choose_interactive(self, citationEditorHint):
         request = self.PostRequest(
             "/citation/choose/interactive",
-            "mendeley/citationEditorHint+json",
-            "mendeley/citationStyleUrl+json",
+            "application/vnd.mendeley.citationEditorHint+json",
+            "application/vnd.mendeley.citationStyleUrl+json",
             citationEditorHint
             )
         return self.request(request)
@@ -112,8 +112,8 @@ class MendeleyHttpClient():
     def citation_edit_interactive(self, citationCluster):
         request = self.PostRequest(
             "/citation/edit/interactive",
-            "mendeley/citationClusterWithHint+json",
-            "mendeley/editedCitationCluster+json",
+            "application/vnd.mendeley.citationClusterWithHint+json",
+            "application/vnd.mendeley.editedCitationCluster+json",
             citationCluster
             )
         return self.request(request)
@@ -121,8 +121,8 @@ class MendeleyHttpClient():
     def citation_update_interactive(self, formattedCitationCluster):
         request = self.PostRequest(
             "/citation/update/interactive",
-            "mendeley/formattedCitationCluster+json",
-            "mendeley/editedCitationCluster+json",
+            "application/vnd.mendeley.formattedCitationCluster+json",
+            "application/vnd.mendeley.editedCitationCluster+json",
             formattedCitationCluster
             )
         return self.request(request)
@@ -130,8 +130,8 @@ class MendeleyHttpClient():
     def citationStyle_choose_interactive(self, currentStyleUrl):
         request = self.PostRequest(
             "/citationStyle/choose/interactive",
-            "mendeley/citationStyleUrl+json",
-            "mendeley/citationStyleUrl+json",
+            "application/vnd.mendeley.citationStyleUrl+json",
+            "application/vnd.mendeley.citationStyleUrl+json",
             currentStyleUrl
             )
         return self.request(request)
@@ -139,8 +139,8 @@ class MendeleyHttpClient():
     def styleName_getFromUrl(self, styleUrl):
         request = self.PostRequest(
             "/citationStyle/getNameFromUrl",
-            "mendeley/citationStyleUrl+json",
-            "mendeley/citationStyleName+json",
+            "application/vnd.mendeley.citationStyleUrl+json",
+            "application/vnd.mendeley.citationStyleName+json",
             styleUrl
             )
         return self.request(request)
@@ -148,22 +148,22 @@ class MendeleyHttpClient():
     def bringPluginToForeground(self):
         request = self.GetRequest(
             "/bringPluginToForeground",
-            "mendeley/bringToForegroundSuccess+json"
+            "application/vnd.mendeley.bringToForegroundResponse+json"
             )
         return self.request(request)
 
     def citationStyles_default(self):
         request = self.GetRequest(
             "/citationStyles/default",
-            "mendeley/citationStyles+json"
+            "application/vnd.mendeley.citationStyles+json"
             )
         return self.request(request)
 
     def citations_merge(self, citationClusters):
         request = self.PostRequest(
             "/citations/merge",
-            "mendeley/citationClusters+json",
-            "mendeley/citationCluster+json",
+            "application/vnd.mendeley.citationClusters+json",
+            "application/vnd.mendeley.citationCluster+json",
             citationClusters
             )
         return self.request(request)
@@ -171,8 +171,8 @@ class MendeleyHttpClient():
     def citation_undoManualFormat(self, citationCluster):
         request = self.PostRequest(
             "/citation/undoManualFormat",
-            "mendeley/citationCluster+json",
-            "mendeley/citationCluster+json",
+            "application/vnd.mendeley.citationCluster+json",
+            "application/vnd.mendeley.citationCluster+json",
             citationCluster
             )
         return self.request(request)
@@ -180,7 +180,7 @@ class MendeleyHttpClient():
     def wordProcessor_set(self, wordProcessor):
         request = self.PostRequest(
             "/wordProcessor/set",
-            "mendeley/wordProcessor+json",
+            "application/vnd.mendeley.wordProcessor+json",
             "",
             wordProcessor
             )
@@ -189,8 +189,8 @@ class MendeleyHttpClient():
     def testMethods_citationCluster_getFromUuid(self, uuid):
         request = self.PostRequest(
             "/testMethods/citationCluster/getFromUuid",
-            "mendeley/referenceUuid+json",
-            "mendeley/citationCluster+json",
+            "application/vnd.mendeley.referenceUuid+json",
+            "application/vnd.mendeley.citationCluster+json",
             uuid
             )
         return self.request(request)
@@ -198,13 +198,13 @@ class MendeleyHttpClient():
     def userAccount(self):
         request = self.GetRequest(
             "/userAccount",
-            "mendeley/getUserAccount+json")
+            "application/vnd.mendeley.userAccount+json")
         return self.request(request)
 
     def mendeleyDesktopVersion(self):
         request = self.GetRequest(
             "/mendeleyDesktopVersion",
-            "mendeley/mendeleyDesktopVersion+json")
+            "application/vnd.mendeley.mendeleyDesktopVersion+json")
         return self.request(request)
 
     # Need to define a class for this.
@@ -228,10 +228,11 @@ class MendeleyHttpClient():
         data = response.read()
         data = data.decode('utf-8')
 
-        if response.getheader("Content-Type") != requestData.acceptType():
+        if (response.status == 200 and (not response.getheader("Content-Type") is None) and
+                response.getheader("Content-Type") != requestData.acceptType()):
             # TODO: abort if the wrong content type is returned
-            #print "WARNING: server returned wrong content-type"
-            #return
+            print "WARNING: server returned wrong content-type: " + response.getheader("Content-Type")
+            return
             pass
         
         responseBody = MendeleyHttpClient.ResponseBody()

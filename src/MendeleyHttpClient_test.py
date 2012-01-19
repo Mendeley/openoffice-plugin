@@ -30,6 +30,8 @@ class TestMendeleyHttpClient(unittest.TestCase):
                 ]
                 )
 
+        self.assertEqual(response1.status, 200)
+
         # should get the same cluster1 back
         self.assertEqual(
                 json.dumps(response1.body.citationClusters[0]),
