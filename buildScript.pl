@@ -123,6 +123,7 @@ else
 }
 
 # python source files
+mkdir("$EXTENSION_BUILD_DIR/Scripts");
 open(PYTHON_DESTINATION, ">$EXTENSION_BUILD_DIR/Scripts/MendeleyDesktopAPI.py");
 open(PYTHON_HTTP_CLIENT, "<src/MendeleyHttpClient.py");
 open(PYTHON_DESKTOP_API, "<src/MendeleyDesktopApi.py");

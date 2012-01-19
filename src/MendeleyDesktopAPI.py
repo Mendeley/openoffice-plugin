@@ -16,13 +16,13 @@ try: import simplejson as json
 except ImportError: import json
 
 import re
-from MendeleyHttpClient import MendeleyHttpClient
 
 try:
     import unohelper
     from com.sun.star.task import XJob
     testMode = False
 except:
+    from MendeleyHttpClient import MendeleyHttpClient
     testMode = True
     print "-- not running in OpenOffice environment --"
 
