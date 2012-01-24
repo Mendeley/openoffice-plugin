@@ -2,6 +2,7 @@
 
 import httplib
 import time
+import sys
 
 # Mendeley HTTP Client
 
@@ -25,6 +26,7 @@ class MendeleyHttpClient():
 
     class UnexpectedResponse(StandardError):
         def __init__(self, response):
+
             try:
                 message = "response: ", json.dumps(response)
             except:
@@ -36,6 +38,8 @@ class MendeleyHttpClient():
                     message += ", body: " + str(response.body)
             StandardError.__init__(self, message)
 
+    # Currently this uses the same version number for all API routes,
+    # this could be altered to be more fine-grained 
     class Request(object):    
         def __init__(self, verb, path, contentType, acceptType, body):
             self._verb = verb
@@ -219,9 +223,10 @@ class MendeleyHttpClient():
         pass
 
     class Response:
-        def __init__(self, status, body):
+        def __init__(self, status, contentType, body):
             self.status = status
             self.body = body
+            self.contentType = contentType
 
     # Sets up a connection to Mendeley Desktop, makes a HTTP request and
     # returns the data
@@ -244,17 +249,15 @@ class MendeleyHttpClient():
         if (response.status == 200 and (not response.getheader("Content-Type") is None) and
                 response.getheader("Content-Type") != requestData.acceptType()):
             # TODO: abort if the wrong content type is returned
-            print "WARNING: server returned wrong content-type: " + response.getheader("Content-Type")
+            sys.stderr.write("ERROR: server returned wrong content-type: ", response.getheader("Content-Type"))
             return
-            pass
-        
+
         responseBody = MendeleyHttpClient.ResponseBody()
-        #print "data = " + data
         try:
             responseBody.__dict__.update(json.loads(data))
         except:
             responseBody = data
         connection.close()
         self.lastRequestTime = 1000 * (time.time() - startTime)
-        return self.Response(response.status, responseBody)
+        return self.Response(response.status, response.getheader("Content-Type"), responseBody)
 

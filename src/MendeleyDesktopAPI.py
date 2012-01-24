@@ -22,9 +22,11 @@ try:
     from com.sun.star.task import XJob
     testMode = False
 except:
+    # either unohelper or XJob modules are not available
+    # these are only required when running within OpenOffice"
     from MendeleyHttpClient import MendeleyHttpClient
     testMode = True
-    print "-- not running in OpenOffice environment --"
+    
 
     class unohelper():
         def __init__(self, ctx):

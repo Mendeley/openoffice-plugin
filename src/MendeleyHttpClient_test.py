@@ -123,5 +123,59 @@ class TestMendeleyHttpClient(unittest.TestCase):
             })
         self.assertEqual(response.status, 400)
 
+    # These are more like unit tests for the server, since the
+    # client doesn't yet do anything with the 406 and 415 responses
+    def test_deprecatedRequestType(self):
+        request = self.client.PostRequest(
+            "/testMethods/citationCluster/getFromUuid",
+            "application/vnd.mendeley.deprecatedRequest+json",
+            "application/vnd.mendeley.citationCluster+json",
+            {}
+            )
+        response = self.client.request(request)
+
+        self.assertEqual(response.status, 415)
+        self.assertEqual(response.contentType,
+            "application/vnd.mendeley.typeDeprecatedError; version=1.0")
+        
+    def test_deprecatedResponseType(self):
+        request = self.client.PostRequest(
+            "/testMethods/citationCluster/getFromUuid",
+            "application/vnd.mendeley.referenceUuid+json",
+            "application/vnd.mendeley.deprecatedResponse+json",
+            {}
+            )
+        response = self.client.request(request)
+
+        self.assertEqual(response.status, 406)
+        self.assertEqual(response.contentType,
+            "application/vnd.mendeley.typeDeprecatedError; version=1.0")
+
+    def test_unknownRequestType(self):
+        request = self.client.PostRequest(
+            "/testMethods/citationCluster/getFromUuid",
+            "application/vnd.mendeley.unknownRequest+json",
+            "application/vnd.mendeley.citationCluster+json",
+            {}
+            )
+        response = self.client.request(request)
+
+        self.assertEqual(response.status, 415)
+        self.assertEqual(response.contentType,
+            "application/vnd.mendeley.typeUnknownError; version=1.0")
+        
+    def test_unknownAcceptType(self):
+        request = self.client.PostRequest(
+            "/testMethods/citationCluster/getFromUuid",
+            "application/vnd.mendeley.referenceUuid+json",
+            "application/vnd.mendeley.unknownResponse+json",
+            {}
+            )
+        response = self.client.request(request)
+
+        self.assertEqual(response.status, 406)
+        self.assertEqual(response.contentType,
+            "application/vnd.mendeley.typeUnknownError; version=1.0")
+
 if __name__ == '__main__':
     unittest.main()
