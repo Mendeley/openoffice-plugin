@@ -26,14 +26,14 @@ class MendeleyHttpClient():
     class UnexpectedResponse(StandardError):
         def __init__(self, response):
             try:
-                message = json.dumps(response)
+                message = "response: ", json.dumps(response)
             except:
                 message = "status: " + str(response.status)
                 try:
                     # not sure why this works but the above doesn't
                     message += ", body: " + json.dumps(response.body.__dict__)
                 except:
-                    pass
+                    message += ", body: " + str(response.body)
             StandardError.__init__(self, message)
 
     class Request(object):    
@@ -53,10 +53,16 @@ class MendeleyHttpClient():
             return self._path
     
         def acceptType(self):
-            return self._acceptType + self._versionSuffix
+            if self._acceptType == "":
+                return ""
+            else:
+                return self._acceptType + self._versionSuffix
 
         def contentType(self):
-            return self._contentType + self._versionSuffix
+            if self._contentType == "":
+                return ""
+            else:
+                return self._contentType + self._versionSuffix
 
         def body(self):
             return json.dumps(self._body)
@@ -220,7 +226,14 @@ class MendeleyHttpClient():
     # Sets up a connection to Mendeley Desktop, makes a HTTP request and
     # returns the data
     def request(self, requestData):
-        headers = { "Content-Type" : requestData.contentType(), "Accept" : requestData.acceptType() }
+        headers = {}
+        # putting an empty string in Content-Type causes the Mendeley Desktop HTTP
+        # server to put the Accept header value in a field called "content-typeaccept"
+        # TODO: check where this error comes from
+        if requestData.contentType() != "":
+            headers["Content-Type"] = requestData.contentType()
+        if requestData.acceptType() != "":
+            headers["Accept"] = requestData.acceptType()
         startTime = time.time()
         connection = httplib.HTTPConnection(self.HOST + ":" + self.PORT)
         connection.request(requestData.verb(), requestData.path(), requestData.body(), headers)

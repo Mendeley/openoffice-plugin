@@ -105,7 +105,12 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             return "<br/>".join(self._formattedCitationsResponse.bibliography)
         
     def getUserAccount(self):
-        return self._client.userAccount().body.account
+        response = self._client.userAccount()
+        
+        if (response.status != 200):
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+
+        return response.body.account
 
     def citationStyle_choose_interactive(self, styleId):
         return self._client.citationStyle_choose_interactive(
@@ -209,7 +214,6 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             assert(response.status == 200)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
-        return ""
 
     # partly for version info, and partly to have a function to call
     # just to check that Mendeley Desktop is running
