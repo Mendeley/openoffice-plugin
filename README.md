@@ -1,4 +1,6 @@
-*__Please Note:__  We are currently in the process of opening up the code and API for integration between Mendeley Desktop and word processors.  An extension built from the master branch in this repository will not work with current stable versions of Mendeley Desktop.  The stable version of the plugin is bundled with Mendeley Desktop and can be installed via Tools -> Install OpenOffice Plugin.*
+*__Please Note:__  This won't work with the stable version of Mendeley Desktop. We're working on it, so please check back later.*
+
+*We are in the process of opening up the code and API for integration between Mendeley Desktop and word processors. The stable version of the plugin is bundled with Mendeley Desktop and can be installed via Tools -> Install OpenOffice Plugin.*
 
 # The Mendeley OpenOffice Extension
 
@@ -27,7 +29,7 @@ and generated a bibliography automatically.
  1. Build the .oxt file using the steps above
  2. Start OpenOffice Writer, go to Tools -> Extension Manager, click the 'Add' button and select the generated .oxt file.
 
-## Running unit tests:
+## Running unit tests in OpenOffice:
 
  1. Build and install the .oxt file using the steps above
  2. Set the environment variable `MENDELEY_OO_TEST_FILES` to the full path of the `testFiles/` directory
@@ -37,4 +39,21 @@ and generated a bibliography automatically.
  6. From the tree choose My Macros->Mendeley->mendeleyUnitTests, and then choose the macro named `runUnitTests()`
  7. Click Run (currently it will only show a message if something goes wrong)
 
-(Tip: it's handy to set up a toolbar button using Tools->Customise if you run the tests frequently)
+(Tip: it's handy to set up a "Run Unit Tests" toolbar button using Tools->Customise if you run the tests frequently)
+
+## Running other unit tests:
+
+ Prerequisite: Python 2.6 or 2.7
+
+### Non-interactive tests
+
+ 1. Ensure Mendeley Desktop is running
+ 2. Run "python src/MendeleyHttpClient\_test.py"
+ 3. Run "python src/MendeleyDesktopAPI\_test.py"
+
+### Interactive tests
+
+ 1. Ensure Mendeley Desktop is running
+ 2. Run "python src/MendeleyDesktopAPI\_test\_interactive.py"
+    (this will prompt you for manual input and produce output based on your actions)
+
