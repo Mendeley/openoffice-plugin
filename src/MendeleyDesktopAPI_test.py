@@ -1,6 +1,6 @@
 import MendeleyDesktopAPI 
 import unittest
-# simplejson is json 
+# simplejson is json
 try: import simplejson as json
 except ImportError: import json
 
@@ -132,5 +132,37 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         self.assertEqual(self.api.getCitationCluster(0), 'ADDIN CSL_CITATION {"mendeley": {"previouslyFormattedCitation": "(Evans & Jr, 2002; Smith & Jr, 2001)"}, "citationItems": [{"uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"], "id": "ITEM-1", "itemData": {"title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}}, {"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-2", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-2"}}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
         self.assertEqual(self.api.getFormattedCitation(0), '(Evans & Jr, 2002; Smith & Jr, 2001)')
    
+    def test_mendeleyDesktopVerison(self):
+        version = self.api.mendeleyDesktopVersion()
+
+        self.assertEqual(self.api.previousSuccess(), "True")
+        self.assertTrue(version != "")
+
+    def test_deprecatedResponseType(self):
+        # check normal undeprecated call
+        response = self.api.getUserAccount()
+        self.assertEqual(self.api.previousSuccess(), "True")
+        self.assertEqual(self.api.previousErrorMessage(), "")
+
+        # check deprecated call
+        response = self.api.deprecatedCallTest()
+        self.assertEqual(self.api.previousSuccess(), "False")
+        self.assertTrue(
+            self.api.previousErrorMessage().startswith("Deprecated type error"))
+
+    def test_unknownResponseType(self):
+        response = self.api.unknownCallTest()
+        self.assertEqual(self.api.previousSuccess(), "False")
+        self.assertTrue(
+            self.api.previousErrorMessage().startswith("Unknown type error"))
+
+    def test_pageNotFound(self):
+        request = self.api._client.GetRequest(
+                "/nonExistant", "unknownType")
+        response = self.api._client.request(request)
+
+        self.assertEqual(self.api.previousSuccess(), "False")
+        self.assertTrue(self.api.previousErrorMessage() != "")
+
 if __name__ == '__main__':
     unittest.main()

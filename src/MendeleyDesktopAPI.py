@@ -96,7 +96,6 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
     def getFormattedCitation(self, index):
         return self._formattedCitationsResponse.citationClusters[int(index)]["formattedText"]
-#        return json.dumps(self._formattedCitationsResponse.__dict__)
 
     def getFormattedBibliography(self):
         # a single string is interpreted as a file name
@@ -126,6 +125,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
+
         return fieldCode
     
     def citation_edit_interactive(self, fieldCode, hintText):
@@ -164,7 +164,19 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             raise MendeleyHttpClient.UnexpectedResponse(response)
         return fieldCode
 
+    def deprecatedCallTest(self):
+        response = self._client.testMethods_citationCluster_getFromUuid_deprecatedResponse({})
+        return response
+    
+    def unknownCallTest(self):
+        response = self._client.testMethods_citationCluster_getFromUuid_unknownResponse({})
+        return response
+
     def _fieldCodeFromCitationCluster(self, citationCluster):
+        if ("citationItems" in citationCluster):
+            if (len(citationCluster["citationItems"]) == 0):
+                return ""
+
         return "ADDIN CSL_CITATION " + json.dumps(citationCluster, sort_keys=True)
 
     def citation_undoManualFormat(self, fieldCode):
@@ -240,6 +252,39 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
     def concatenateStringsTest(self, string1, string2):
         return str(string1) + str(string2)
 
+    def previousSuccess(self):
+        previousResponse = self._client.previousResponse
+        
+        return str(previousResponse.status == 200)
+
+    def previousErrorMessage(self):
+        previousResponse = self._client.previousResponse
+        
+        downloadInstructions = "Please download the latest version " + \
+                "of Mendeley Desktop here: \n" + \
+                "http://www.mendeley.com/download-mendeley-desktop"
+
+        if (previousResponse.status == 406 or 
+            previousResponse.status == 415):
+            if (previousResponse.contentType.startswith(
+                "application/vnd.mendeley.typeDeprecatedError")):
+                # TODO: insert link to plugin download
+                return "Deprecated type error. Please update this plugin to work with the " + \
+                    "current version of Mendeley Desktop"
+            else:
+                return "Unknown type error. " + downloadInstructions
+
+        if (previousResponse.status == 404):
+            return "Page not found. " + downloadInstructions
+
+        if (previousResponse.status != 200):
+            return "Unknown error\n" + json.dumps(previousResponse.__dict__)
+
+        return ""
+
+    def previousResponse(self):
+        return json.dumps(self.previousResponse.__dict__)
+
     def execute(self, args):
         functionName = str(args[0].Value)
         statement = 'self.' + functionName + '('
@@ -252,7 +297,10 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         statement += ')'
 
         if hasattr(self, functionName):
-            return eval(statement)
+            try:
+                return eval(statement)
+            except MendeleyHttpClient.UnexpectedResponse:
+                return ""
         else:
             raise Exception("ERROR: Function " + functionName + " doesn't exist")
 

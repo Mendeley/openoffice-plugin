@@ -22,7 +22,14 @@ class MendeleyHttpClient():
     lastRequestTime = -1
 
     def __init__(self):
-        pass
+        self.previousResponse = self.Response(200, None, None, None)
+
+    class Response:
+        def __init__(self, status, contentType, body, request):
+            self.status = status
+            self.body = body
+            self.contentType = contentType
+            self.request = request
 
     class UnexpectedResponse(StandardError):
         def __init__(self, response):
@@ -114,7 +121,7 @@ class MendeleyHttpClient():
         request = self.PostRequest(
             "/citation/choose/interactive",
             "application/vnd.mendeley.citationEditorHint+json",
-            "application/vnd.mendeley.citationStyleUrl+json",
+            "application/vnd.mendeley.editedCitationCluster+json",
             citationEditorHint
             )
         return self.request(request)
@@ -204,6 +211,24 @@ class MendeleyHttpClient():
             uuid
             )
         return self.request(request)
+    
+    def testMethods_citationCluster_getFromUuid_deprecatedResponse(self, uuid):
+        request = self.PostRequest(
+            "/testMethods/citationCluster/getFromUuid",
+            "application/vnd.mendeley.referenceUuid+json",
+            "application/vnd.mendeley.deprecatedResponse+json",
+            uuid
+            )
+        return self.request(request)
+
+    def testMethods_citationCluster_getFromUuid_unknownResponse(self, uuid):
+        request = self.PostRequest(
+            "/testMethods/citationCluster/getFromUuid",
+            "application/vnd.mendeley.referenceUuid+json",
+            "application/vnd.mendeley.unknownResponse+json",
+            uuid
+            )
+        return self.request(request)
         
     def userAccount(self):
         request = self.GetRequest(
@@ -221,12 +246,6 @@ class MendeleyHttpClient():
     # I tried using a object() instance but it doesn't contain a __dict__
     class ResponseBody:
         pass
-
-    class Response:
-        def __init__(self, status, contentType, body):
-            self.status = status
-            self.body = body
-            self.contentType = contentType
 
     # Sets up a connection to Mendeley Desktop, makes a HTTP request and
     # returns the data
@@ -259,5 +278,9 @@ class MendeleyHttpClient():
             responseBody = data
         connection.close()
         self.lastRequestTime = 1000 * (time.time() - startTime)
-        return self.Response(response.status, response.getheader("Content-Type"), responseBody)
 
+        self.previousResponse = \
+                self.Response(response.status, response.getheader("Content-Type"), responseBody,
+                        requestData)
+
+        return self.previousResponse

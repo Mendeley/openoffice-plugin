@@ -24,7 +24,7 @@ Option Explicit
 Global previouslySelectedField
 Global previouslySelectedFieldResultText As String
 
-Global Const DEBUG_MODE = true
+Global Const DEBUG_MODE = ${DEBUG_MODE}
 Private Const DEBUG_LOG_FILE = "file:///F:/oo-debugLog.txt"
 
 Global Const TEMPLATE_NAME_DURING_BUILD = "MendeleyPlugin"
@@ -159,7 +159,35 @@ Function mendeleyApiCall(functionName As String, Optional arguments) As String
     
     Dim returnVal
     returnVal = mendeleyApi.Execute(mArgs)
+    
+	If (simpleMendeleyApiCall("previousSuccess") = "False") Then
+		Dim message As String
+		message = simpleMendeleyApiCall("previousErrorMessage")
+
+		If (DEBUG_MODE) Then
+			message = message + Chr(10) + simpleMendeleyApiCall("previousResponse")
+		End If
+
+		MsgBox message
+	End If
+
     mendeleyApiCall = returnVal
+End Function
+
+' Only used by the "previousSuccess" and "previousErrorMessage" calls
+Function simpleMendeleyApiCall(functionName As String) As String
+    If IsEmpty(mendeleyApi) Then
+        mendeleyApi = createUnoService("com.sun.star.task.MendeleyDesktopAPI")
+    End If
+        
+    Dim mArgs(0 to 0) As New com.sun.star.beans.NamedValue
+    mArgs(0).Name = "function name"
+    mArgs(0).Value = functionName
+
+    Dim returnVal
+    returnVal = mendeleyApi.Execute(mArgs)
+
+    simpleMendeleyApiCall = returnVal
 End Function
 
 Function apiResetCitations() As String
