@@ -164,5 +164,14 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         self.assertEqual(self.api.previousSuccess(), "False")
         self.assertTrue(self.api.previousErrorMessage() != "")
 
+    def test_previousResultLength(self):
+        statement = []
+        statement.append(self.NameValuePair("functionName", "mendeleyDesktopVersion"))
+        version = self.api.execute(statement)
+
+        statement = []
+        statement.append(self.NameValuePair("functionName", "previousResultLength"))
+        self.assertEqual(len(version), self.api.previousResultLength())
+
 if __name__ == '__main__':
     unittest.main()

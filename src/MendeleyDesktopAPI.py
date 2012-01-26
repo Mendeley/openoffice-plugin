@@ -27,7 +27,6 @@ except:
     from MendeleyHttpClient import MendeleyHttpClient
     testMode = True
     
-
     class unohelper():
         def __init__(self, ctx):
             pass
@@ -54,6 +53,8 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         self.citationClusters = []
         self.citationStyleUrl = ""
         self.formattedBibliography = []
+
+        self._previousResultLength = 0
 
     def resetCitations(self):
         self.citationClusters = []
@@ -282,6 +283,10 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
         return ""
 
+    def previousResultLength(self):
+        print "prev length = ", self._previousResultLength
+        return self._previousResultLength
+
     def previousResponse(self):
         return json.dumps(self.previousResponse.__dict__)
 
@@ -298,7 +303,10 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
         if hasattr(self, functionName):
             try:
-                return eval(statement)
+                result = eval(statement)
+                self._previousResultLength = len(str(result))
+                print "length = ", self._previousResultLength
+                return result
             except MendeleyHttpClient.UnexpectedResponse:
                 return ""
         else:

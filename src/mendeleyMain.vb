@@ -160,6 +160,9 @@ Function mendeleyApiCall(functionName As String, Optional arguments) As String
     Dim returnVal
     returnVal = mendeleyApi.Execute(mArgs)
     
+	Dim resultLength
+	resultLength = simpleMendeleyApiCall("previousResultLength")
+
 	If (simpleMendeleyApiCall("previousSuccess") = "False") Then
 		Dim message As String
 		message = simpleMendeleyApiCall("previousErrorMessage")
@@ -169,6 +172,10 @@ Function mendeleyApiCall(functionName As String, Optional arguments) As String
 		End If
 
 		MsgBox message
+	End If
+
+	If (CLng(resultLength) > 65535) Then
+		MsgBox "Error: Response too long." + Chr(10) + Chr(10) + "Please don't cite so many references in one citation."
 	End If
 
     mendeleyApiCall = returnVal
