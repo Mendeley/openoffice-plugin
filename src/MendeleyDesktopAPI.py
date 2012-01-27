@@ -165,14 +165,6 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             raise MendeleyHttpClient.UnexpectedResponse(response)
         return fieldCode
 
-    def deprecatedCallTest(self):
-        response = self._client.testMethods_citationCluster_getFromUuid_deprecatedResponse({})
-        return response
-    
-    def unknownCallTest(self):
-        response = self._client.testMethods_citationCluster_getFromUuid_unknownResponse({})
-        return response
-
     def _fieldCodeFromCitationCluster(self, citationCluster):
         if ("citationItems" in citationCluster):
             if (len(citationCluster["citationItems"]) == 0):
@@ -284,7 +276,6 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         return ""
 
     def previousResultLength(self):
-        print "prev length = ", self._previousResultLength
         return self._previousResultLength
 
     def previousResponse(self):
@@ -304,8 +295,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         if hasattr(self, functionName):
             try:
                 result = eval(statement)
-                self._previousResultLength = len(str(result))
-                print "length = ", self._previousResultLength
+                self._previousResultLength = len(unicode(result))
                 return result
             except MendeleyHttpClient.UnexpectedResponse:
                 return ""

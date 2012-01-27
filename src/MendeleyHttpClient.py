@@ -18,7 +18,7 @@ class MendeleyHttpClient():
     HOST = "127.0.0.1" # much faster than "localhost" on Windows
                        # see http://cubicspot.blogspot.com/2010/07/fixing-slow-apache-on-localhost-under.html
     PORT = "5000"
-    API_VERSION = "1.0"
+    CONTENT_TYPE = "application/vnd.mendeley.wordProcessorApi+json; version=1.0"
     lastRequestTime = -1
 
     def __init__(self):
@@ -51,11 +51,9 @@ class MendeleyHttpClient():
         def __init__(self, verb, path, contentType, acceptType, body):
             self._verb = verb
             self._path = path
+            self._body = body  # python dictionary
             self._contentType = contentType
             self._acceptType = acceptType
-            self._body = body  # python dictionary
-            self._versionSuffix = ";version=" + MendeleyHttpClient.API_VERSION
-            self._rootPath = "mendeley/wordProcessorApi"
     
         def verb(self):
             return self._verb
@@ -64,52 +62,35 @@ class MendeleyHttpClient():
             return self._path
     
         def acceptType(self):
-            if self._acceptType == "":
-                return ""
-            else:
-                return self._acceptType + self._versionSuffix
+            return self._acceptType
 
         def contentType(self):
-            if self._contentType == "":
-                return ""
-            else:
-                return self._contentType + self._versionSuffix
+            return self._contentType
 
         def body(self):
             return json.dumps(self._body)
 
     class GetRequest(Request):
-        def __init__(self, path, acceptType):
+        def __init__(self, path):
             super(MendeleyHttpClient.GetRequest, self).__init__(
                 "GET",
                 path,
                 "",
-                acceptType,
+                MendeleyHttpClient.CONTENT_TYPE,
                 "")
             
     class PostRequest(Request):
-        def __init__(self, path, contentType, acceptType, body):
+        def __init__(self, path, body):
             super(MendeleyHttpClient.PostRequest, self).__init__(
                 "POST",
                 path,
-                contentType,
-                acceptType,
+                MendeleyHttpClient.CONTENT_TYPE,
+                MendeleyHttpClient.CONTENT_TYPE,
                 body)
-
-    class PutRequest(Request):
-        def __init__(self, path, contentType, body):
-            super(MendeleyHttpClient.PutRequest, self).__init__(
-                "PUT",
-                path,
-                contentType,
-                "",
-                "")
 
     def formattedCitationsAndBibliography_Interactive(self, citationStyleUrl, citationClusters):
         request = self.PostRequest(
             "/formattedCitationsAndBibliography/interactive",
-            "application/vnd.mendeley.documentToFormat+json",
-            "application/vnd.mendeley.formattedDocument+json",
             {
                 "citationStyleUrl": citationStyleUrl,
                 "citationClusters": citationClusters
@@ -120,8 +101,6 @@ class MendeleyHttpClient():
     def citation_choose_interactive(self, citationEditorHint):
         request = self.PostRequest(
             "/citation/choose/interactive",
-            "application/vnd.mendeley.citationEditorHint+json",
-            "application/vnd.mendeley.editedCitationCluster+json",
             citationEditorHint
             )
         return self.request(request)
@@ -129,8 +108,6 @@ class MendeleyHttpClient():
     def citation_edit_interactive(self, citationCluster):
         request = self.PostRequest(
             "/citation/edit/interactive",
-            "application/vnd.mendeley.citationClusterWithHint+json",
-            "application/vnd.mendeley.editedCitationCluster+json",
             citationCluster
             )
         return self.request(request)
@@ -138,8 +115,6 @@ class MendeleyHttpClient():
     def citation_update_interactive(self, formattedCitationCluster):
         request = self.PostRequest(
             "/citation/update/interactive",
-            "application/vnd.mendeley.formattedCitationCluster+json",
-            "application/vnd.mendeley.editedCitationCluster+json",
             formattedCitationCluster
             )
         return self.request(request)
@@ -147,8 +122,6 @@ class MendeleyHttpClient():
     def citationStyle_choose_interactive(self, currentStyleUrl):
         request = self.PostRequest(
             "/citationStyle/choose/interactive",
-            "application/vnd.mendeley.citationStyleUrl+json",
-            "application/vnd.mendeley.citationStyleUrl+json",
             currentStyleUrl
             )
         return self.request(request)
@@ -156,31 +129,25 @@ class MendeleyHttpClient():
     def styleName_getFromUrl(self, styleUrl):
         request = self.PostRequest(
             "/citationStyle/getNameFromUrl",
-            "application/vnd.mendeley.citationStyleUrl+json",
-            "application/vnd.mendeley.citationStyleName+json",
             styleUrl
             )
         return self.request(request)
 
     def bringPluginToForeground(self):
         request = self.GetRequest(
-            "/bringPluginToForeground",
-            "application/vnd.mendeley.bringToForegroundResponse+json"
+            "/bringPluginToForeground"
             )
         return self.request(request)
 
     def citationStyles_default(self):
         request = self.GetRequest(
             "/citationStyles/default",
-            "application/vnd.mendeley.citationStyles+json"
             )
         return self.request(request)
 
     def citations_merge(self, citationClusters):
         request = self.PostRequest(
             "/citations/merge",
-            "application/vnd.mendeley.citationClusters+json",
-            "application/vnd.mendeley.citationCluster+json",
             citationClusters
             )
         return self.request(request)
@@ -188,8 +155,6 @@ class MendeleyHttpClient():
     def citation_undoManualFormat(self, citationCluster):
         request = self.PostRequest(
             "/citation/undoManualFormat",
-            "application/vnd.mendeley.citationCluster+json",
-            "application/vnd.mendeley.citationCluster+json",
             citationCluster
             )
         return self.request(request)
@@ -197,8 +162,6 @@ class MendeleyHttpClient():
     def wordProcessor_set(self, wordProcessor):
         request = self.PostRequest(
             "/wordProcessor/set",
-            "application/vnd.mendeley.wordProcessor+json",
-            "",
             wordProcessor
             )
         return self.request(request)
@@ -206,40 +169,20 @@ class MendeleyHttpClient():
     def testMethods_citationCluster_getFromUuid(self, uuid):
         request = self.PostRequest(
             "/testMethods/citationCluster/getFromUuid",
-            "application/vnd.mendeley.referenceUuid+json",
-            "application/vnd.mendeley.citationCluster+json",
-            uuid
-            )
-        return self.request(request)
-    
-    def testMethods_citationCluster_getFromUuid_deprecatedResponse(self, uuid):
-        request = self.PostRequest(
-            "/testMethods/citationCluster/getFromUuid",
-            "application/vnd.mendeley.referenceUuid+json",
-            "application/vnd.mendeley.deprecatedResponse+json",
-            uuid
-            )
-        return self.request(request)
-
-    def testMethods_citationCluster_getFromUuid_unknownResponse(self, uuid):
-        request = self.PostRequest(
-            "/testMethods/citationCluster/getFromUuid",
-            "application/vnd.mendeley.referenceUuid+json",
-            "application/vnd.mendeley.unknownResponse+json",
             uuid
             )
         return self.request(request)
         
     def userAccount(self):
         request = self.GetRequest(
-            "/userAccount",
-            "application/vnd.mendeley.userAccount+json")
+            "/userAccount"
+            )
         return self.request(request)
 
     def mendeleyDesktopVersion(self):
         request = self.GetRequest(
-            "/mendeleyDesktopVersion",
-            "application/vnd.mendeley.mendeleyDesktopVersion+json")
+            "/mendeleyDesktopVersion"
+            )
         return self.request(request)
 
     # Need to define a class for this.

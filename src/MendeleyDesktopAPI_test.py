@@ -138,27 +138,8 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         self.assertEqual(self.api.previousSuccess(), "True")
         self.assertTrue(version != "")
 
-    def test_deprecatedResponseType(self):
-        # check normal undeprecated call
-        response = self.api.getUserAccount()
-        self.assertEqual(self.api.previousSuccess(), "True")
-        self.assertEqual(self.api.previousErrorMessage(), "")
-
-        # check deprecated call
-        response = self.api.deprecatedCallTest()
-        self.assertEqual(self.api.previousSuccess(), "False")
-        self.assertTrue(
-            self.api.previousErrorMessage().startswith("Deprecated type error"))
-
-    def test_unknownResponseType(self):
-        response = self.api.unknownCallTest()
-        self.assertEqual(self.api.previousSuccess(), "False")
-        self.assertTrue(
-            self.api.previousErrorMessage().startswith("Unknown type error"))
-
     def test_pageNotFound(self):
-        request = self.api._client.GetRequest(
-                "/nonExistant", "unknownType")
+        request = self.api._client.GetRequest("/nonExistant")
         response = self.api._client.request(request)
 
         self.assertEqual(self.api.previousSuccess(), "False")
