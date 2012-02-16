@@ -205,8 +205,7 @@ class MendeleyHttpClient():
         if (response.status == 200 and (not response.getheader("Content-Type") is None) and
                 response.getheader("Content-Type") != requestData.acceptType()):
             # TODO: abort if the wrong content type is returned
-            sys.stderr.write("ERROR: server returned wrong content-type: " + response.getheader("Content-Type"))
-            #return
+			pass
 
         responseBody = MendeleyHttpClient.ResponseBody()
         try:

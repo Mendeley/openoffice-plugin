@@ -118,29 +118,5 @@ class TestMendeleyHttpClient(unittest.TestCase):
             })
         self.assertEqual(response.status, 400)
 
-    def test_unknownRequestType(self):
-        request = self.client.Request(
-            "POST",
-            "/testMethods/citationCluster/getFromUuid",
-            "application/vnd.mendeley.unknown+json",
-            "application/vnd.mendeley.wordProcessorApi+json",
-            {}
-            )
-        response = self.client.request(request)
-
-        self.assertEqual(response.status, 415)
-        
-    def test_unknownAcceptType(self):
-        request = self.client.Request(
-            "POST",
-            "/testMethods/citationCluster/getFromUuid",
-            "application/vnd.mendeley.referenceUuid+json",
-            "application/vnd.mendeley.unknownResponse+json",
-            {}
-            )
-        response = self.client.request(request)
-
-        self.assertEqual(response.status, 406)
-
 if __name__ == '__main__':
     unittest.main()
