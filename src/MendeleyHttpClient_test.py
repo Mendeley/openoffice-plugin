@@ -72,11 +72,6 @@ class TestMendeleyHttpClient(unittest.TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(response.body.citationStyleName, "American Psychological Association 6th Edition")
 
-    def test_bringPluginToForeground(self):
-        response = self.client.bringPluginToForeground()
-        self.assertEqual(response.status, 200)
-        self.assertEqual(response.body.success, True)
-
     def test_citationStyles_default(self):
         response = self.client.citationStyles_default()
         self.assertEqual(response.status, 200)

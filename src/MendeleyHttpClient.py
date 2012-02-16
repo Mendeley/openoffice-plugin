@@ -133,12 +133,6 @@ class MendeleyHttpClient():
             )
         return self.request(request)
 
-    def bringPluginToForeground(self):
-        request = self.GetRequest(
-            "/bringPluginToForeground"
-            )
-        return self.request(request)
-
     def citationStyles_default(self):
         request = self.GetRequest(
             "/citationStyles/default",
@@ -181,7 +175,7 @@ class MendeleyHttpClient():
 
     def mendeleyDesktopVersion(self):
         request = self.GetRequest(
-            "/mendeleyDesktopVersion"
+            "/mendeleyDesktopInfo"
             )
         return self.request(request)
 

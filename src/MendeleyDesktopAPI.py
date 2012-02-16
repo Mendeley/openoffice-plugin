@@ -212,16 +212,6 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
         return ""
 
-    def bringPluginToForeground(self):
-        # TODO: should send the window handle in an argument so
-        # the server knows which window to bring to the foreground
-
-        response = self._client.bringPluginToForeground()
-        try:
-            assert(response.status == 200)
-        except:
-            raise MendeleyHttpClient.UnexpectedResponse(response)
-
     # partly for version info, and partly to have a function to call
     # just to check that Mendeley Desktop is running
     def mendeleyDesktopVersion(self):
@@ -230,7 +220,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             assert(response.status == 200)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
-        return response.body.mendeleyDesktopVersion
+        return response.body.version
 
     # for testing
     def setNumberTest(self, number):
