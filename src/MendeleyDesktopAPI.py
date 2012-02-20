@@ -212,15 +212,16 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
         return ""
 
-    # partly for version info, and partly to have a function to call
-    # just to check that Mendeley Desktop is running
-    def mendeleyDesktopVersion(self):
-        response = self._client.mendeleyDesktopVersion()
+    def mendeleyDesktopInfo(self):
+        response = self._client.mendeleyDesktopInfo()
         try:
             assert(response.status == 200)
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
-        return response.body.version
+
+	result = {"processId": response.body.processId}
+	
+        return result
 
     # for testing
     def setNumberTest(self, number):

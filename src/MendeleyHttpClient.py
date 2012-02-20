@@ -173,7 +173,7 @@ class MendeleyHttpClient():
             )
         return self.request(request)
 
-    def mendeleyDesktopVersion(self):
+    def mendeleyDesktopInfo(self):
         request = self.GetRequest(
             "/mendeleyDesktopInfo"
             )
