@@ -116,10 +116,6 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         response = self.api.wordProcessor_set("WinWord", 14.0)
         self.assertEqual(response, "")
 
-    def test_mendeleyDesktopVersion(self):
-        response = self.api.mendeleyDesktopVersion()
-        self.assertTrue(response >= "1.5")
-
     def test_formatCitationsAndBibliography(self):
         self.api.resetCitations()
         self.api.setCitationStyle("http://www.zotero.org/styles/apa")
@@ -132,11 +128,11 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         self.assertEqual(self.api.getCitationCluster(0), 'ADDIN CSL_CITATION {"mendeley": {"previouslyFormattedCitation": "(Evans & Jr, 2002; Smith & Jr, 2001)"}, "citationItems": [{"uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"], "id": "ITEM-1", "itemData": {"title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}}, {"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-2", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-2"}}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
         self.assertEqual(self.api.getFormattedCitation(0), '(Evans & Jr, 2002; Smith & Jr, 2001)')
    
-    def test_mendeleyDesktopVerison(self):
-        version = self.api.mendeleyDesktopVersion()
+    def test_mendeleyDesktopInfo(self):
+        info = self.api.mendeleyDesktopInfo()
 
         self.assertEqual(self.api.previousSuccess(), "True")
-        self.assertTrue(version != "")
+        self.assertTrue(info['processId'])
 
     def test_pageNotFound(self):
         request = self.api._client.GetRequest("/nonExistant")
@@ -147,12 +143,12 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
 
     def test_previousResultLength(self):
         statement = []
-        statement.append(self.NameValuePair("functionName", "mendeleyDesktopVersion"))
-        version = self.api.execute(statement)
+        statement.append(self.NameValuePair("functionName", "mendeleyDesktopInfo"))
+        info = str(self.api.execute(statement))
 
         statement = []
         statement.append(self.NameValuePair("functionName", "previousResultLength"))
-        self.assertEqual(len(version), self.api.previousResultLength())
+        self.assertEqual(len(info), self.api.previousResultLength())
 
 if __name__ == '__main__':
     unittest.main()
