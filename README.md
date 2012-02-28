@@ -1,6 +1,6 @@
-*__Please Note:__  This won't work with the stable version of Mendeley Desktop. We're working on it, so please check back later.*
+*__Please Note:__  The plugin in this repository requires Mendeley Desktop >= 1.5.  It is not compatible with MD 1.3 and earlier.*
 
-*We are in the process of opening up the code and API for integration between Mendeley Desktop and word processors. The stable version of the plugin is bundled with Mendeley Desktop and can be installed via Tools -> Install OpenOffice Plugin.*
+*The stable version of the plugin is bundled with Mendeley Desktop and can be installed via Tools -> Install OpenOffice Plugin.*
 
 # The Mendeley OpenOffice Extension
 
