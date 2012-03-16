@@ -17,7 +17,7 @@ except ImportError: import json
 class MendeleyHttpClient():
     HOST = "127.0.0.1" # much faster than "localhost" on Windows
                        # see http://cubicspot.blogspot.com/2010/07/fixing-slow-apache-on-localhost-under.html
-    PORT = "5000"
+    PORT = "50002"
     CONTENT_TYPE = "application/vnd.mendeley.wordProcessorApi+json; version=1.0"
     lastRequestTime = -1
 
