@@ -199,7 +199,7 @@ close(OPEN_OFFICE_UNIT_TESTS);
 
 rmtree("temp") or die "rmtree failed: $!";
 
-print "Mendeley OpenOffice plugin built successfully: version $PLUGIN_VERSION";
+print "Mendeley OpenOffice plugin built successfully: version $PLUGIN_VERSION\n";
 exit;
 
 sub processSourceFile

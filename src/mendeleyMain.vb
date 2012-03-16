@@ -266,22 +266,14 @@ Function apiMergeCitations(fieldCodes) As String
 End Function
 Function apiBringPluginToForeground() As String
     ' Note: This doesn't work at the moment
-    apiBringPluginToForeground = mendeleyApiCall("bringPluginToForeground")
-End Function
-Function apiMendeleyDesktopVersion() As String
-    apiMendeleyDesktopVersion = mendeleyApiCall("mendeleyDesktopVersion")
+    ' apiBringPluginToForeground = mendeleyApiCall("bringPluginToForeground")
 End Function
 Function apiConnected() As Boolean
-    On Error GoTo ErrorHandler
-    
-    apiConnected = True
-    Dim serverVersion As String
-    serverVersion = apiMendeleyDesktopVersion()
+    apiConnected = mendeleyApiCall("isMendeleyDesktopRunningStr") = "True"
 
-    Exit Function
-ErrorHandler:
-    apiConnected = False
-    MsgBox "Please run Mendeley Desktop before using the plugin.", Title:="Couldn't Connect To Mendeley Desktop"
+    If apiConnected = False Then
+        MsgBox "Please run Mendeley Desktop before using the plugin.", Title:="Couldn't Connect To Mendeley Desktop"
+    End If
 End Function
 
 ' initialise on word startup and on new / open document

@@ -223,6 +223,13 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 	
         return result
 
+    def isMendeleyDesktopRunningStr(self):
+	try:
+            response = self._client.mendeleyDesktopInfo()
+            return str(response.status == 200)
+	except:
+	    return False
+
     # for testing
     def setNumberTest(self, number):
         self.number = number.decode('string_escape')
