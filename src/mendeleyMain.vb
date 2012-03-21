@@ -46,7 +46,8 @@ Global Const DEFAULT_CITATION_STYLE_NAME = "American Psychological Association"
 Global Const SELECT_ME_FETCH_STYLES = "Select me to fetch the styles"
 
 Global Const CSL_CITATION = "CSL_CITATION "
-Global Const CSL_BIBLIOGRAPHY = "CSL_BIBLIOGRAPHY "
+Global Const CSL_BIBLIOGRAPHY = "CSL_BIBLIOGRAPHY"
+Global Const CSL_BIBLIOGRAPHY_OLD = "CSL_BIBLIOGRAPHY "
 Global Const INSERT_CITATION_TEXT = "{Formatting Citation}"
 Global Const CITATION_EDIT_TEXT = ""
 Global Const BIBLIOGRAPHY_TEXT = "{Bibliography}"
@@ -596,7 +597,7 @@ Sub insertBibliography()
     End If
     
     Dim thisField 'As Field
-    Set thisField = fnAddMark(fnSelection(), "ADDIN " & MENDELEY_BIBLIOGRAPHY & " " & CSL_BIBLIOGRAPHY)
+    Set thisField = fnAddMark(fnSelection(), "ADDIN " & MENDELEY_BIBLIOGRAPHY & " " & CSL_BIBLIOGRAPHY_OLD)
     
     Call refreshDocument
     
