@@ -1,7 +1,7 @@
 
 ' ***** BEGIN LICENSE BLOCK *****
 '
-' Copyright (c) 2009, 2010, 2011 Mendeley Ltd.
+' Copyright (c) 2009-2012 Mendeley Ltd.
 ' Copyright (c) 2006 Center for History and New Media
 '                    George Mason University, Fairfax, Virginia, USA
 '                    http://chnm.gmu.edu

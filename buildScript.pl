@@ -6,7 +6,7 @@
 # (the "Licensor") has placed the following notice immediately following
 # the copyright notice for the Original Work:
 # 
-# Copyright (c) 2009 Mendeley Ltd.
+# Copyright (c) 2009-2012 Mendeley Ltd.
 # 
 # Licensed under the Educational Community License version 1.0
 # 
