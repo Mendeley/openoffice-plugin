@@ -116,7 +116,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
     def citationStyle_choose_interactive(self, styleId):
         return self._client.citationStyle_choose_interactive(
-            {"citationStyleUrl": styleId}).body.citationStyleUrl
+            {"currentStyleUrl": styleId}).body.citationStyleUrl
 
     def citation_choose_interactive(self, hintText):
         response = self._client.citation_choose_interactive(
