@@ -15,13 +15,13 @@
 try: import simplejson as json
 except ImportError: import json
 
+import os
 import re
 
-try:
-    import unohelper
-    from com.sun.star.task import XJob
-    testMode = False
-except:
+# if MENDELEY_UNIT_TEST environment variable exists:
+# it doesn't try to use the unohelper package. Mendeley tests sets this
+# variable when needed.
+if os.environ.has_key('MENDELEY_UNIT_TEST'):
     # either unohelper or XJob modules are not available
     # these are only required when running within OpenOffice"
     from MendeleyHttpClient import MendeleyHttpClient
@@ -38,6 +38,11 @@ except:
     class XJob():
         def __init__(self, ctx):
             pass
+    
+else:
+    import unohelper
+    from com.sun.star.task import XJob
+    testMode = False
 
 if not testMode:
     g_ImplementationHelper = unohelper.ImplementationHelper()
