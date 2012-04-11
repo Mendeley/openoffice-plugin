@@ -22,8 +22,6 @@ import re
 # it doesn't try to use the unohelper package. Mendeley tests sets this
 # variable when needed.
 if os.environ.has_key('MENDELEY_UNIT_TEST'):
-    # either unohelper or XJob modules are not available
-    # these are only required when running within OpenOffice"
     from MendeleyHttpClient import MendeleyHttpClient
     testMode = True
     
