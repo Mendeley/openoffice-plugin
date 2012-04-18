@@ -18,13 +18,21 @@ except ImportError: import json
 import os
 import re
 
-# if MENDELEY_UNIT_TEST environment variable exists:
+# if DO_NOT_USE_UNO_HELPER environment variable exists:
 # it doesn't try to use the unohelper package. Mendeley tests sets this
 # variable when needed.
-if os.environ.has_key('MENDELEY_UNIT_TEST'):
+fakeUnoHelper = True
+if not os.environ.has_key('DO_NOT_USE_UNO_HELPER'):
+    try:
+        import unohelper
+	from com.sun.star.task import XJob
+	fakeUnoHelper = False
+    except ImportError:
+        pass
+
+if fakeUnoHelper:
     from MendeleyHttpClient import MendeleyHttpClient
-    testMode = True
-    
+
     class unohelper():
         def __init__(self, ctx):
             pass
@@ -36,13 +44,8 @@ if os.environ.has_key('MENDELEY_UNIT_TEST'):
     class XJob():
         def __init__(self, ctx):
             pass
-    
-else:
-    import unohelper
-    from com.sun.star.task import XJob
-    testMode = False
 
-if not testMode:
+else:
     g_ImplementationHelper = unohelper.ImplementationHelper()
 
 class MendeleyDesktopAPI(unohelper.Base, XJob):
@@ -303,7 +306,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         else:
             raise Exception("ERROR: Function " + functionName + " doesn't exist")
 
-if not testMode:
+if not fakeUnoHelper:
     g_ImplementationHelper.addImplementation(MendeleyDesktopAPI,
         "org.openoffice.pyuno.MendeleyDesktopAPI",
         ("com.sun.star.task.MendeleyDesktopAPI",),)
