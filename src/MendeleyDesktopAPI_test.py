@@ -1,5 +1,7 @@
 import MendeleyDesktopAPI 
 import unittest
+import re
+
 # simplejson is json
 try: import simplejson as json
 except ImportError: import json
@@ -10,7 +12,7 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
 
         self.testCluster = \
             {
-                "citationItems": [{"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-1", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}}],
+                "citationItems": [{"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-1", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "type": "article", "id": "ITEM-1"}}],
                 "properties": {"noteIndex": 0},
                 "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"
             }
@@ -110,7 +112,7 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         fieldCodes[1] = 'Mendeley Citation{' + self.testUuid2 + '}'
 
         mergedFieldCode = self.api.citations_merge(fieldCodes[0], fieldCodes[1])
-        self.assertEqual(mergedFieldCode, 'ADDIN CSL_CITATION {"citationItems": [{"id": "ITEM-1", "itemData": {"author": [{"family": "Evans", "given": "Gareth"}, {"family": "Jr", "given": "Gareth Evans"}], "id": "ITEM-1", "issued": {"date-parts": [["2002"]]}, "note": "<m:note/>", "title": "Title02", "type": "article"}, "uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"]}, {"id": "ITEM-2", "itemData": {"author": [{"family": "Smith", "given": "John"}, {"family": "Jr", "given": "John Smith"}], "id": "ITEM-2", "issued": {"date-parts": [["2001"]]}, "note": "<m:note/>", "title": "Title01", "type": "article"}, "uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"]}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
+        self.assertEqual(mergedFieldCode, 'ADDIN CSL_CITATION {"citationItems": [{"id": "ITEM-1", "itemData": {"author": [{"family": "Evans", "given": "Gareth"}, {"family": "Jr", "given": "Gareth Evans"}], "id": "ITEM-1", "issued": {"date-parts": [["2002"]]}, "title": "Title02", "type": "article"}, "uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"]}, {"id": "ITEM-2", "itemData": {"author": [{"family": "Smith", "given": "John"}, {"family": "Jr", "given": "John Smith"}], "id": "ITEM-2", "issued": {"date-parts": [["2001"]]}, "title": "Title01", "type": "article"}, "uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"]}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
 
     def test_wordProcessor_set(self):
         response = self.api.wordProcessor_set("WinWord", 14.0)
@@ -125,7 +127,7 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         self.api.addFormattedCitation("test")
         self.api.formatCitationsAndBibliography()
 
-        self.assertEqual(self.api.getCitationCluster(0), 'ADDIN CSL_CITATION {"mendeley": {"previouslyFormattedCitation": "(Evans & Jr, 2002; Smith & Jr, 2001)"}, "citationItems": [{"uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"], "id": "ITEM-1", "itemData": {"title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-1"}}, {"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-2", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "note": "<m:note/>", "type": "article", "id": "ITEM-2"}}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}')
+        self.assertEqual(self.citationToJsonString(self.api.getCitationCluster(0)), self.citationToJsonString('ADDIN CSL_CITATION {"mendeley": {"previouslyFormattedCitation": "(Evans & Jr, 2002; Smith & Jr, 2001)"}, "citationItems": [{"uris": ["http://local/documents/?uuid=55ff8735-3f3c-4c9f-87c3-8db322ba3f74"], "id": "ITEM-1", "itemData": {"title": "Title01", "issued": {"date-parts": [["2001"]]}, "author": [{"given": "John", "family": "Smith"}, {"given": "John Smith", "family": "Jr"}], "type": "article", "id": "ITEM-1"}}, {"uris": ["http://local/documents/?uuid=15d6d1e4-a9ff-4258-88b6-a6d6d6bdc0ed"], "id": "ITEM-2", "itemData": {"title": "Title02", "issued": {"date-parts": [["2002"]]}, "author": [{"given": "Gareth", "family": "Evans"}, {"given": "Gareth Evans", "family": "Jr"}], "type": "article", "id": "ITEM-2"}}], "properties": {"noteIndex": 0}, "schema": "https://github.com/citation-style-language/schema/raw/master/csl-citation.json"}'))
         self.assertEqual(self.api.getFormattedCitation(0), '(Evans & Jr, 2002; Smith & Jr, 2001)')
    
     def test_mendeleyDesktopInfo(self):
@@ -149,6 +151,10 @@ class TestMendeleyDesktopAPI(unittest.TestCase):
         statement = []
         statement.append(self.NameValuePair("functionName", "previousResultLength"))
         self.assertEqual(len(info), self.api.previousResultLength())
+
+    def citationToJsonString(self,s):
+        s = re.sub("^ADDIN CSL_CITATION ","",s)
+        return json.dumps(json.loads(s),sort_keys = True)
 
 if __name__ == '__main__':
     unittest.main()
