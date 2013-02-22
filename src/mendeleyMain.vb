@@ -161,23 +161,19 @@ Function mendeleyApiCall(functionName As String, Optional arguments) As String
     Dim returnVal
     returnVal = mendeleyApi.Execute(mArgs)
     
-	Dim resultLength
-	resultLength = simpleMendeleyApiCall("previousResultLength")
+    Dim resultLength
+    resultLength = simpleMendeleyApiCall("previousResultLength")
 
-	If (simpleMendeleyApiCall("previousSuccess") = "False") Then
-		Dim message As String
-		message = simpleMendeleyApiCall("previousErrorMessage")
+    If (simpleMendeleyApiCall("previousSuccess") = "False") Then
+        Dim message As String
+        message = simpleMendeleyApiCall("previousErrorMessage")
 
-		If (DEBUG_MODE) Then
-			message = message + Chr(10) + simpleMendeleyApiCall("previousResponse")
-		End If
+        If (DEBUG_MODE) Then
+            message = message + Chr(10) + simpleMendeleyApiCall("previousResponse")
+        End If
 
-		MsgBox message
-	End If
-
-	If (CLng(resultLength) > 65535) Then
-		MsgBox "Error: Response too long." + Chr(10) + Chr(10) + "Please don't cite so many references in one citation."
-	End If
+        MsgBox message
+    End If
 
     mendeleyApiCall = returnVal
 End Function
@@ -528,6 +524,10 @@ Sub privateInsertCitation(hintText As String)
               oDupRange = selectedRange.Text.createTextCursorByRange(selectedRange)
               selectedRange.collapseToStart
             If (currentMark Is Nothing) Or IsEmpty(currentMark) Then
+                If (CLng(citationText) > 65535) Then
+                    MsgBox "Error: Response too long." + Chr(10) + Chr(10) + "Please don't cite so many references in one citation."
+                End If
+
                 Set citeField = fnAddMark(selectedRange, citationText)
             Else
                   citeField = currentMark

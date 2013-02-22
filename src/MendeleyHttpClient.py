@@ -1,8 +1,12 @@
 #!/usr/bin/python
 
-import httplib
 import time
 import sys
+if sys.version_info < (3, 0):
+    import httplib
+else:
+    import http.client as httplib
+    StandardError = Exception
 
 # Mendeley HTTP Client
 
@@ -205,7 +209,7 @@ class MendeleyHttpClient():
         if (response.status == 200 and (not response.getheader("Content-Type") is None) and
                 response.getheader("Content-Type") != requestData.acceptType()):
             # TODO: abort if the wrong content type is returned
-			pass
+            pass
 
         responseBody = MendeleyHttpClient.ResponseBody()
         try:

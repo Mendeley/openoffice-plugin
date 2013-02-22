@@ -17,16 +17,22 @@ except ImportError: import json
 
 import os
 import re
+import codecs
+import sys
+if sys.version_info < (3, 0):
+    python3 = False
+else:
+    python3 = True
 
 # if DO_NOT_USE_UNO_HELPER environment variable exists:
 # it doesn't try to use the unohelper package. Mendeley tests sets this
 # variable when needed.
 fakeUnoHelper = True
-if not os.environ.has_key('DO_NOT_USE_UNO_HELPER'):
+if not 'DO_NOT_USE_UNO_HELPER' in os.environ:
     try:
         import unohelper
-	from com.sun.star.task import XJob
-	fakeUnoHelper = False
+        from com.sun.star.task import XJob
+        fakeUnoHelper = False
     except ImportError:
         pass
 
@@ -225,16 +231,15 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
 
-	result = {"processId": response.body.processId}
-	
+    result = {"processId": response.body.processId}
         return result
 
     def isMendeleyDesktopRunningStr(self):
-	try:
+        try:
             response = self._client.mendeleyDesktopInfo()
             return str(response.status == 200)
-	except:
-	    return False
+        except:
+            return False
 
     # for testing
     def setNumberTest(self, number):
@@ -290,7 +295,10 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         statement = 'self.' + functionName + '('
         for arg in range(1, len(args)):
             statement += '"'
-            statement += args[arg].Value.encode('unicode_escape').replace('"', '\\"')
+            data = codecs.getencoder('unicode_escape')(args[arg].Value)[0]
+            if python3:
+                data = data.decode('utf-8')
+            statement += data.replace('"', '\\"')
             statement += '"'
             if arg < len(args) - 1:
                 statement += ', '
