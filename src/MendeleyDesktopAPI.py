@@ -231,7 +231,7 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         except:
             raise MendeleyHttpClient.UnexpectedResponse(response)
 
-    result = {"processId": response.body.processId}
+        result = {"processId": response.body.processId}
         return result
 
     def isMendeleyDesktopRunningStr(self):
