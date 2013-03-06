@@ -24,6 +24,11 @@ if sys.version_info < (3, 0):
 else:
     python3 = True
 
+# All strings are unicode in Python 3.
+# See http://stackoverflow.com/questions/6812031/how-to-make-unicode-string-with-python3
+if python3:
+	unicode = str
+
 # if DO_NOT_USE_UNO_HELPER environment variable exists:
 # it doesn't try to use the unohelper package. Mendeley tests sets this
 # variable when needed.
