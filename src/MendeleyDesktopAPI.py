@@ -11,9 +11,10 @@
 # (it knows that it's in test mode because "import unohelper"
 #  will fail when run outside of the OpenOffice.org environment)
 
-# simplejson is json 
+# simplejson is json (using a generic 'except' and not 'except ImportError'
+# because MD-19770. See: https://bugs.launchpad.net/ubuntu/+source/libreoffice/+bug/1222823
 try: import simplejson as json
-except ImportError: import json
+except: import json
 
 import os
 import re

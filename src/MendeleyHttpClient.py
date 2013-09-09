@@ -14,8 +14,10 @@ else:
 # processor API
 
 # simplejson is json 
+# simplejson is json (using a generic 'except' and not 'except ImportError'
+# because MD-19770. See https://bugs.launchpad.net/ubuntu/+source/libreoffice/+bug/1222823
 try: import simplejson as json
-except ImportError: import json
+except: import json
 
 # For communicating with the Mendeley Desktop HTTP API
 class MendeleyHttpClient():
