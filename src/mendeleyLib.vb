@@ -597,6 +597,7 @@ Sub applyFormatting(markup As String, mark)
     ' <u></u> underline
     ' <sup></sup> superscript
     ' <sub></sub> subscript
+    ' <span style="font-variant:small-caps;"></span> small-caps
 
     ' add extra space at start because the Range.Delete function will
     ' delete the whole field if we attempt to delete the first character
@@ -617,13 +618,13 @@ Sub applyFormatting(markup As String, mark)
 
     startPosition = 0
     endPosition = Len(range.Text.String)
-
+    
     Call applyStyleToTagPairs("i", subRange, startPosition, endPosition)
     Call applyStyleToTagPairs("b", subRange, startPosition, endPosition)
     Call applyStyleToTagPairs("u", subRange, startPosition, endPosition)
     Call applyStyleToTagPairs("sup", subRange, startPosition, endPosition)
     Call applyStyleToTagPairs("sub", subRange, startPosition, endPosition)
-    
+
     If InStr(getMarkText(mark), "second-field-align") > 0 Or InStr(getMarkText(mark), "hanging-indent") Then
             range.setPropertyValue("ParaFirstLineIndent", 0)
             range.setPropertyValue("ParaLeftMargin", 0)
@@ -636,9 +637,10 @@ Sub applyFormatting(markup As String, mark)
     ' (would be better if we could send unicode characters directly over the local socket,
     '  but it doesn't seem to work)
     Call applyStyleToTagPairs("unicode", subRange, startPosition, endPosition)
-
     ' Add paragraph breaks in place of <p>
     Call applyStyleToIndividualTags("p", subRange, startPosition, endPosition)
+    
+    Call applyStyleToSpan(subRange, startPosition, endPosition)
 End Sub
 
 Function formatUnicode(inputText As String) As String
@@ -735,17 +737,25 @@ Sub testAddUnicodeTags()
     MsgBox "after: " & testString
 End Sub
 
-Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
-    startPosition As Long, endPosition As Long)
-
+Sub applyStyleToSpan(wholeRange as range, startPosition as Long, endPosition as Long)
     Dim startTag As String
     Dim endTag As String
     
+	startTag = "<span style=""font-variant:small-caps;"">"
+	endTag = "</span>"
+	
+	Call applyStyleToTags(startTag, endTag, wholeRange, startPosition, endPosition, "small-caps")
+End Sub
+
+Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
+	startPosition As Long, endPosition As Long)
+	Call applyStyleToTags("<" + tag + ">", "</" + tag + ">", wholeRange, startPosition, endPosition, tag)
+End Sub
+
+Sub applyStyleToTags(startTag As String, endTag As String, wholeRange As range, _
+	startPosition As Long, endPosition As Long, operation As String)
     Dim thisRange 'As Range
     Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
-    
-    startTag = "<" + tag + ">"
-    endTag = "</" + tag + ">"
     
     ' Maximum number of characters used in the first field
     ' Used for setting the second-field-align tab stopa
@@ -760,7 +770,7 @@ Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
 
         startTagPosition = InStr(fnReplace(rangeString(thisRange), Chr(13), ""), startTag) - 1
         thisRange.goRight(startTagPosition, False)
-        thisRange.goRight(2 + Len(tag), True)
+        thisRange.goRight(len(startTag), True)
         thisRange.String = ""
         
         ' find and remove end tag
@@ -771,7 +781,7 @@ Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
         
             endTagPosition = InStr(fnReplace(rangeString(thisRange), Chr(13), ""), endTag) - 1
             thisRange.goRight(endTagPosition, False)
-            thisRange.goRight(3 + Len(tag), True)
+            thisRange.goRight(len(endTag), True)
             ' add a space on the end, which is deleted later. Otherwise, if we are
             ' at the end of a mark, new characters will be inserted OUTSIDE the mark
             thisRange.String = " "
@@ -781,7 +791,7 @@ Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
             thisRange.goRight(endTagPosition - startTagPosition, True)
         
         ' apply style
-        Select Case tag
+        Select Case operation
             Case "b"
                 thisRange.setPropertyValue("CharWeight", 150)
             Case "i"
@@ -833,6 +843,9 @@ Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
                 Dim characterCode As Long
                 characterCode = thisRange.String
                 thisRange.String = Chr(characterCode)
+                
+            Case "small-caps"
+            	thisRange.setPropertyValue("CharCaseMap", 4)
         End Select
 
         ' remove extra space from after the tag
@@ -843,7 +856,7 @@ Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
         Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
     Loop
     
-    If tag = "second-field-align" And maxFirstFieldLength > 0 Then
+    If startTag = "<second-field-align>" And maxFirstFieldLength > 0 Then
         ' Create tab stop - the position is calculated approximately
         ' and works reasonably well for numbered citations
         Call setHangingIndent(wholeRange, 4 + 6 * maxFirstFieldLength)
@@ -963,3 +976,4 @@ Function indexOf(container() As String, item As String) As Long
     ' not found
     indexOf = -1
 End Function
+
