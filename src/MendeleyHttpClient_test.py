@@ -70,7 +70,7 @@ class TestMendeleyHttpClient(unittest.TestCase):
         response = self.client.styleName_getFromUrl(
                 {"citationStyleUrl": "http://www.zotero.org/styles/apa"})
         self.assertEqual(response.status, 200)
-        self.assertEqual(response.body.citationStyleName, "American Psychological Association 6th Edition")
+        self.assertEqual(response.body.citationStyleName, "American Psychological Association 6th edition")
 
     def test_citationStyles_default(self):
         response = self.client.citationStyles_default()
