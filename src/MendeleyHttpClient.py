@@ -132,6 +132,12 @@ class MendeleyHttpClient():
             )
         return self.request(request)
 
+    def citationStyle_selected(self):
+        request = self.GetRequest(
+            "/citationStyle/selected"
+            )
+        return self.request(request)
+
     def styleName_getFromUrl(self, styleUrl):
         request = self.PostRequest(
             "/citationStyle/getNameFromUrl",
@@ -182,6 +188,12 @@ class MendeleyHttpClient():
     def mendeleyDesktopInfo(self):
         request = self.GetRequest(
             "/mendeleyDesktopInfo"
+            )
+        return self.request(request)
+
+    def desktopSelectedCitationStyle(self):
+        request = self.GetRequest(
+            "/"
             )
         return self.request(request)
 

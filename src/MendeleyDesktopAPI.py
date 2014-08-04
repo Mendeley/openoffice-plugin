@@ -183,6 +183,14 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             raise MendeleyHttpClient.UnexpectedResponse(response)
         return fieldCode
 
+    def getDesktopSelectedStyleId(self):
+        response = self._client.citationStyle_selected()
+
+        if (response.status != 200):
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+
+        return response.body.citationStyleId
+
     def _fieldCodeFromCitationCluster(self, citationCluster):
         if ("citationItems" in citationCluster):
             if (len(citationCluster["citationItems"]) == 0):
