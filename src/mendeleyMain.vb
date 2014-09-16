@@ -41,8 +41,6 @@ Global Const MENDELEY_EDITED_CITATION = "Mendeley Edited Citation"
 Global Const MENDELEY_BIBLIOGRAPHY = "Mendeley Bibliography"
 Global Const MENDELEY_BIBLIOGRAPHY_MAC = " PRINTDATE Mendeley Bibliography"
 Global Const MENDELEY_CITATION_STYLE = "Mendeley Citation Style"
-Global Const DEFAULT_CITATION_STYLE = "http://www.zotero.org/styles/apa"
-Global Const DEFAULT_CITATION_STYLE_NAME = "American Psychological Association"
 Global Const SELECT_ME_FETCH_STYLES = "Select me to fetch the styles"
 
 Global Const CSL_CITATION = "CSL_CITATION "
@@ -271,6 +269,9 @@ Function apiConnected() As Boolean
     If apiConnected = False Then
         MsgBox "Please run Mendeley Desktop before using the plugin.", Title:="Couldn't Connect To Mendeley Desktop"
     End If
+End Function
+Function apiGetDesktopCitationStyleId() As String
+    apiGetDesktopCitationStyleId = mendeleyApiCall("getDesktopSelectedStyleId")
 End Function
 
 ' initialise on word startup and on new / open document

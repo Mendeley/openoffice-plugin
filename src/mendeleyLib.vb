@@ -200,14 +200,6 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     
     Call warnAboutAlwaysSaveAs
 
-    If openingDocument = True Then
-        If apiConnected() = True Then
-            Call setCitationStyle(getCitationStyleId())
-        Else
-            Exit Function
-        End If
-    End If
-    
     If Not apiConnected() Then
         Exit Function
     End If
@@ -218,11 +210,11 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     
     Call sendWordProcessorVersion
     
-    ' update combo box
-    ' Tell Mendeley Desktop what citation style to use
-    Dim newStyle As String
-    newStyle = getCitationStyleId()
-    Call apiSetCitationStyle(newStyle)
+    Dim oldCitationStyle As String
+    oldCitationStyle = getCitationStyleId()
+    ' Ensure Mendeley Desktop knows which citation style to use and that it's added to
+    ' document properties
+    Call setCitationStyle(oldCitationStyle)
     
     ' Subscribe to events (e.g. WindowSelectionChange) doing on refreshDocument as it
     ' doesn't work in initialise() when addExternalFunctions() is also called
@@ -272,9 +264,6 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
             
         End If
     Next
-    
-    Dim oldCitationStyle As String
-    oldCitationStyle = getCitationStyleId()
     
     ' Now that we've compiled the list of uuids, give them to Mendeley Desktop
     ' and tell it to format the citations and bibliography
@@ -440,8 +429,13 @@ End Sub
 Function getCitationStyleId() As String
     getCitationStyleId = fnGetProperty(MENDELEY_CITATION_STYLE)
     If getCitationStyleId = "" Then
-        getCitationStyleId = DEFAULT_CITATION_STYLE
+        getCitationStyleId = getDesktopCitationStyleId()
+        Call subSetProperty(MENDELEY_CITATION_STYLE, getCitationStyleId)
     End If
+End Function
+
+Function getDesktopCitationStyleId() As String
+    getDesktopCitationStyleId = apiGetDesktopCitationStyleId()
 End Function
 
 Function getStyleNameFromId(styleId As String) As String
