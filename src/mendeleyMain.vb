@@ -47,7 +47,7 @@ Global Const CSL_CITATION = "CSL_CITATION "
 Global Const CSL_BIBLIOGRAPHY = "CSL_BIBLIOGRAPHY"
 Global Const CSL_BIBLIOGRAPHY_OLD = "CSL_BIBLIOGRAPHY "
 Global Const INSERT_CITATION_TEXT = "{Formatting Citation}"
-Global Const CITATION_EDIT_TEXT = ""
+Global Const CITATION_EDIT_TEXT = "{Reformatting Citation}"
 Global Const BIBLIOGRAPHY_TEXT = "{Bibliography}"
 Global Const MERGING_TEXT = "{Merging Citations}"
 Global Const TOOLBAR = "Mendeley Toolbar"
@@ -59,7 +59,7 @@ Global Const TOOLBAR_INSERT_BIBLIOGRAPHY = "Insert Bibliography"
 Global Const TOOLBAR_REFRESH = "Refresh"
 Global Const TOOLBAR_EXPORT = "Export..."
 Global Const TOOLBAR_UNDO_EDIT = "Undo Edit"
-Global Const MERGE_CITATIONS_NOT_ENOUGH_CITATIONS = "Please select at least two citations to merge."
+Global Const MERGE_CITATIONS_NOT_ENOUGH_CITATIONS = "Please select at least two citations before clicking 'Merge Citations'."
 Global Const CITATIONS_NOT_ADJACENT = "Citations must be adjacent to merge."
 Global Const CITATION_ADJECENT_LIMIT = 4
 Global Const MACRO_ALREADY_RUNNING = "Waiting For Response From Mendeley Desktop"
@@ -105,7 +105,23 @@ Global Const TWIPS_TO_100TH_MM = 1.76388889
 Global Const MAX_UUIDS = 2000
 
 Global Const MSGBOX_RESULT_YES = 6
-Global Const MSGBOX_BUTTONS_YES_NO = 4
+
+' Possible types for MsgBox
+' Buttons and icons can be combined
+' e.g. MSGBOX_TYPE_OK_CANCEL + MSGBOX_TYPE_EXCLAMATION
+Global Const MSGBOX_TYPE_OK = 0
+Global Const MSGBOX_TYPE_OK_CANCEL = 1
+Global Const MSGBOX_TYPE_ABORT_RETRY_IGNORE = 2
+Global Const MSGBOX_TYPE_YES_NO_CANCEL = 3
+Global Const MSGBOX_TYPE_YES_NO = 4
+Global Const MSGBOX_TYPE_RETRY_CANCEL = 5
+Global Const MSGBOX_TYPE_STOP = 16
+Global Const MSGBOX_TYPE_QUESTION = 32
+Global Const MSGBOX_TYPE_EXCLAMATION = 48
+Global Const MSGBOX_TYPE_INFORMATION = 64
+Global Const MSGBOX_TYPE_FIRST_BUTTON_DEFAULT = 128
+Global Const MSGBOX_TYPE_SECOND_BUTTON_DEFAULT = 256
+Global Const MSGBOX_TYPE_THIRD_BUTTON_DEFAULT = 512
 
 Global debugInfo As String
 Global updateCitationComboDone As Boolean 'Set to False by default
@@ -397,7 +413,7 @@ SkipField:
 
     Next
     If count < 2 Then
-        MsgBox MERGE_CITATIONS_NOT_ENOUGH_CITATIONS
+        MsgBox MERGE_CITATIONS_NOT_ENOUGH_CITATIONS, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citations"
       GoTo EndOfSub
     End If
 
@@ -532,6 +548,7 @@ Sub privateInsertCitation(hintText As String)
                 Set citeField = fnAddMark(selectedRange, citationText)
             Else
                   citeField = currentMark
+                  citeField = subSetMarkText(citeField, citationText)
             End If
         End If
         
@@ -542,7 +559,7 @@ Sub privateInsertCitation(hintText As String)
             GoTo EndOfSub
         End If
         
-            Set citeField = fnRenameMark(citeField, fieldCode)
+        Set citeField = fnRenameMark(citeField, fieldCode)
         
         Call refreshDocument(False)
     End If
@@ -619,7 +636,7 @@ Sub undoEdit()
     uiDisabled = True
     
     Const NOT_IN_EDITABLE_CITATION_TITLE = "Undo Citation Edit"
-    Const NOT_IN_EDITABLE_CITATION_TEXT = "Place cursor within an edited citation and press this button to undo the edit"
+    Const NOT_IN_EDITABLE_CITATION_TEXT = "Place the cursor within an edited citation before clicking 'Undo Edit'"
     
     Dim currentMark
     
@@ -628,7 +645,7 @@ Sub undoEdit()
     End If
     
     If currentMark Is Nothing Or IsEmpty(currentMark) Then
-        MsgBox NOT_IN_EDITABLE_CITATION_TEXT, 1, NOT_IN_EDITABLE_CITATION_TITLE
+        MsgBox NOT_IN_EDITABLE_CITATION_TEXT, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, NOT_IN_EDITABLE_CITATION_TITLE
         GoTo EndOfSub
     End If
     

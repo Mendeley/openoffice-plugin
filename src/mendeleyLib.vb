@@ -1,4 +1,3 @@
-
 ' ***** BEGIN LICENSE BLOCK *****
 '
 ' Copyright (c) 2009-2012 Mendeley Ltd.
@@ -257,7 +256,9 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
             Dim displayedText As String
             displayedText = getMarkText(thisField)
             'displayedText = getMarkTextWithFormattingTags(thisField)
-            If displayedText = INSERT_CITATION_TEXT Or displayedText = MERGING_TEXT Then
+            If displayedText = INSERT_CITATION_TEXT _
+                    Or displayedText = MERGING_TEXT _
+                    Or displayedText = CITATION_EDIT_TEXT Then
                 displayedText = ""
             End If
             Call apiAddFormattedCitation(addUnicodeTags(displayedText))
