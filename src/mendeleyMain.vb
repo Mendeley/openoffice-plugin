@@ -106,7 +106,7 @@ Global Const MAX_UUIDS = 2000
 
 Global Const MSGBOX_RESULT_YES = 6
 
-' Possible types for MsgBox
+' Possible types for MsgBox (see https://help.libreoffice.org/Basic/MsgBox_Function_Runtime)
 ' Buttons and icons can be combined
 ' e.g. MSGBOX_TYPE_OK_CANCEL + MSGBOX_TYPE_EXCLAMATION
 Global Const MSGBOX_TYPE_OK = 0
