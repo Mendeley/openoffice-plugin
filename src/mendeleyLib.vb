@@ -567,7 +567,7 @@ Function isDocumentLinkedToCurrentUser() As Boolean
             ' ask user if they want to link the document to their account
             result = MsgBox("This document has been edited by another Mendeley user: " + thisDocumentUser + vbCrLf + vbCrLf + _
                 "Do you wish to enable the Mendeley plugin to edit the citations and bibliography yourself?" + vbCrLf + vbCrLf, _
-                MSGBOX_BUTTONS_YES_NO, "Enable Mendeley plugin for this document?")
+                MSGBOX_TYPE_YES_NO, "Enable Mendeley plugin for this document?")
         End If
 
         If result = MSGBOX_RESULT_YES Then
