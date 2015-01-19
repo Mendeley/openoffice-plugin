@@ -10,17 +10,17 @@ and generated a bibliography automatically.
 
 ## Build prerequisites:
 
- * Perl
+ * Python
  * 7za (Windows) or zip (Linux or OSX)
 
 ## Building the extension:
 
- 1. Open a command prompt within the directory containing `buildScript.pl`
- 2. Run `buildScript.pl <version> <debug mode>`
+ 1. Open a command prompt within the directory containing `build.py`
+ 2. Run `build.py <version> <debug mode>`
    * `<version>`: Version number to use for this plugin build.
    * `<debug mode>`: Boolean which specifies whether the debugger should be enabled in OpenOffice.
 
-	e.g. Run `buildScript.pl 1.5 true` to make version *1.5* as a *debug build*
+	e.g. Run `build.py 1.5 true` to make version *1.5* as a *debug build*
 
 (Note: Debug builds don't use custom error handling code, but instead OpenOffice/LibreOffice will open the debugger)
 
