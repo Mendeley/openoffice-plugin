@@ -63,7 +63,7 @@ class TestMendeleyHttpClient(unittest.TestCase):
         bibliography = open(response1.body.bibliography).read()
         self.assertEqual(
                 bibliography,
-                '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml"><head>\n<meta http-equiv="Content-Type" content="text/html;charset=utf-8" /><title></title>\n</head>\n<body>\n&nbsp;<p>\n<p style=\'margin-left:24pt;text-indent:-24.0pt\'>Evans, G., &#38; Jr, G. E. (2002). Title02.</p><p style=\'margin-left:24pt;text-indent:-24.0pt\'>Smith, J., &#38; Jr, J. S. (2001). Title01.</p>\n</p></body></html>\n'
+                '{\\rtf\n \\line\n\\par \\li480\\fi-480 Evans, G., & Jr, G. E. (2002). Title02.\n\\par \\li480\\fi-480 Smith, J., & Jr, J. S. (2001). Title01.\n\n}'
                 )
 
     def test_styleName_getFromUrl(self):
