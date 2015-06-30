@@ -343,12 +343,11 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
                 oRange.CharFontName = currentFont
                 oRange.CharHeight = currentHeight
 
-                ' Remove the initial space and newline that Mendeley sends with the bibliography
-                ' to workaround a problem in OpenOffice.org
+                ' Remove the initial paragraph new line.
                 oDupRange = oRange.Text.createTextCursorByRange(oRange)
 
                 oDupRange.goLeft(0,False)
-                oDupRange.goRight(2,True)
+                oDupRange.goRight(1,True)
                 oDupRange.String = ""
         End If
         
