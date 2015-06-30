@@ -378,3 +378,50 @@ Sub testApplyFormatting()
         "start  =  end" & crLf() & "start  bold  end", "applyFormatting")
     Call thisComponent.close(false)
 End Sub
+
+Sub testChangeMarkFormat()
+    ' This test doesn't require Mendeley Desktop to run, only a blank document
+	
+    Dim fieldsList, bookmarksList
+
+    ' Adds a field
+    createField()
+
+    bookmarksList = thisComponent.Bookmarks.ElementNames
+    fieldsList = thisComponent.ReferenceMarks.ElementNames
+
+    checkLengthLists(bookmarksList, -1, fieldsList, 0)
+
+    ' Convert to bookmarks
+    ZoteroUseBookmarks = True
+    fnGetMarks(ZoteroUseBookmarks)
+
+    bookmarksList = thisComponent.Bookmarks.ElementNames
+    fieldsList = thisComponent.ReferenceMarks.ElementNames
+
+    checkLengthLists(bookmarksList, 0, fieldsList, -1)
+End Sub
+
+Sub createField()
+    Dim oSelection, oField
+
+    oSelection = thisComponent.currentController.getViewCursor()
+
+    oField = thisComponent.createInstance("com.sun.star.text.ReferenceMark")
+    oField.setName ("ADDIN CSL_CITATION {this is some JSON} RND0123456789")
+    oSelection.String = "(Smith 2009)"
+
+    oSelection.text.insertTextContent(oSelection, oField, true)
+End Sub
+
+Sub checkLengthLists(list1, expectedLength1, list2, expectedLength2)
+    If uBound(list1) <> expectedLength1 Then
+        MsgBox("List1 unexpected uBound. Actual: " + uBound(list1) + " expected: " + expectedLength1)
+        stop
+    End If
+
+    If uBound(list2) <> expectedLength2 Then
+        MsgBox("List2 unexpected uBound. Actual: " + uBound(list2) + " expected: " + expectedLength2)
+        stop
+    End If
+End Sub

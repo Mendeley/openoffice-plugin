@@ -947,6 +947,40 @@ Sub checkForCitationEdit()
     End If
 End Sub
 
+' Replaces oMark with the other mark format e.g. com.sun.star.text.Bookmark or com.sun.star.text.ReferenceMark
+' This is used to export documents into Ms Word format or from Ms Word into LibreOffice
+Function ChangeMarkFormat(oMark, fieldType as String)
+    Dim oRange, oNewMark
+    Dim citationText as String, citationCode as String
+	
+    oRange = oMark.Anchor
+	
+    citationText = getMarkText(oMark)
+    citationCode = fnMarkName(oMark)
+		
+    oNewMark = thisComponent.createInstance(fieldType)
+    oNewMark.setName (INSERT_CITATION_TEXT)
+    
+    If fieldType = "com.sun.star.text.Bookmark" Then
+        ' Check to see if we need to delete the invisible character used to
+        ' separate the reference mark from the user's text
+        Dim oDupRange
+        oDupRange = thisComponent.currentController.viewCursor.Text.createTextCursorByRange(oRange)
+        oDupRange.collapseToEnd
+        oDupRange.goRight(1, True)
+        If(oDupRange.String = Chr(0) Or oDupRange.String = Chr(8288)) Then  ' have invisible character
+            oDupRange.String = ""
+        End If
+        ' end deletes space
+    End If
+    
+    oRange.String = citationText
+    oRange.text.insertTextContent(oRange, oNewMark, true)
+    oNewMark = fnRenameMark(oNewMark, citationCode)
+   
+    ChangeMarkFormat = oNewMark
+End Function
+
 ' ---------------------------
 '    Utility Functions
 ' ---------------------------

@@ -557,22 +557,12 @@ Function subSetMarkText(oMark, sReplace As String)
 End Function
 
 Function fnConvert(oMark)
-    Dim oRange, sMarkName As String
-    Dim markText As String
-    
-    Dim spaceAdded As Boolean
-    spaceAdded = False
-    
-    markText = getMarkText(oMark)
-    sMarkName = fnMarkName(oMark)
-    Set oRange = fnMarkRange(oMark)
-    
-    Call subDeleteMark(oMark, True)
-    Set fnConvert = fnAddMark(oRange, sMarkName)
-
-    fnConvert = subSetMarkText(fnConvert, markText)
+    If ZoteroUseBookmarks Then
+        fnConvert = ChangeMarkFormat(oMark, "com.sun.star.text.Bookmark")
+    Else
+        fnConvert = ChangeMarkFormat(oMark, "com.sun.star.text.ReferenceMark")
+    End If
 End Function
-
 
 ' Grabs bookmark name from document properties, if necessary
 Function fnGetFullBookmarkName(sName As String) As String
