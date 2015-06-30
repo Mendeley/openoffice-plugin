@@ -962,16 +962,7 @@ Function ChangeMarkFormat(oMark, fieldType as String)
     oNewMark.setName (INSERT_CITATION_TEXT)
     
     If fieldType = "com.sun.star.text.Bookmark" Then
-        ' Check to see if we need to delete the invisible character used to
-        ' separate the reference mark from the user's text
-        Dim oDupRange
-        oDupRange = thisComponent.currentController.viewCursor.Text.createTextCursorByRange(oRange)
-        oDupRange.collapseToEnd
-        oDupRange.goRight(1, True)
-        If(oDupRange.String = Chr(0) Or oDupRange.String = Chr(8288)) Then  ' have invisible character
-            oDupRange.String = ""
-        End If
-        ' end deletes space
+        deleteInvisibleCharacter(oRange)
     End If
     
     oRange.String = citationText

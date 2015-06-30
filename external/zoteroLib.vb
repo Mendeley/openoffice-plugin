@@ -626,14 +626,8 @@ Sub subDeleteMark(oMark, Optional bDontDeleteNote As Boolean)
     End If
     
     Dim oVC, fnSelection
-    ' Check to see if we need to delete the invisible character used to
-    ' separate the reference mark from the user's text
-    oDupRange = thisComponent.currentController.viewCursor.Text.createTextCursorByRange(oMark.Anchor)
-    oDupRange.collapseToEnd
-    oDupRange.goRight(1, True)
-    If(oDupRange.String = Chr(0) Or oDupRange.String = Chr(8288)) Then  ' have invisible character
-        oDupRange.String = ""
-    End If
+
+    deleteInvisibleCharacter(oMark.Anchor)
 
     If oMark.supportsService("com.sun.star.text.Bookmark") Then
         'Make sure any properties are gone
@@ -690,3 +684,19 @@ End Function
 Function activeDocumentPath() As String
     activeDocumentPath = thisComponent.URL
 End Function
+
+Sub deleteInvisibleCharacter(oRange)
+    ' Check to see if we need to delete the invisible character used to
+    ' separate the reference mark from the user's text
+    Dim oDupRange
+
+    oDupRange = thisComponent.currentController.viewCursor.Text.createTextCursorByRange(oRange)
+
+    oDupRange.collapseToEnd
+    oDupRange.goRight(1, True)
+    
+    If(oDupRange.String = Chr(0) Or oDupRange.String = Chr(8288)) Then  ' have invisible character
+        oDupRange.String = ""
+    End If
+End Sub
+
