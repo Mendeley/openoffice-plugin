@@ -6,7 +6,7 @@
 
 This extension provides integration between Mendeley Desktop and OpenOffice/LibreOffice,
 providing the ability to insert citations from your Mendeley library into OpenOffice documents
-and generated a bibliography automatically.
+and generate a bibliography automatically.
 
 ## Build prerequisites:
 
