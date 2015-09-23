@@ -63,8 +63,8 @@ class TestMendeleyHttpClient(unittest.TestCase):
         bibliography = open(response1.body.bibliography).read()
         
         expected = """{\\rtf
-\\par\\sl288\\slmult1\\sb0\\sa140\\li480\\fi-480 Evans, G., & Jr, G. E. (2002). Title02.
-\\par\\sl288\\slmult1\\sb0\\sa140\\li480\\fi-480 Smith, J., & Jr, J. S. (2001). Title01.
+\\par\\pard\\sl288\\slmult1\\sb0\\sa140\\li480\\fi-480 Evans, G., & Jr, G. E. (2002). Title02.
+\\par\\pard\\sl288\\slmult1\\sb0\\sa140\\li480\\fi-480 Smith, J., & Jr, J. S. (2001). Title01.
 
 }"""
         self.assertEqual(
