@@ -32,6 +32,7 @@ Global Const TEMPLATE_NAME_DURING_BUILD = "MendeleyPlugin"
 Global Const MENDELEY_DOCUMENT = "Mendeley Document"
 Global Const MENDELEY_CONTROL_BAR = "Mendeley Control Bar"
 Global Const MENDELEY_USER_ACCOUNT = "Mendeley User Name"
+Global Const MENDELEY_USER_UUID = "Mendeley Unique User Id"
 Global Const INSERT_CITATION = "Insert Citation"
 Global Const INSERT_BIBLIOGRAPHY = "Insert Bibliography"
 Global Const MENDELEY_CITATION = "Mendeley Citation"
@@ -74,7 +75,7 @@ Global Const TOOLTIP_MERGE_CITATIONS = "Merge the selected citations into one"
 Global Const TOOLTIP_INSERT_BIBLIOGRAPHY = "Insert a bibliography"
 Global Const TOOLTIP_REFRESH = "Refresh citations and bibliographies"
 Global Const TOOLTIP_CITATION_STYLE = "Select a citation style"
-Global Const TOOLTIP_EXPORT_OPENOFFICE = "Export a copy of the document compatible with OpenOffice"
+Global Const TOOLTIP_EXPORT_OPENOFFICE = "Export a copy of the document compatible with LibreOffice"
 Global Const TOOLTIP_EXPORT_WITHOUT_MENDELEY_FIELDS = "Export the document without Mendeley data fields"
 Global Const TOOLTIP_EXPORT = "Export the document with different options"
 
@@ -237,6 +238,9 @@ Function apiSetCitationStyle(styleId As String) As String
 End Function
 Function apiGetUserAccount() As String
     apiGetUserAccount = mendeleyApiCall("getUserAccount")
+End Function
+Function apiGetUserUuid() As String
+    apiGetUserUuid = mendeleyApiCall("getUserUuid")
 End Function
 Function apiGetCitationStyleFromDialogServerSide(styleId As String) As String
     apiGetCitationStyleFromDialogServerSide = mendeleyApiCall("citationStyle_choose_interactive", styleId)
@@ -502,7 +506,7 @@ Sub privateInsertCitation(hintText As String)
         End If
     
         Dim buttonText As String
-            buttonText = "Send Citation to\nOpenOffice Writer;Cancel\nCitation"
+            buttonText = "Send Citation to\nLibreOffice Writer;Cancel\nCitation"
         
         Dim stringLength As Long
         awaitingResponseFromMD = True

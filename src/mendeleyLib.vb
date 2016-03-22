@@ -145,7 +145,7 @@ Sub showAlwaysSaveAsWarning
         & optionLocation + " to ODF Text Document." & Chr(13) & Chr(13) _
         & "To save in .doc format please use the ""Export MS Word Compatible"" button in the Mendeley toolbar, " _
         & "instead of using File->Save or File->Save As.", 0, _
-          "Mendeley OpenOffice Plugin"
+          "Mendeley LibreOffice Plugin"
 End Sub
 
 Function fileContainsLines(filePath As String, linesToFind() As String) As Boolean
@@ -472,20 +472,47 @@ CatchError:
     mendeleyUserAccount = ""
 End Function
 
+' returns the user unique Id which this document is currently linked to
+Function mendeleyUserUuid() As String
+    On Error GoTo CatchError
+
+    mendeleyUserUuid = ActiveDocument.CustomDocumentProperties(MENDELEY_USER_UUID).value
+    Exit Function
+
+CatchError:
+    mendeleyUserUuid = ""
+End Function
+
 Sub setMendeleyUserAccount(value As String)
     On Error GoTo CatchError
-    
+
     Dim test As String
-    
+
     ' if MENDELEY_DOCUMENT property not set this will throw an exception
     test = ActiveDocument.CustomDocumentProperties(MENDELEY_USER_ACCOUNT).value
-    
+
     ActiveDocument.CustomDocumentProperties(MENDELEY_USER_ACCOUNT).value = value
 
     Exit Sub
 CatchError:
-    ActiveDocument.CustomDocumentProperties.Add Name:=MENDELEY_USER_ACCOUNT, _
-    LinkToContent:=False, value:=value, Type:=msoPropertyTypeString
+    ActiveDocument.CustomDocumentProperties.Add(Name:=MENDELEY_USER_ACCOUNT, _
+    LinkToContent:=False, value:=value, Type:=msoPropertyTypeString)
+End Sub
+
+Sub setMendeleyUserUuid(value() As Byte)
+    On Error GoTo CatchError
+
+    Dim test As String
+
+    ' if MENDELEY_DOCUMENT property not set this will throw an exception
+    test = ActiveDocument.CustomDocumentProperties(MENDELEY_USER_UUID).value
+
+    ActiveDocument.CustomDocumentProperties(MENDELEY_USER_UUID).value = value
+
+    Exit Sub
+CatchError:
+    ActiveDocument.CustomDocumentProperties.Add(name:=MENDELEY_USER_UUID, _
+        LinkToContent:=False, value:=value, Type:=msoPropertyTypeString)
 End Sub
 
 Function getFieldAtSelection()
@@ -542,35 +569,44 @@ End Sub
 
 
 Function isDocumentLinkedToCurrentUser() As Boolean
+    Dim currentMendeleyUuid As String
+    Dim thisDocumentUuid As String
     Dim currentMendeleyUser As String
     Dim thisDocumentUser As String
-    
+
     currentMendeleyUser = apiGetUserAccount()
+    currentMendeleyUuid = apiGetUserUuid()
     thisDocumentUser = fnGetProperty(MENDELEY_USER_ACCOUNT)
-    
+    thisDocumentUuid = fnGetProperty(MENDELEY_USER_UUID)
+
     ' remove server protocol from account string
     thisDocumentUser = Replace(thisDocumentUser, "http://", "")
     thisDocumentUser = Replace(thisDocumentUser, "https://", "")
-    
-    If currentMendeleyUser = thisDocumentUser Then
+
+    If thisDocumentUser = "" And thisDocumentUuid = currentMendeleyUuid Then
         isDocumentLinkedToCurrentUser = True
+    ElseIf currentMendeleyUser = thisDocumentUser Then
+        isDocumentLinkedToCurrentUser = True
+        Call subSetProperty(MENDELEY_USER_ACCOUNT, "")
+        Call subSetProperty(MENDELEY_USER_UUID, currentMendeleyUuid)
     Else
         Dim result ' As VbMsgBoxResult
         Dim vbCrLf
         vbCrLf = Chr(13)
-        
-        If thisDocumentUser = "" Then
+
+        If thisDocumentUuid = "" And thisDocumentUser = "" Then
             ' if no user currently linked then set without asking user
             result = MSGBOX_RESULT_YES
         Else
             ' ask user if they want to link the document to their account
-            result = MsgBox("This document has been edited by another Mendeley user: " + thisDocumentUser + vbCrLf + vbCrLf + _
+            result = MsgBox("This document has been edited by another Mendeley user" + vbCrLf + vbCrLf + _
                 "Do you wish to enable the Mendeley plugin to edit the citations and bibliography yourself?" + vbCrLf + vbCrLf, _
                 MSGBOX_TYPE_YES_NO, "Enable Mendeley plugin for this document?")
         End If
 
         If result = MSGBOX_RESULT_YES Then
-            Call subSetProperty(MENDELEY_USER_ACCOUNT, currentMendeleyUser)
+            Call subSetProperty(MENDELEY_USER_ACCOUNT, "")
+            Call subSetProperty(MENDELEY_USER_UUID, currentMendeleyUuid)
             isDocumentLinkedToCurrentUser = True
         Else
             isDocumentLinkedToCurrentUser = False
