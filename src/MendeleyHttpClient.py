@@ -185,6 +185,12 @@ class MendeleyHttpClient():
             )
         return self.request(request)
 
+    def userUuid(self):
+        request = self.GetRequest(
+            "/userUuid"
+            )
+        return self.request(request)
+
     def mendeleyDesktopInfo(self):
         request = self.GetRequest(
             "/mendeleyDesktopInfo"

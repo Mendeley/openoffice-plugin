@@ -32,6 +32,7 @@ Global Const TEMPLATE_NAME_DURING_BUILD = "MendeleyPlugin"
 Global Const MENDELEY_DOCUMENT = "Mendeley Document"
 Global Const MENDELEY_CONTROL_BAR = "Mendeley Control Bar"
 Global Const MENDELEY_USER_ACCOUNT = "Mendeley User Name"
+Global Const MENDELEY_USER_UUID = "Mendeley Unique User Id"
 Global Const INSERT_CITATION = "Insert Citation"
 Global Const INSERT_BIBLIOGRAPHY = "Insert Bibliography"
 Global Const MENDELEY_CITATION = "Mendeley Citation"
@@ -237,6 +238,9 @@ Function apiSetCitationStyle(styleId As String) As String
 End Function
 Function apiGetUserAccount() As String
     apiGetUserAccount = mendeleyApiCall("getUserAccount")
+End Function
+Function apiGetUserUuid() As String
+    apiGetUserUuid = mendeleyApiCall("getUserUuid")
 End Function
 Function apiGetCitationStyleFromDialogServerSide(styleId As String) As String
     apiGetCitationStyleFromDialogServerSide = mendeleyApiCall("citationStyle_choose_interactive", styleId)

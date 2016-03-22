@@ -132,6 +132,14 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
         return response.body.account
 
+    def getUserUuid(self):
+        response = self._client.userUuid()
+        
+        if (response.status != 200):
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+
+        return response.body.uuid
+
     def citationStyle_choose_interactive(self, styleId):
         return self._client.citationStyle_choose_interactive(
             {"currentStyleUrl": styleId}).body.citationStyleUrl
