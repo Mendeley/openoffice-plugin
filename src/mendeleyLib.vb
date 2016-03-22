@@ -145,7 +145,7 @@ Sub showAlwaysSaveAsWarning
         & optionLocation + " to ODF Text Document." & Chr(13) & Chr(13) _
         & "To save in .doc format please use the ""Export MS Word Compatible"" button in the Mendeley toolbar, " _
         & "instead of using File->Save or File->Save As.", 0, _
-          "Mendeley OpenOffice Plugin"
+          "Mendeley LibreOffice Plugin"
 End Sub
 
 Function fileContainsLines(filePath As String, linesToFind() As String) As Boolean

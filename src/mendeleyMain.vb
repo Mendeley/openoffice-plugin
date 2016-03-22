@@ -75,7 +75,7 @@ Global Const TOOLTIP_MERGE_CITATIONS = "Merge the selected citations into one"
 Global Const TOOLTIP_INSERT_BIBLIOGRAPHY = "Insert a bibliography"
 Global Const TOOLTIP_REFRESH = "Refresh citations and bibliographies"
 Global Const TOOLTIP_CITATION_STYLE = "Select a citation style"
-Global Const TOOLTIP_EXPORT_OPENOFFICE = "Export a copy of the document compatible with OpenOffice"
+Global Const TOOLTIP_EXPORT_OPENOFFICE = "Export a copy of the document compatible with LibreOffice"
 Global Const TOOLTIP_EXPORT_WITHOUT_MENDELEY_FIELDS = "Export the document without Mendeley data fields"
 Global Const TOOLTIP_EXPORT = "Export the document with different options"
 
@@ -506,7 +506,7 @@ Sub privateInsertCitation(hintText As String)
         End If
     
         Dim buttonText As String
-            buttonText = "Send Citation to\nOpenOffice Writer;Cancel\nCitation"
+            buttonText = "Send Citation to\nLibreOffice Writer;Cancel\nCitation"
         
         Dim stringLength As Long
         awaitingResponseFromMD = True
