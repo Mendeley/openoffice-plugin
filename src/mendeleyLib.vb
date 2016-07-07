@@ -1,6 +1,6 @@
 ' ***** BEGIN LICENSE BLOCK *****
 '
-' Copyright (c) 2009-2012 Mendeley Ltd.
+' Copyright (c) 2009-2016 Mendeley Ltd.
 '
 ' Licensed under the Educational Community License, Version 1.0 (the "License");
 ' you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ Sub reportError()
 End Sub
 
 Sub sendWordProcessorVersion()
-      Call apiSetWordProcessor("OpenOffice.org", "unknown")
+      Call apiSetWordProcessor("LibreOffice.org", "unknown")
 End Sub
 
 Function MakePropertyValue( Optional cName As String, Optional uValue ) As com.sun.star.beans.PropertyValue
@@ -1031,4 +1031,3 @@ Function indexOf(container() As String, item As String) As Long
     ' not found
     indexOf = -1
 End Function
-
