@@ -771,10 +771,18 @@ Sub applyStyleToSpan(wholeRange as range, startPosition as Long, endPosition as 
     Dim startTag As String
     Dim endTag As String
     
-	startTag = "<span style=""font-variant:small-caps;"">"
-	endTag = "</span>"
-	
-	Call applyStyleToTags(startTag, endTag, wholeRange, startPosition, endPosition, "small-caps")
+	' Added condition becuase of avoid multiple execute the function for tag
+    If InStr(rangeString(wholeRange), "<span style=""baseline"">") <> 0 Then
+        startTag = "<span style=""baseline"">"
+        endTag = "</span>"
+        Call applyStyleToTags(startTag, endTag, wholeRange, startPosition, endPosition, "baseline")
+    End If
+
+    If InStr(rangeString(wholeRange), "<span style=""font-variant:small-caps;"">") <> 0 Then
+        startTag = "<span style=""font-variant:small-caps;"">"
+        endTag = "</span>"
+        Call applyStyleToTags(startTag, endTag, wholeRange, startPosition, endPosition, "small-caps")
+    End If
 End Sub
 
 Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
@@ -876,6 +884,11 @@ Sub applyStyleToTags(startTag As String, endTag As String, wholeRange As range, 
                 
             Case "small-caps"
             	thisRange.setPropertyValue("CharCaseMap", 4)
+
+            Case "baseline"
+                thisRange.setPropertyValue("CharEscapement", 0)
+                thisRange.setPropertyValue("CharEscapementHeight", 100)
+
         End Select
 
         ' remove extra space from after the tag
