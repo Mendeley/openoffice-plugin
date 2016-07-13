@@ -690,7 +690,8 @@ Sub deleteInvisibleCharacter(oRange)
     ' separate the reference mark from the user's text
     Dim oDupRange
 
-    oDupRange = thisComponent.currentController.viewCursor.Text.createTextCursorByRange(oRange)
+    'oDupRange = thisComponent.currentController.viewCursor.Text.createTextCursorByRange(oRange)
+    oDupRange = oRange.Text.createTextCursorByRange(oRange)
 
     oDupRange.collapseToEnd
     oDupRange.goRight(1, True)

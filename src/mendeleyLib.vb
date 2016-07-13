@@ -1013,7 +1013,7 @@ Function ChangeMarkFormat(oMark, fieldType as String)
         deleteInvisibleCharacter(oRange)
     End If
     
-    oRange.String = citationText
+    'oRange.String = citationText
     oRange.text.insertTextContent(oRange, oNewMark, true)
     oNewMark = fnRenameMark(oNewMark, citationCode)
    
