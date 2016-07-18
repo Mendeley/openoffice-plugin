@@ -692,23 +692,19 @@ EndOfSub:
     uiDisabled = False
 End Sub
 
-'Remove Bookmarks after export to MS-WORD
 Sub Remove_Bookmark()
 On Error GoTo ErrorHandler
      Dim mBookmarks,rbTemp
-     Dim i As Long, j As Long, m as Long
+     Dim j As Long
      Dim args1(0) as new com.sun.star.beans.PropertyValue
+     Dim document   as object
+     Dim dispatcher as object
 
-rem define variables
-dim document   as object
-dim dispatcher as object
-rem ----------------------------------------------------------------------
-rem get access to the document
-document   = ThisComponent.CurrentController.Frame
-dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-mBookmarks = thisComponent.Bookmarks.ElementNames
-	If UBound(mBookmarks) = 0 then
-		Exit Sub
+     document   = ThisComponent.CurrentController.Frame
+     dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+     mBookmarks = thisComponent.Bookmarks.ElementNames
+    If UBound(mBookmarks) = 0 then
+		GoTo EndOfSub
 	End If
     For j = 0 To UBound(mBookmarks)
         If (Left(mBookmarks(j), 9) = "Mendeley_" Or InStr(mBookmarks(j), "CSL_CITATION") > 0 Or InStr(mBookmarks(j), "CSL_BIBLIOGRAPHY") > 0) Then
@@ -716,10 +712,12 @@ mBookmarks = thisComponent.Bookmarks.ElementNames
              args1(0).Value = mBookmarks(j)
              dispatcher.executeDispatch(document, ".uno:DeleteBookmark", "", 0, args1())
          End if
-    i = i + 1
     Next
+    GoTo EndOfSub
 ErrorHandler:
-
+Call reportError
+EndOfSub:
+    uiDisabled = False
 End Sub
 Sub chooseCitationStyle()
     If isUiDisabled() Then Exit Sub
