@@ -703,9 +703,6 @@ On Error GoTo ErrorHandler
      document   = ThisComponent.CurrentController.Frame
      dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
      mBookmarks = thisComponent.Bookmarks.ElementNames
-    If UBound(mBookmarks) = 0 then
-		GoTo EndOfSub
-	End If
     For j = 0 To UBound(mBookmarks)
         If (Left(mBookmarks(j), 9) = "Mendeley_" Or InStr(mBookmarks(j), "CSL_CITATION") > 0 Or InStr(mBookmarks(j), "CSL_BIBLIOGRAPHY") > 0) Then
              args1(0).Name = "Bookmark"
@@ -713,11 +710,6 @@ On Error GoTo ErrorHandler
              dispatcher.executeDispatch(document, ".uno:DeleteBookmark", "", 0, args1())
          End if
     Next
-    GoTo EndOfSub
-ErrorHandler:
-Call reportError
-EndOfSub:
-    uiDisabled = False
 End Sub
 Sub chooseCitationStyle()
     If isUiDisabled() Then Exit Sub
@@ -840,6 +832,7 @@ Sub exportCompatibleMSWord()
     oFileDialog.Dispose()
     
     Call exportAsBookmarks(sFileUrl)
+    call Remove_Bookmark
 End Sub
 
 Sub exportAsBookmarks(fileUrl)
