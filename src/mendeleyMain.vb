@@ -779,7 +779,6 @@ Sub insertCitationButton()
         
     Dim tipText As String
     tipText = "Tip: You can press Alt-M instead of clicking Insert Citation."
-        
     Call privateInsertCitation(tipText)
     
     GoTo EndOfSub
@@ -795,8 +794,7 @@ Sub insertCitation()
         On Error GoTo ErrorHandler
     End If
     uiDisabled = True
-    'Remove Mendeley Bookmarks If any
-    Call Remove_Bookmark
+
     Call privateInsertCitation("")
     
     GoTo EndOfSub
