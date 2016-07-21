@@ -693,8 +693,7 @@ EndOfSub:
 End Sub
 
 Sub Remove_Bookmark()
-On Error GoTo ErrorHandler
-     Dim mBookmarks,rbTemp
+     Dim mBookmarks
      Dim j As Long
      Dim args1(0) as new com.sun.star.beans.PropertyValue
      Dim document   as object
