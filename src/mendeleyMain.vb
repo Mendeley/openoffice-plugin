@@ -692,6 +692,24 @@ EndOfSub:
     uiDisabled = False
 End Sub
 
+Sub Remove_Bookmark()
+     Dim mBookmarks
+     Dim j As Long
+     Dim args1(0) as new com.sun.star.beans.PropertyValue
+     Dim document   as object
+     Dim dispatcher as object
+
+     document   = ThisComponent.CurrentController.Frame
+     dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+     mBookmarks = thisComponent.Bookmarks.ElementNames
+    For j = 0 To UBound(mBookmarks)
+        If (Left(mBookmarks(j), 9) = "Mendeley_" Or InStr(mBookmarks(j), "CSL_CITATION") > 0 Or InStr(mBookmarks(j), "CSL_BIBLIOGRAPHY") > 0) Then
+             args1(0).Name = "Bookmark"
+             args1(0).Value = mBookmarks(j)
+             dispatcher.executeDispatch(document, ".uno:DeleteBookmark", "", 0, args1())
+         End if
+    Next
+End Sub
 Sub chooseCitationStyle()
     If isUiDisabled() Then Exit Sub
     If Not DEBUG_MODE Then
@@ -760,7 +778,6 @@ Sub insertCitationButton()
         
     Dim tipText As String
     tipText = "Tip: You can press Alt-M instead of clicking Insert Citation."
-        
     Call privateInsertCitation(tipText)
     
     GoTo EndOfSub
@@ -776,7 +793,7 @@ Sub insertCitation()
         On Error GoTo ErrorHandler
     End If
     uiDisabled = True
-        
+
     Call privateInsertCitation("")
     
     GoTo EndOfSub
@@ -812,6 +829,7 @@ Sub exportCompatibleMSWord()
     oFileDialog.Dispose()
     
     Call exportAsBookmarks(sFileUrl)
+    call Remove_Bookmark
 End Sub
 
 Sub exportAsBookmarks(fileUrl)
