@@ -831,28 +831,29 @@ Sub exportCompatibleMSWord()
     Call exportAsBookmarks(sFileUrl)
     call Remove_Bookmark
 End Sub
+
 Sub showWarningExportMSWordWithFootnotes()
+    'To identify the citations in Footnote area ad pop up the warning message while export to MS-WORD
     If countCitationInFootnotes() <> 0 Then
 	    Msgbox ("If you export a document as a .doc format and have inserted a citation in a footnote then you may experience an error.")
-	  	       
     End if 
 End Sub
 
 Function countCitationInFootnotes() as Integer
- ' this is not working TODO
-	Dim oMarks,oMark,oTxt
+ 	Dim oMarks,oMark,oTxt
 	Dim Ftnt As Integer
-	
-	ZoteroUseBookmarks = True
+
+    ZoteroUseBookmarks = True
     oMarks = fnGetMarks(ZoteroUseBookmarks)
-	for each oMark in oMarks
-		oTxt= fnMarkRange(oMark)
+    For Each oMark in oMarks
+        oTxt= fnMarkRange(oMark)
         If fnLocationType(oTxt) = ZOTERO_FOOTNOTE Then
-	        Ftnt = Ftnt + 1	
+           Ftnt = Ftnt + 1	
         End If
-   	next
+   	Next
     countCitationInFootnotes = Ftnt
 End Function
+
 Sub exportAsBookmarks(fileUrl)
     If fileUrl <> "" Then
         Dim marks
