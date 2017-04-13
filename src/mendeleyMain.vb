@@ -24,7 +24,7 @@ Option Explicit
 Global previouslySelectedField
 Global previouslySelectedFieldResultText As String
 
-Global Const DEBUG_MODE = ${DEBUG_MODE}
+Global Const DEBUG_MODE = True
 Private Const DEBUG_LOG_FILE = "file:///F:/oo-debugLog.txt"
 
 Global Const TEMPLATE_NAME_DURING_BUILD = "MendeleyPlugin"
@@ -257,8 +257,8 @@ End Function
 Function apiUndoManualFormat(fieldCode As String) As String
     apiUndoManualFormat = mendeleyApiCall("citation_undoManualFormat", fieldCode)
 End Function
-Function apiCitationChoose(hintText As String) As String
-    apiCitationChoose = mendeleyApiCall("citation_choose_interactive", hintText)
+Function apiCitationChoose(hintText As String,CitTemp as String,cpage as Integer) As String
+    apiCitationChoose = mendeleyApiCall("citation_choose_interactive", hintText,cpage)
 End Function
 Function apiCitationEdit(fieldCode As String, hintText As String) As String
     Dim args(1 to 2) As String
@@ -293,6 +293,14 @@ End Function
 Function apiGetDesktopCitationStyleId() As String
     apiGetDesktopCitationStyleId = mendeleyApiCall("getDesktopSelectedStyleId")
 End Function
+
+Function apiGetCitationStylePresentationType() as Integer
+
+apiGetCitationStylePresentationType = cInt(mendeleyApiCall("getCitationStylePresentationType"))
+
+End Function
+
+
 
 ' initialise on word startup and on new / open document
 Public Sub AutoExec()
@@ -440,6 +448,7 @@ End Sub
 
 Sub privateInsertCitation(hintText As String)
     Dim currentMark
+    Dim cpage as Integer
     
     Dim bringToForeground As Boolean
     bringToForeground = False
@@ -499,6 +508,13 @@ Sub privateInsertCitation(hintText As String)
     End If
 
     Call setMendeleyDocument(True)
+    
+    Dim ocontroller , oViewCursor
+    'To get current page number
+    
+    ocontroller = thisComponent.currentController
+    oViewCursor = oController.ViewCursor
+    cpage = oViewCursor.Page    
         
     If apiConnected() Then
         If Not isDocumentLinkedToCurrentUser Then
@@ -516,7 +532,7 @@ Sub privateInsertCitation(hintText As String)
             fieldCode = apiTestGetFieldCode(hintText)
         Else
             If Len(markName) = 0 Then
-                fieldCode = apiCitationChoose(markName, hintText)
+                fieldCode = apiCitationChoose(markName, hintText,cpage)
             Else
                 fieldCode = apiCitationEdit(markName, hintText)
             End If
@@ -898,4 +914,3 @@ Function isUiDisabled() As Boolean
     End If
     isUiDisabled = uiDisabled
 End Function
-

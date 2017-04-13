@@ -144,9 +144,9 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
         return self._client.citationStyle_choose_interactive(
             {"currentStyleUrl": styleId}).body.citationStyleUrl
 
-    def citation_choose_interactive(self, hintText):
+    def citation_choose_interactive(self, hintText,cPage):
         response = self._client.citation_choose_interactive(
-            {"citationEditorHint": hintText})
+            { "citationEditorHint": hintText, "footnoteIndex": cPage })
         try:
             assert(response.status == 200)
             fieldCode = self._fieldCodeFromCitationCluster(response.body.citationCluster)
