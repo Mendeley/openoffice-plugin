@@ -242,6 +242,9 @@ End Function
 Function apiGetUserUuid() As String
     apiGetUserUuid = mendeleyApiCall("getUserUuid")
 End Function
+Function apiGetCitationStylePresentationType() as Integer
+    apiGetCitationStylePresentationType = mendeleyApiCall("getCitationStylePresentationType")
+End Function
 Function apiGetCitationStyleFromDialogServerSide(styleId As String) As String
     apiGetCitationStyleFromDialogServerSide = mendeleyApiCall("citationStyle_choose_interactive", styleId)
 End Function

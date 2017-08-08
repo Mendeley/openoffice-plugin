@@ -102,6 +102,14 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
     def getCitationStyleId(self):
         return self.citationStyleUrl
 
+    def getCitationStylePresentationType(self):
+        response = self._client.citationStylePresentationType()
+
+        if response.status != 200:
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+
+        return response.body.presentationType
+
     def formatCitationsAndBibliography(self):
         self._formattedCitationsResponse = \
             self._client.formattedCitationsAndBibliography_Interactive(
