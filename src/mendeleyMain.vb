@@ -145,7 +145,7 @@ Dim mendeleyApi
 Global Const JSON_CSL_CITATION = "CSL_CITATION "
 Global Const JSON_PREVIOUS = "MendeleyPrevious"
 Global Const JSON_URL = "MendeleyUrl"
-
+Global Const VALIDATE_INSERT_AREA = "Mendeley can not insert a citation or bibliography at this location." 'Validate inserting area 
 ' arguments can be a single String argument or an Array of argument Strings
 Function mendeleyApiCall(functionName As String, Optional arguments) As String
     If IsEmpty(mendeleyApi) Then
@@ -356,7 +356,14 @@ Sub mergeCitations()
     '''''''''''''''''''''''''
     Dim oSelection
     oSelection = thisComponent.currentController.getViewCursor()
-    '''''''''''''''''''''''''
+    
+    
+     'Validate Insert area  Mohan
+	 If fnLocationType(oSelection) = ZOTERO_ERROR then
+		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citation"
+		 GoTo EndOfSub
+	 End if  
+     '''''''''''''''''''''''''
 
     ' The number of citation fields selected to merge
     Dim count as Long
@@ -446,6 +453,14 @@ Sub privateInsertCitation(hintText As String)
     
     Dim bringToForeground As Boolean
     bringToForeground = False
+    
+    'Validate Insert area  Mohan
+    Dim validateLocation     
+      validateLocation = thisComponent.currentController.viewCursor    
+	 If fnLocationType(validateLocation) = ZOTERO_ERROR then
+		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation"
+		 GoTo EndOfSub
+	 End if
     
     Dim citeField
     Set citeField = Nothing
@@ -552,7 +567,25 @@ Sub privateInsertCitation(hintText As String)
                     MsgBox "Error: Response too long." + Chr(10) + Chr(10) + "Please don't cite so many references in one citation."
                 End If
 
-                Set citeField = fnAddMark(selectedRange, citationText)
+                'Check Style type and insert footnote
+                Dim PresentationType as integer
+				Dim intlastFootnote as integer
+				Dim document   as object
+				Dim dispatcher as object
+				Dim Omrk
+			
+				PresentationType = apiGetCitationStylePresentationType()
+				if PresentationType = ZOTERO_FOOTNOTE then
+					document   = ThisComponent.CurrentController.Frame
+					dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+					dispatcher.executeDispatch(document, ".uno:InsertFootnote", "", 0,array())
+					Omrk =  ThisComponent.getCurrentController().getViewCursor()
+					 Set citeField = fnAddMark(Omrk, citationText,"")
+				Else
+				
+					Set citeField = fnAddMark(selectedRange, citationText,"")
+				
+				End if
             Else
                   citeField = currentMark
                   citeField = subSetMarkText(citeField, citationText)
@@ -597,6 +630,13 @@ Sub insertBibliography()
         On Error GoTo ErrorHandler
     End If
     uiDisabled = True
+        'Validate Insert area  Mohan
+    Dim validateLocation     
+      validateLocation = thisComponent.currentController.viewCursor    
+	 If fnLocationType(validateLocation) = ZOTERO_ERROR then
+		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography Citation"
+		 GoTo EndOfSub
+	 End if
     
     ZoteroUseBookmarks = False
     
