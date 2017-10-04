@@ -373,13 +373,13 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
             previouslySelectedFieldResultText = ""
         End If
     End If
-    	Dim PresentationType as integer
-	PresentationType = apiGetCitationStylePresentationType()
-	If PresentationType = ZOTERO_FOOTNOTE then
+    Dim presentationType as Integer
+	presentationType = apiGetCitationStylePresentationType()
+	If presentationType = ZOTERO_FOOTNOTE Then
 		call convertInlineToFootnote	
 	Else
 		call convertFootnote_Inline
-	Endif
+	End If
         refreshDocument = True
   End Function
 
@@ -722,7 +722,7 @@ Function formatUnicode(inputText As String) As String
 End Function
 
 Function addUnicodeTags(inputString As String) As String
-        Dim outputString
+    Dim outputString
     Dim position As Long
     Dim charCode As Long
     Dim stringToAppend As String
@@ -1019,7 +1019,7 @@ Function ChangeMarkFormat(oMark, fieldType as String)
         deleteInvisibleCharacter(oRange)
     End If
     
-    oRange.text.insertTextContent(oRange, oNewMark, true)
+    oRange.text.insertTextContent(oRange, oNewMark, True)
     oNewMark = fnRenameMark(oNewMark, citationCode)
    
     ChangeMarkFormat = oNewMark
@@ -1049,8 +1049,8 @@ Function indexOf(container() As String, item As String) As Long
     ' not found
     indexOf = -1
 End Function
-Sub convertInlineToFootnote()
 
+Sub convertInlineToFootnote()
 	Dim marks      
     Dim markName As String
     Dim thisField
@@ -1060,9 +1060,9 @@ Sub convertInlineToFootnote()
  	marks = fnGetMarks(ZoteroUseBookmarks)
     For Each mark In marks
         Set thisField = mark
-	    markName = getMarkName(thisField)    
-	    markTxt = getMarkText(thisField)    
-    	If insertFootnote_DeleteCitation(thisField) = true then
+	    markName = getMarkName(thisField)
+	    markTxt = getMarkText(thisField)
+        If insertFootnote_DeleteCitation(thisField) = True Then
 			oCursor = ThisComponent.getCurrentController().getViewCursor()
 			Set oField = fnAddMark(oCursor,markName, markTxt)
 		End If
@@ -1070,92 +1070,86 @@ Sub convertInlineToFootnote()
 End sub
  
 Sub insertFootnote_DeleteCitation(oMark) as Boolean
-    
     Dim ocur
     Dim document   as object
-	Dim dispatcher as object
+    Dim dispatcher as object
     
     Set oRange = fnMarkRange(oMark)
-	If oMark.supportsService("com.sun.star.text.ReferenceMark") Then   
-       	oCursor = ThisComponent.getCurrentController().getViewCursor()
+    If oMark.supportsService("com.sun.star.text.ReferenceMark") Then
+        oCursor = ThisComponent.getCurrentController().getViewCursor()
       
-       	oCur = oMark.Anchor
-       	 If fnLocationType(oCur) = ZOTERO_FOOTNOTE then
-       	 	insertFootnote_DeleteCitation = False
-       	 	Exit sub
-       	 Else
-       	 	insertFootnote_DeleteCitation = true
-       	 	
-       	 End if
-       	 
-       	oMark.Anchor
-       	oMark.Anchor.String = ""
-       	
-       	oCursor.gotoRange(oCur,false)    
-		document   = ThisComponent.CurrentController.Frame
-		dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-		dispatcher.executeDispatch(document, ".uno:InsertFootnote", "", 0, Array())    
+        oCur = oMark.Anchor
+        If fnLocationType(oCur) = ZOTERO_FOOTNOTE Then
+            insertFootnote_DeleteCitation = False
+        Exit Sub
+        Else
+            insertFootnote_DeleteCitation = True
+        End If
 
+        oMark.Anchor
+        oMark.Anchor.String = ""
+
+        oCursor.gotoRange(oCur,False)
+        document = ThisComponent.CurrentController.Frame
+        dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+        dispatcher.executeDispatch(document, ".uno:InsertFootnote", "", 0, Array())
     End If
 End Sub
 
 
 Function fnGetFieldCode(strTxt as String) as String
 	Dim markName as String
-	Dim markTxt  as String
-	dim matchFlag as integer
+	Dim markTxt as String
+	dim matchFlag as Integer
 	Dim marks
 	Dim mark
 	Dim Omrk
 	Dim oField
-	
-	  marks = fnGetMarks(ZoteroUseBookmarks)
-	  matchFlag = 0 
-	  i = 0
-		 For Each mark In marks
-		     Set thisField = mark
-			 markName = getMarkName(mark)
-			 markTxt = getMarkText(mark) 
-			If Trim(markTxt) = Trim(strTxt) then
-				matchFlag = 1
-				fnGetFieldCode =markName
-				exit For
-			End if
-	 	 Next  
-	 	 If matchFlag = 0 then
-	 	 	fnGetFieldCode = ""
-	 	 End if	
-	 	 
-end Function
+    marks = fnGetMarks(ZoteroUseBookmarks)
+    matchFlag = 0
+    i = 0
+    For Each mark In marks
+        Set thisField = mark
+        markName = getMarkName(mark)
+        markTxt = getMarkText(mark)
+        If Trim(markTxt) = Trim(strTxt) Then
+            matchFlag = 1
+            fnGetFieldCode = markName
+            Exit For
+        End If
+    Next
+    If matchFlag = 0 Then
+        fnGetFieldCode = ""
+    End If
+End Function
 
-SUb convertFootnote_Inline()
-	Dim foots 
+Sub convertFootnote_Inline()
+	Dim foots
 	Dim footn
-	dim markCode,footnoteText,oField,oCursor,Omrk
-	dim i
-    dim j 
-	i = 0 
-	J= 0
+	Dim markCode, footnoteText, oField, oCursor, Omrk
+	Dim i as Integer
+    Dim j as Integer
+	i = 0
+	J = 0
 	set foots = ThisComponent.getFootnotes()
-	
-	 If foots.getCount() = 0 then
-	  exit sub
-	 Endif
+	If foots.getCount() = 0 Then
+        Exit Sub
+	End If
 
-	  For i = 0 To foots.getCount() - 1    
-	      footn = foots.getByIndex(j)
-		  Omrk = foots.getByIndex(j).getAnchor()     
-		  oCursor = ThisComponent.getCurrentController().getViewCursor()
-		    footnoteText = footn.getString()
-		  if  Left(footn.string,1) = Chr(0) Or Left(footn.string,1) = Chr(8288) then
-		  	footnoteText  =  Right(footnoteText,Len(footnoteText)-1)
-		  end if
-        if Right(footn.string,1)= Chr(0) Or Right(footn.string,1) = Chr(8288) then
+    For i = 0 To foots.getCount() - 1
+        footn = foots.getByIndex(j)
+        Omrk = foots.getByIndex(j).getAnchor()
+        oCursor = ThisComponent.getCurrentController().getViewCursor()
+        footnoteText = footn.getString()
+        If  Left(footn.string,1) = Chr(0) Or Left(footn.string,1) = Chr(8288) Then
+            footnoteText  =  Right(footnoteText,Len(footnoteText)-1)
+        End If
+        If Right(footn.string,1)= Chr(0) Or Right(footn.string,1) = Chr(8288) Then
             footnoteText = Left(footnoteText,Len(footnoteText)-1)
-        End if
-		  markCode = fnGetFieldCode(footnoteText) 
-	      If markCode <> "" then
-		  	Set oField = fnAddMark(Omrk, markCode, footnoteText)
-		  End if 
-	  Next 
+        End If
+        markCode = fnGetFieldCode(footnoteText)
+        If markCode <> "" Then
+            Set oField = fnAddMark(Omrk, markCode, footnoteText)
+        End If
+    Next 
 End sub

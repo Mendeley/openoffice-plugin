@@ -359,10 +359,10 @@ Sub mergeCitations()
     
     
      'Validate Insert area  Mohan
-	 If fnLocationType(oSelection) = ZOTERO_ERROR then
+	 If fnLocationType(oSelection) = ZOTERO_ERROR Then
 		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citation"
 		 GoTo EndOfSub
-	 End if  
+	 End If
      '''''''''''''''''''''''''
 
     ' The number of citation fields selected to merge
@@ -455,12 +455,12 @@ Sub privateInsertCitation(hintText As String)
     bringToForeground = False
     
     'Validate Insert area  Mohan
-    Dim validateLocation     
-      validateLocation = thisComponent.currentController.viewCursor    
-	 If fnLocationType(validateLocation) = ZOTERO_ERROR then
+    Dim validateLocation
+    validateLocation = thisComponent.currentController.viewCursor
+    If fnLocationType(validateLocation) = ZOTERO_ERROR Then
 		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation"
 		 GoTo EndOfSub
-	 End if
+	 End If
     
     Dim citeField
     Set citeField = Nothing
@@ -568,24 +568,22 @@ Sub privateInsertCitation(hintText As String)
                 End If
 
                 'Check Style type and insert footnote
-                Dim PresentationType as integer
-				Dim intlastFootnote as integer
-				Dim document   as object
-				Dim dispatcher as object
+                Dim presentationType as Integer
+				Dim intlastFootnote as Integer
+				Dim document as Object
+				Dim dispatcher as Object
 				Dim Omrk
 			
-				PresentationType = apiGetCitationStylePresentationType()
-				if PresentationType = ZOTERO_FOOTNOTE then
+				presentationType = apiGetCitationStylePresentationType()
+				If presentationType = ZOTERO_FOOTNOTE Then
 					document   = ThisComponent.CurrentController.Frame
 					dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-					dispatcher.executeDispatch(document, ".uno:InsertFootnote", "", 0,array())
+					dispatcher.executeDispatch(document, ".uno:InsertFootnote", "", 0, array())
 					Omrk =  ThisComponent.getCurrentController().getViewCursor()
-					 Set citeField = fnAddMark(Omrk, citationText,"")
+					Set citeField = fnAddMark(Omrk, citationText, "")
 				Else
-				
-					Set citeField = fnAddMark(selectedRange, citationText,"")
-				
-				End if
+					Set citeField = fnAddMark(selectedRange, citationText, "")
+				End If
             Else
                   citeField = currentMark
                   citeField = subSetMarkText(citeField, citationText)
@@ -598,9 +596,7 @@ Sub privateInsertCitation(hintText As String)
                 "please choose the documents for your initial citation in Mendeley Desktop first"
             GoTo EndOfSub
         End If
-        
         Set citeField = fnRenameMark(citeField, fieldCode)
-        
         Call refreshDocument(False)
     End If
     
@@ -630,13 +626,13 @@ Sub insertBibliography()
         On Error GoTo ErrorHandler
     End If
     uiDisabled = True
-        'Validate Insert area  Mohan
-    Dim validateLocation     
-      validateLocation = thisComponent.currentController.viewCursor    
-	 If fnLocationType(validateLocation) = ZOTERO_ERROR then
-		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography Citation"
-		 GoTo EndOfSub
-	 End if
+    'Validate Insert area
+    Dim validateLocation
+    validateLocation = thisComponent.currentController.viewCursor
+	If fnLocationType(validateLocation) = ZOTERO_ERROR Then
+		MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography Citation"
+		GoTo EndOfSub
+	End If
     
     ZoteroUseBookmarks = False
     
