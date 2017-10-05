@@ -146,6 +146,8 @@ Global Const JSON_CSL_CITATION = "CSL_CITATION "
 Global Const JSON_PREVIOUS = "MendeleyPrevious"
 Global Const JSON_URL = "MendeleyUrl"
 Global Const VALIDATE_INSERT_AREA = "Mendeley can not insert a citation or bibliography at this location." 'Validate inserting area 
+Global Const TEMPBKMRCUR = "TempcursorBookmark"
+Global Const TEMPBKMRCURSTY = "TempcursorBookmark_Style"
 ' arguments can be a single String argument or an Array of argument Strings
 Function mendeleyApiCall(functionName As String, Optional arguments) As String
     If IsEmpty(mendeleyApi) Then
@@ -448,20 +450,61 @@ SkipField:
     uiDisabled = False
 End Sub
 
+Sub gotoBookmark(bkmk as String)
+    Dim oAnchor  'Bookmark anchor
+    Dim oCursor  'Cursor at the left most range.
+    Dim oMarks
+
+On Error GoTo ErrorHandler
+
+    oMarks = ThisComponent.getBookmarks()
+    oAnchor = oMarks.getByName(bkmk).getAnchor()
+    oCursor = ThisComponent.getCurrentController().getViewCursor()
+    oCursor.gotoRange(oAnchor, False)
+
+ErrorHandler:
+
+End Sub
+
+Sub insertBookmark(bkmk as String)
+	Dim document as Object
+	Dim dispatcher as Object
+	document   = ThisComponent.CurrentController.Frame
+	dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+	Dim args1(0) as new com.sun.star.beans.PropertyValue
+	args1(0).Name = "Bookmark"
+	args1(0).Value = bkmk
+	dispatcher.executeDispatch(document, ".uno:InsertBookmark", "", 0, args1())
+End Sub
+
+Sub deleteBookmark(bkmk as String)
+	Dim document   as Object
+	Dim dispatcher as Object
+On Error GoTo ErrorHandler
+	rem get access to the document
+	document   = ThisComponent.CurrentController.Frame
+	dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+	Dim args1(0) as new com.sun.star.beans.PropertyValue
+	args1(0).Name = "Bookmark"
+	args1(0).Value = bkmk
+	dispatcher.executeDispatch(document, ".uno:DeleteBookmark", "", 0, args1())
+ErrorHandler:
+End Sub
+
 Sub privateInsertCitation(hintText As String)
     Dim currentMark
     
     Dim bringToForeground As Boolean
     bringToForeground = False
-    
-    'Validate Insert area  Mohan
+    'Insert the cursor bookmark to keep cursor in orignal position 
+    Call insertbookmark(TEMPBKMRCUR)
+    'Validate Insert area
     Dim validateLocation
     validateLocation = thisComponent.currentController.viewCursor
     If fnLocationType(validateLocation) = ZOTERO_ERROR Then
 		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation"
 		 GoTo EndOfSub
 	 End If
-    
     Dim citeField
     Set citeField = Nothing
     
@@ -599,9 +642,12 @@ Sub privateInsertCitation(hintText As String)
         Set citeField = fnRenameMark(citeField, fieldCode)
         Call refreshDocument(False)
     End If
-    
+    'Move cursor to original position
+    Call gotoBookmark(TEMPBKMRCUR)
+    'Delete inserted bookmark
+    call deleteBookmark(TEMPBKMRCUR)
     GoTo EndOfSub
-    
+
 ErrorHandler:
     Call reportError
     

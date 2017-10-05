@@ -1057,6 +1057,8 @@ Sub convertInlineToFootnote()
     Dim mark
     Dim markTxt as string 
  	Dim oCursor
+    'Insert bookmark when style has changed to note
+    Call insertBookmark(TEMPBKMRCURSTY)
  	marks = fnGetMarks(ZoteroUseBookmarks)
     For Each mark In marks
         Set thisField = mark
@@ -1067,6 +1069,10 @@ Sub convertInlineToFootnote()
 			Set oField = fnAddMark(oCursor,markName, markTxt)
 		End If
 	Next
+    'Move to inital position
+    Call gotoBookmark(TEMPBKMRCURSTY)
+    'Delete inserted temp bookmark
+    Call deleteBookmark(TEMPBKMRCURSTY)
 End sub
  
 Sub insertFootnote_DeleteCitation(oMark) as Boolean
