@@ -1,6 +1,6 @@
 ' ***** BEGIN LICENSE BLOCK *****
 '
-' Copyright (c) 2009-2016 Mendeley Ltd.
+' Copyright (c) 2009-2017 Mendeley Ltd.
 '
 ' Licensed under the Educational Community License, Version 1.0 (the "License");
 ' you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 ' limitations under the License.
 '
 ' ***** END LICENSE BLOCK *****
-
-' author: steve.ridout@mendeley.com
 
 Option Explicit
 
@@ -374,13 +372,13 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
         End If
     End If
     Dim presentationType as Integer
-	presentationType = apiGetCitationStylePresentationType()
-	If presentationType = ZOTERO_FOOTNOTE Then
-		call convertInlineToFootnote	
-	Else
-		call convertFootnote_Inline
-	End If
-        refreshDocument = True
+    presentationType = apiGetCitationStylePresentationType()
+    If presentationType = ZOTERO_FOOTNOTE Then
+        Call convertInlineToFootnote
+    Else
+        Call convertFootnote_Inline
+    End If
+    refreshDocument = True
   End Function
 
 Function appendJson(field As field, json As String) As field
@@ -792,12 +790,12 @@ Sub applyStyleToSpan(wholeRange as range, startPosition as Long, endPosition as 
 End Sub
 
 Sub applyStyleToTagPairs(tag As String, wholeRange As range, _
-	startPosition As Long, endPosition As Long)
-	Call applyStyleToTags("<" + tag + ">", "</" + tag + ">", wholeRange, startPosition, endPosition, tag)
+    startPosition As Long, endPosition As Long)
+    Call applyStyleToTags("<" + tag + ">", "</" + tag + ">", wholeRange, startPosition, endPosition, tag)
 End Sub
 
 Sub applyStyleToTags(startTag As String, endTag As String, wholeRange As range, _
-	startPosition As Long, endPosition As Long, operation As String)
+    startPosition As Long, endPosition As Long, operation As String)
     Dim thisRange 'As Range
     Set thisRange = wholeRange.Text.createTextCursorByRange(wholeRange)
     
@@ -957,10 +955,10 @@ Sub applyStyleToIndividualTags(tag As String, wholeRange As range, _
 End Sub
 
 Sub checkForCitationEdit()
-	' Note: this isn't currently used in the OpenOffice plugin
-	' it would be useful if we check for citation edits immediately
-	' after the user's cursor leaves a citation field as for the
-	' WinWord plugin
+    ' Note: this isn't currently used in the OpenOffice plugin
+    ' it would be useful if we check for citation edits immediately
+    ' after the user's cursor leaves a citation field as for the
+    ' WinWord plugin
 
     ' We can't update the document until we've updated the previously
     ' selected field, so if the user cancels an edit, needUpdate is set
@@ -1006,12 +1004,12 @@ End Sub
 Function ChangeMarkFormat(oMark, fieldType as String)
     Dim oRange, oNewMark
     Dim citationText as String, citationCode as String
-	
+
     oRange = oMark.Anchor
-	
+
     citationText = getMarkText(oMark)
     citationCode = fnMarkName(oMark)
-		
+
     oNewMark = thisComponent.createInstance(fieldType)
     oNewMark.setName (INSERT_CITATION_TEXT)
     
@@ -1051,28 +1049,29 @@ Function indexOf(container() As String, item As String) As Long
 End Function
 
 Sub convertInlineToFootnote()
-	Dim marks      
+    Dim marks      
     Dim markName As String
     Dim thisField
     Dim mark
-    Dim markTxt as string 
- 	Dim oCursor
+    Dim markTxt As String 
+    Dim oCursor
+    
     'Insert bookmark when style has changed to note
-    Call insertBookmark(TEMPBKMRCURSTY)
- 	marks = fnGetMarks(ZoteroUseBookmarks)
+    Call insertBookmark(TEMP_BOOKMARK_CURSOR_POSITION_STYLE)
+    marks = fnGetMarks(ZoteroUseBookmarks)
     For Each mark In marks
         Set thisField = mark
-	    markName = getMarkName(thisField)
-	    markTxt = getMarkText(thisField)
+        markName = getMarkName(thisField)
+        markTxt = getMarkText(thisField)
         If insertFootnote_DeleteCitation(thisField) = True Then
-			oCursor = ThisComponent.getCurrentController().getViewCursor()
-			Set oField = fnAddMark(oCursor,markName, markTxt)
-		End If
-	Next
+            oCursor = ThisComponent.getCurrentController().getViewCursor()
+            Set oField = fnAddMark(oCursor,markName, markTxt)
+        End If
+    Next
     'Move to inital position
-    Call gotoBookmark(TEMPBKMRCURSTY)
+    Call gotoBookmark(TEMP_BOOKMARK_CURSOR_POSITION_STYLE)
     'Delete inserted temp bookmark
-    Call deleteBookmark(TEMPBKMRCURSTY)
+    Call deleteBookmark(TEMP_BOOKMARK_CURSOR_POSITION_STYLE)
 End sub
  
 Sub insertFootnote_DeleteCitation(oMark) as Boolean
@@ -1104,13 +1103,14 @@ End Sub
 
 
 Function fnGetFieldCode(strTxt as String) as String
-	Dim markName as String
-	Dim markTxt as String
-	dim matchFlag as Integer
-	Dim marks
-	Dim mark
-	Dim Omrk
-	Dim oField
+    Dim markName as String
+    Dim markTxt as String
+    Dim matchFlag as Integer
+    Dim marks
+    Dim mark
+    Dim Omrk
+    Dim oField
+    
     marks = fnGetMarks(ZoteroUseBookmarks)
     matchFlag = 0
     i = 0
@@ -1130,17 +1130,19 @@ Function fnGetFieldCode(strTxt as String) as String
 End Function
 
 Sub convertFootnote_Inline()
-	Dim foots
-	Dim footn
-	Dim markCode, footnoteText, oField, oCursor, Omrk
-	Dim i as Integer
+    Dim foots
+    Dim footn
+    Dim markCode, footnoteText, oField, oCursor, Omrk
+    Dim i as Integer
     Dim j as Integer
-	i = 0
-	J = 0
-	set foots = ThisComponent.getFootnotes()
-	If foots.getCount() = 0 Then
+    
+    i = 0
+    j = 0
+    
+    Set foots = ThisComponent.getFootnotes()
+    If foots.getCount() = 0 Then
         Exit Sub
-	End If
+    End If
 
     For i = 0 To foots.getCount() - 1
         footn = foots.getByIndex(j)

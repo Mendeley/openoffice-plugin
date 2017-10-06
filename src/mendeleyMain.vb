@@ -1,6 +1,6 @@
 ' ***** BEGIN LICENSE BLOCK *****
 '
-' Copyright (c) 2009-2012 Mendeley Ltd.
+' Copyright (c) 2009-2012, 2017 Mendeley Ltd.
 '
 ' Licensed under the Educational Community License, Version 1.0 (the "License");
 ' you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 ' limitations under the License.
 '
 ' ***** END LICENSE BLOCK *****
-
-' author: steve.ridout@mendeley.com
 
 Option Explicit
 
@@ -146,8 +144,11 @@ Global Const JSON_CSL_CITATION = "CSL_CITATION "
 Global Const JSON_PREVIOUS = "MendeleyPrevious"
 Global Const JSON_URL = "MendeleyUrl"
 Global Const VALIDATE_INSERT_AREA = "Mendeley can not insert a citation or bibliography at this location." 'Validate inserting area 
-Global Const TEMPBKMRCUR = "TempcursorBookmark"
-Global Const TEMPBKMRCURSTY = "TempcursorBookmark_Style"
+
+' Next TEMP_BOOKMARK to keep the position of the cursor on 
+Global Const TEMP_BOOKMARK_CURSOR_POSITION = "MendeleyTempCursorBookmark"
+Global Const TEMP_BOOKMARK_CURSOR_POSITION_STYLE = "MendeleyTempCursorBookmark_Style"
+
 ' arguments can be a single String argument or an Array of argument Strings
 Function mendeleyApiCall(functionName As String, Optional arguments) As String
     If IsEmpty(mendeleyApi) Then
@@ -466,28 +467,28 @@ ErrorHandler:
 
 End Sub
 
-Sub insertBookmark(bkmk as String)
-	Dim document as Object
-	Dim dispatcher as Object
-	document   = ThisComponent.CurrentController.Frame
-	dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-	Dim args1(0) as new com.sun.star.beans.PropertyValue
-	args1(0).Name = "Bookmark"
-	args1(0).Value = bkmk
-	dispatcher.executeDispatch(document, ".uno:InsertBookmark", "", 0, args1())
+Sub insertBookmark(bookmarkValue As String)
+    Dim document as Object
+    Dim dispatcher as Object
+    document   = ThisComponent.CurrentController.Frame
+    dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+    Dim args1(0) as new com.sun.star.beans.PropertyValue
+    args1(0).Name = "Bookmark"
+    args1(0).Value = bookmarkValue
+    dispatcher.executeDispatch(document, ".uno:InsertBookmark", "", 0, args1())
 End Sub
 
-Sub deleteBookmark(bkmk as String)
-	Dim document   as Object
-	Dim dispatcher as Object
+Sub deleteBookmark(bookmarkValue as String)
+    Dim document   as Object
+    Dim dispatcher as Object
 On Error GoTo ErrorHandler
-	rem get access to the document
-	document   = ThisComponent.CurrentController.Frame
-	dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-	Dim args1(0) as new com.sun.star.beans.PropertyValue
-	args1(0).Name = "Bookmark"
-	args1(0).Value = bkmk
-	dispatcher.executeDispatch(document, ".uno:DeleteBookmark", "", 0, args1())
+    rem get access to the document
+    document   = ThisComponent.CurrentController.Frame
+    dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+    Dim args1(0) as new com.sun.star.beans.PropertyValue
+    args1(0).Name = "Bookmark"
+    args1(0).Value = bookmarkValue
+    dispatcher.executeDispatch(document, ".uno:DeleteBookmark", "", 0, args1())
 ErrorHandler:
 End Sub
 
@@ -496,15 +497,15 @@ Sub privateInsertCitation(hintText As String)
     
     Dim bringToForeground As Boolean
     bringToForeground = False
-    'Insert the cursor bookmark to keep cursor in orignal position 
-    Call insertbookmark(TEMPBKMRCUR)
+    'Insert the cursor bookmark to keep cursor in original position
+    Call insertbookmark(TEMP_BOOKMARK_CURSOR_POSITION)
     'Validate Insert area
     Dim validateLocation
     validateLocation = thisComponent.currentController.viewCursor
     If fnLocationType(validateLocation) = ZOTERO_ERROR Then
-		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation"
-		 GoTo EndOfSub
-	 End If
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation"
+        GoTo EndOfSub
+    End If
     Dim citeField
     Set citeField = Nothing
     
@@ -612,21 +613,21 @@ Sub privateInsertCitation(hintText As String)
 
                 'Check Style type and insert footnote
                 Dim presentationType as Integer
-				Dim intlastFootnote as Integer
-				Dim document as Object
-				Dim dispatcher as Object
-				Dim Omrk
-			
-				presentationType = apiGetCitationStylePresentationType()
-				If presentationType = ZOTERO_FOOTNOTE Then
-					document   = ThisComponent.CurrentController.Frame
-					dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-					dispatcher.executeDispatch(document, ".uno:InsertFootnote", "", 0, array())
-					Omrk =  ThisComponent.getCurrentController().getViewCursor()
-					Set citeField = fnAddMark(Omrk, citationText, "")
-				Else
-					Set citeField = fnAddMark(selectedRange, citationText, "")
-				End If
+                Dim intlastFootnote as Integer
+                Dim document as Object
+                Dim dispatcher as Object
+                Dim Omrk
+
+                presentationType = apiGetCitationStylePresentationType()
+                If presentationType = ZOTERO_FOOTNOTE Then
+                    document   = ThisComponent.CurrentController.Frame
+                    dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+                    dispatcher.executeDispatch(document, ".uno:InsertFootnote", "", 0, array())
+                    Omrk =  ThisComponent.getCurrentController().getViewCursor()
+                    Set citeField = fnAddMark(Omrk, citationText, "")
+                Else
+                    Set citeField = fnAddMark(selectedRange, citationText, "")
+                End If
             Else
                   citeField = currentMark
                   citeField = subSetMarkText(citeField, citationText)
@@ -643,9 +644,9 @@ Sub privateInsertCitation(hintText As String)
         Call refreshDocument(False)
     End If
     'Move cursor to original position
-    Call gotoBookmark(TEMPBKMRCUR)
+    Call gotoBookmark(TEMP_BOOKMARK_CURSOR_POSITION)
     'Delete inserted bookmark
-    call deleteBookmark(TEMPBKMRCUR)
+    call deleteBookmark(TEMP_BOOKMARK_CURSOR_POSITION)
     GoTo EndOfSub
 
 ErrorHandler:
@@ -675,10 +676,10 @@ Sub insertBibliography()
     'Validate Insert area
     Dim validateLocation
     validateLocation = thisComponent.currentController.viewCursor
-	If fnLocationType(validateLocation) = ZOTERO_ERROR Then
-		MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography Citation"
-		GoTo EndOfSub
-	End If
+    If fnLocationType(validateLocation) = ZOTERO_ERROR Then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography Citation"
+        GoTo EndOfSub
+    End If
     
     ZoteroUseBookmarks = False
     
@@ -795,6 +796,7 @@ Sub Remove_Bookmark()
          End if
     Next
 End Sub
+
 Sub chooseCitationStyle()
     If isUiDisabled() Then Exit Sub
     If Not DEBUG_MODE Then
@@ -920,13 +922,13 @@ End Sub
 Sub showWarningExportMSWordWithFootnotes()
     'To identify the citations in Footnote area ad pop up the warning message while export to MS-WORD
     If countCitationInFootnotes() <> 0 Then
-	    Msgbox ("If you export a document as a .doc format and have inserted a citation in a footnote then you may experience an error.")
+        Msgbox ("If you export a document as a .doc format and have inserted a citation in a footnote then you may experience an error.")
     End if 
 End Sub
 
 Function countCitationInFootnotes() as Integer
- 	Dim oMarks,oMark,oTxt
-	Dim Ftnt As Integer
+    Dim oMarks,oMark,oTxt
+    Dim Ftnt As Integer
 
     ZoteroUseBookmarks = True
     oMarks = fnGetMarks(ZoteroUseBookmarks)
