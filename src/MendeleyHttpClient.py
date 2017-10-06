@@ -185,6 +185,12 @@ class MendeleyHttpClient():
             )
         return self.request(request)
 
+    def citationStylePresentationType(self):
+        request = self.GetRequest(
+            "/citationStyle/getCitationStylePresentationType"
+            )
+        return self.request(request)
+
     def userUuid(self):
         request = self.GetRequest(
             "/userUuid"

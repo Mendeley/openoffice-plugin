@@ -100,7 +100,9 @@ Function fnOOoObject(oObject) As Object
 End Function
 
 ' Adds a mark (field, bookmark, or reference mark) with name sName at location oRange
-Function fnAddMark(oRange, sName As String) 'As Field
+' Adds optional parametter to validate already inserted citation for Footnote process(citText)
+
+Function fnAddMark(oRange, sName As String,Optional citText as String) 'As Field
     Dim i As Long, sBasename As String, oField
     Dim nOldStoryRange As Long, nOldField As Long
     Dim nNewStoryRange As Long, nNewField As Long
@@ -112,7 +114,9 @@ Function fnAddMark(oRange, sName As String) 'As Field
     End If
     
     ' Add Zotero mark
-    If InStr(sName, MENDELEY_BIBLIOGRAPHY) > 0 Then
+    If citText <> "" Then   'Validation for footnote process to replace footnote reference.
+        sMarkText = citText
+    ElseIf InStr(sName, MENDELEY_BIBLIOGRAPHY) > 0 Then
         sMarkText = BIBLIOGRAPHY_TEXT
     ElseIf InStr(sName, MENDELEY_CITATION_EDITOR) > 0 Then
         sMarkText = CITATION_EDIT_TEXT

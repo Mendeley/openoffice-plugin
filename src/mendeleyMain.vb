@@ -145,7 +145,9 @@ Dim mendeleyApi
 Global Const JSON_CSL_CITATION = "CSL_CITATION "
 Global Const JSON_PREVIOUS = "MendeleyPrevious"
 Global Const JSON_URL = "MendeleyUrl"
-
+Global Const VALIDATE_INSERT_AREA = "Mendeley can not insert a citation or bibliography at this location." 'Validate inserting area 
+Global Const TEMPBKMRCUR = "TempcursorBookmark"
+Global Const TEMPBKMRCURSTY = "TempcursorBookmark_Style"
 ' arguments can be a single String argument or an Array of argument Strings
 Function mendeleyApiCall(functionName As String, Optional arguments) As String
     If IsEmpty(mendeleyApi) Then
@@ -241,6 +243,9 @@ Function apiGetUserAccount() As String
 End Function
 Function apiGetUserUuid() As String
     apiGetUserUuid = mendeleyApiCall("getUserUuid")
+End Function
+Function apiGetCitationStylePresentationType() as Integer
+    apiGetCitationStylePresentationType = mendeleyApiCall("getCitationStylePresentationType")
 End Function
 Function apiGetCitationStyleFromDialogServerSide(styleId As String) As String
     apiGetCitationStyleFromDialogServerSide = mendeleyApiCall("citationStyle_choose_interactive", styleId)
@@ -353,7 +358,14 @@ Sub mergeCitations()
     '''''''''''''''''''''''''
     Dim oSelection
     oSelection = thisComponent.currentController.getViewCursor()
-    '''''''''''''''''''''''''
+    
+    
+     'Validate Insert area  Mohan
+	 If fnLocationType(oSelection) = ZOTERO_ERROR Then
+		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citation"
+		 GoTo EndOfSub
+	 End If
+     '''''''''''''''''''''''''
 
     ' The number of citation fields selected to merge
     Dim count as Long
@@ -438,12 +450,61 @@ SkipField:
     uiDisabled = False
 End Sub
 
+Sub gotoBookmark(bkmk as String)
+    Dim oAnchor  'Bookmark anchor
+    Dim oCursor  'Cursor at the left most range.
+    Dim oMarks
+
+On Error GoTo ErrorHandler
+
+    oMarks = ThisComponent.getBookmarks()
+    oAnchor = oMarks.getByName(bkmk).getAnchor()
+    oCursor = ThisComponent.getCurrentController().getViewCursor()
+    oCursor.gotoRange(oAnchor, False)
+
+ErrorHandler:
+
+End Sub
+
+Sub insertBookmark(bkmk as String)
+	Dim document as Object
+	Dim dispatcher as Object
+	document   = ThisComponent.CurrentController.Frame
+	dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+	Dim args1(0) as new com.sun.star.beans.PropertyValue
+	args1(0).Name = "Bookmark"
+	args1(0).Value = bkmk
+	dispatcher.executeDispatch(document, ".uno:InsertBookmark", "", 0, args1())
+End Sub
+
+Sub deleteBookmark(bkmk as String)
+	Dim document   as Object
+	Dim dispatcher as Object
+On Error GoTo ErrorHandler
+	rem get access to the document
+	document   = ThisComponent.CurrentController.Frame
+	dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+	Dim args1(0) as new com.sun.star.beans.PropertyValue
+	args1(0).Name = "Bookmark"
+	args1(0).Value = bkmk
+	dispatcher.executeDispatch(document, ".uno:DeleteBookmark", "", 0, args1())
+ErrorHandler:
+End Sub
+
 Sub privateInsertCitation(hintText As String)
     Dim currentMark
     
     Dim bringToForeground As Boolean
     bringToForeground = False
-    
+    'Insert the cursor bookmark to keep cursor in orignal position 
+    Call insertbookmark(TEMPBKMRCUR)
+    'Validate Insert area
+    Dim validateLocation
+    validateLocation = thisComponent.currentController.viewCursor
+    If fnLocationType(validateLocation) = ZOTERO_ERROR Then
+		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation"
+		 GoTo EndOfSub
+	 End If
     Dim citeField
     Set citeField = Nothing
     
@@ -549,7 +610,23 @@ Sub privateInsertCitation(hintText As String)
                     MsgBox "Error: Response too long." + Chr(10) + Chr(10) + "Please don't cite so many references in one citation."
                 End If
 
-                Set citeField = fnAddMark(selectedRange, citationText)
+                'Check Style type and insert footnote
+                Dim presentationType as Integer
+				Dim intlastFootnote as Integer
+				Dim document as Object
+				Dim dispatcher as Object
+				Dim Omrk
+			
+				presentationType = apiGetCitationStylePresentationType()
+				If presentationType = ZOTERO_FOOTNOTE Then
+					document   = ThisComponent.CurrentController.Frame
+					dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+					dispatcher.executeDispatch(document, ".uno:InsertFootnote", "", 0, array())
+					Omrk =  ThisComponent.getCurrentController().getViewCursor()
+					Set citeField = fnAddMark(Omrk, citationText, "")
+				Else
+					Set citeField = fnAddMark(selectedRange, citationText, "")
+				End If
             Else
                   citeField = currentMark
                   citeField = subSetMarkText(citeField, citationText)
@@ -562,14 +639,15 @@ Sub privateInsertCitation(hintText As String)
                 "please choose the documents for your initial citation in Mendeley Desktop first"
             GoTo EndOfSub
         End If
-        
         Set citeField = fnRenameMark(citeField, fieldCode)
-        
         Call refreshDocument(False)
     End If
-    
+    'Move cursor to original position
+    Call gotoBookmark(TEMPBKMRCUR)
+    'Delete inserted bookmark
+    call deleteBookmark(TEMPBKMRCUR)
     GoTo EndOfSub
-    
+
 ErrorHandler:
     Call reportError
     
@@ -594,6 +672,13 @@ Sub insertBibliography()
         On Error GoTo ErrorHandler
     End If
     uiDisabled = True
+    'Validate Insert area
+    Dim validateLocation
+    validateLocation = thisComponent.currentController.viewCursor
+	If fnLocationType(validateLocation) = ZOTERO_ERROR Then
+		MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography Citation"
+		GoTo EndOfSub
+	End If
     
     ZoteroUseBookmarks = False
     
