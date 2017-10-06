@@ -1054,7 +1054,7 @@ Sub convertInlineToFootnote()
     Dim thisField
     Dim mark
     Dim markTxt As String 
-    Dim oCursor
+    Dim oCursor, oField
     
     'Insert bookmark when style has changed to note
     Call insertBookmark(TEMP_BOOKMARK_CURSOR_POSITION_STYLE)
@@ -1075,9 +1075,10 @@ Sub convertInlineToFootnote()
 End sub
  
 Sub insertFootnote_DeleteCitation(oMark) as Boolean
-    Dim ocur
-    Dim document   as object
-    Dim dispatcher as object
+    Dim ocur, oRange
+    Dim document As object
+    Dim dispatcher As object
+    Dim oCursor
     
     Set oRange = fnMarkRange(oMark)
     If oMark.supportsService("com.sun.star.text.ReferenceMark") Then
@@ -1103,13 +1104,14 @@ End Sub
 
 
 Function fnGetFieldCode(strTxt as String) as String
-    Dim markName as String
-    Dim markTxt as String
-    Dim matchFlag as Integer
-    Dim marks
+    Dim markName As String
+    Dim markTxt As String
+    Dim matchFlag As Integer
+    Dim marks, thisField
     Dim mark
     Dim Omrk
     Dim oField
+    Dim i As Integer
     
     marks = fnGetMarks(ZoteroUseBookmarks)
     matchFlag = 0
