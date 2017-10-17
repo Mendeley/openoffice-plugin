@@ -148,6 +148,7 @@ Global Const VALIDATE_INSERT_AREA = "Mendeley can not insert a citation or bibli
 ' Next TEMP_BOOKMARK to keep the position of the cursor on 
 Global Const TEMP_BOOKMARK_CURSOR_POSITION = "MendeleyTempCursorBookmark"
 Global Const TEMP_BOOKMARK_CURSOR_POSITION_STYLE = "MendeleyTempCursorBookmark_Style"
+Global Const FOOTNOTE_CITATIONS_MERGE = "Footnote citations can't be merged."
 
 ' arguments can be a single String argument or an Array of argument Strings
 Function mendeleyApiCall(functionName As String, Optional arguments) As String
@@ -361,12 +362,18 @@ Sub mergeCitations()
     oSelection = thisComponent.currentController.getViewCursor()
     
     
-     'Validate Insert area  Mohan
+     'Validate Insert area
 	 If fnLocationType(oSelection) = ZOTERO_ERROR Then
 		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citation"
 		 GoTo EndOfSub
 	 End If
-     '''''''''''''''''''''''''
+    '''''''''''''''''''''''''
+     'Validate Footnote Merge
+    Dim presentationType as Integer
+    presentationType = apiGetCitationStylePresentationType()
+    If presentationType = ZOTERO_FOOTNOTE Then
+        GoTo EndOfSub
+    End If
 
     ' The number of citation fields selected to merge
     Dim count as Long
@@ -416,7 +423,6 @@ Sub mergeCitations()
                 GoTo EndOfSub
             EndIf
         EndIf
-
         '(would be good to avoid looping but I don't know how to figure out number of steps in advance)
         While thisComponent.Text.compareRegionEnds(fieldRange, selectionToReplace) = -1
             selectionToReplace.goRight(1, True)
@@ -440,7 +446,7 @@ SkipField:
     newFieldCode = apiMergeCitations(fieldCodesToMerge)
 
     Dim citeField
-    Set citeField = fnAddMark(selectionToReplace,newFieldCode)
+    Set citeField = fnAddMark(selectionToReplace,newFieldCode,"")
     Call RefreshDocument
 
     GoTo EndOfSub
@@ -705,7 +711,7 @@ Sub insertBibliography()
     End If
     
     Dim thisField 'As Field
-    Set thisField = fnAddMark(fnSelection(), "ADDIN " & MENDELEY_BIBLIOGRAPHY & " " & CSL_BIBLIOGRAPHY_OLD)
+    Set thisField = fnAddMark(fnSelection(), "ADDIN " & MENDELEY_BIBLIOGRAPHY & " " & CSL_BIBLIOGRAPHY_OLD,"")
     
     Call refreshDocument
     
