@@ -1,6 +1,6 @@
 *__Please Note:__  The plugin in this repository requires Mendeley Desktop >= 1.5.  It is not compatible with MD 1.3 and earlier.*
 
-*The stable version of the plugin is bundled with Mendeley Desktop and can be installed via Tools -> Install OpenOffice Plugin.*
+*The stable version of the plugin is bundled with Mendeley Desktop and can be installed via Tools -> Install LibreOffice Plugin.*
 
 # The Mendeley OpenOffice Extension
 
