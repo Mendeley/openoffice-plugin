@@ -403,6 +403,10 @@ Sub mergeCitations()
                footnoteText =   Footn.getString()
                ReDim Preserve fieldCodesToMerge(0 to count) As String
                markCode = fnGetFieldCode(footnoteText)
+               If isMendeleyCitationField(markCode) = False Then
+                    MsgBox CITATIONS_NOT_ADJACENT
+                    GoTo EndOfSub
+               End If
                fieldCodesToMerge(count) = markCode
                count = count + 1
              ElseIf  IsNumeric(vVar) = False then
@@ -550,6 +554,7 @@ End Sub
 
 Sub privateInsertCitation(hintText As String)
     Dim currentMark
+    Dim citeField
     
     Dim bringToForeground As Boolean
     bringToForeground = False
@@ -562,7 +567,7 @@ Sub privateInsertCitation(hintText As String)
         MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation"
         GoTo EndOfSub
     End If
-    Dim citeField
+
     Set citeField = Nothing
     
     currentMark = getFieldAtSelection()
