@@ -567,9 +567,6 @@ Sub privateInsertCitation(hintText As String)
             GoTo EndOfSub
         End If
     
-        Dim buttonText As String
-            buttonText = "Send Citation to\nLibreOffice Writer;Cancel\nCitation"
-        
         Dim stringLength As Long
         awaitingResponseFromMD = True
         
