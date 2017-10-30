@@ -148,6 +148,7 @@ Global Const VALIDATE_INSERT_AREA = "Mendeley can not insert a citation or bibli
 ' Next TEMP_BOOKMARK to keep the position of the cursor on 
 Global Const TEMP_BOOKMARK_CURSOR_POSITION = "MendeleyTempCursorBookmark"
 Global Const TEMP_BOOKMARK_CURSOR_POSITION_STYLE = "MendeleyTempCursorBookmark_Style"
+Global Const FOOTNOTE_CITATIONS_MERGE = "Footnote citations can't be merged."
 
 ' arguments can be a single String argument or an Array of argument Strings
 Function mendeleyApiCall(functionName As String, Optional arguments) As String
@@ -345,7 +346,7 @@ End Sub
 
 ' ----- Top level functions - those directly triggered by user actions -----
 Sub mergeCitations()
-    If isUiDisabled Then Exit Sub
+     If isUiDisabled Then Exit Sub
     If Not DEBUG_MODE Then
         On Error GoTo ErrorHandler
     End If
@@ -359,17 +360,69 @@ Sub mergeCitations()
     '''''''''''''''''''''''''
     Dim oSelection
     oSelection = thisComponent.currentController.getViewCursor()
-    
-    
-     'Validate Insert area  Mohan
-	 If fnLocationType(oSelection) = ZOTERO_ERROR Then
-		 MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citation"
-		 GoTo EndOfSub
-	 End If
-     '''''''''''''''''''''''''
+
+     'Validate Insert area
+     If fnLocationType(oSelection) = ZOTERO_ERROR Then
+       MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citation"
+       GoTo EndOfSub
+     End If
+    '''''''''''''''''''''''''
+    'Validate Footnote Merge
+    Dim count as Long
+    Dim fieldCodesToMerge(0) As String
+    Dim presentationType as Integer
+    presentationType = apiGetCitationStylePresentationType()
+    If presentationType = ZOTERO_FOOTNOTE Then
+        Dim strLen as Integer
+        Dim strSelection as String
+        Dim i as Integer
+        Dim vVar As Variant
+        Dim footNoteValue, Footn, markCode
+        Dim footnoteText as String
+        Dim footnoteCount as Integer
+        Dim countEt as Integer
+        Dim countTxt as Integer
+
+        strSelection = oSelection.string
+        strLen = Len(strSelection)
+        set footNoteValue =  ThisComponent.getfootnotes()
+
+        count = 0
+        countEt = 0
+        countTxt = 0
+
+        For i = 0 to strLen-1
+        vVar = Left(Right(strSelection,strLen-i),1)
+            If  Asc ((Left(Right(strSelection,strLen-i),1))) = 13 then  'Validate ASCII value for enter
+               countEt = countEt + 1
+            ElseIf Asc(Left(Right(strSelection,strLen-i),1)) = 32 then   'Validate ASCII value for Space
+               countEt = countEt + 1
+            ElseIf IsNumeric(vVar) = True then
+               vVar = Int(vVar) - 1
+               Footn = footNoteValue.getByIndex(vVar)
+               footnoteText =   Footn.getString()
+               ReDim Preserve fieldCodesToMerge(0 to count) As String
+               markCode = fnGetFieldCode(footnoteText)
+               fieldCodesToMerge(count) = markCode
+               count = count + 1
+             ElseIf  IsNumeric(vVar) = False then
+                 If  vVar = Chr(0) Or vVar = Chr(8288) Or vVar = Chr(10) Then
+             Else
+                 countTxt = countTxt +1
+             End If
+          End If
+        Next
+
+       If Count <= 1 Or countEt >= 5 Or countTxt <> 0 then
+           MsgBox CITATIONS_NOT_ADJACENT
+           GoTo EndOfSub
+       Else
+        Goto SkipField_Footnote
+       End If
+     End If
 
     ' The number of citation fields selected to merge
-    Dim count as Long
+
     count = 0
 
     Dim mark
@@ -385,8 +438,6 @@ Sub mergeCitations()
     If Not apiConnected() Then
         GoTo EndOfSub
     End If
-
-    Dim fieldCodesToMerge(0) As String
 
     For Each mark In allDocumentMarks
         Set thisField = mark
@@ -416,7 +467,6 @@ Sub mergeCitations()
                 GoTo EndOfSub
             EndIf
         EndIf
-
         '(would be good to avoid looping but I don't know how to figure out number of steps in advance)
         While thisComponent.Text.compareRegionEnds(fieldRange, selectionToReplace) = -1
             selectionToReplace.goRight(1, True)
@@ -435,12 +485,18 @@ SkipField:
     End If
 
     '''''''''''''''''''''''''''''''''''''''''''
+SkipField_Footnote:
 
     Dim newFieldCode As String
     newFieldCode = apiMergeCitations(fieldCodesToMerge)
 
     Dim citeField
-    Set citeField = fnAddMark(selectionToReplace,newFieldCode)
+    If presentationType = ZOTERO_FOOTNOTE Then
+       Set citeField = fnAddMark(oSelection,newFieldCode,"")
+    Else
+       Set citeField = fnAddMark(selectionToReplace,newFieldCode,"")
+    End IF
+
     Call RefreshDocument
 
     GoTo EndOfSub
@@ -702,7 +758,7 @@ Sub insertBibliography()
     End If
     
     Dim thisField 'As Field
-    Set thisField = fnAddMark(fnSelection(), "ADDIN " & MENDELEY_BIBLIOGRAPHY & " " & CSL_BIBLIOGRAPHY_OLD)
+    Set thisField = fnAddMark(fnSelection(), "ADDIN " & MENDELEY_BIBLIOGRAPHY & " " & CSL_BIBLIOGRAPHY_OLD,"")
     
     Call refreshDocument
     
