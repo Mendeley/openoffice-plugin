@@ -219,8 +219,11 @@ End Function
 Function apiFormatCitationsAndBibliography() As String
     apiFormatCitationsAndBibliography = mendeleyApiCall("formatCitationsAndBibliography")
 End Function
-Function apiAddCitation(fieldCode As String) As String
-    apiAddCitation = mendeleyApiCall("addCitationCluster", fieldCode)
+Function apiAddCitation(fieldCode As String, footnoteIndex as Integer) As String
+    Dim arguments(1 to 2) As String
+    arguments(1) = fieldCode
+    arguments(2) = CStr(footnoteIndex)
+    apiAddCitation = mendeleyApiCall("addCitationCluster", arguments)
 End Function
 Function apiAddFormattedCitation(displayedText As String) As String
     apiAddFormattedCitation = mendeleyApiCall("addFormattedCitation", displayedText)

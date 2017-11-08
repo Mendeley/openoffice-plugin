@@ -90,8 +90,9 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
             result = {"citationCluster" : citationCluster}
         return result
 
-    def addCitationCluster(self, fieldCode):
+    def addCitationCluster(self, fieldCode, footnoteIndex):
         self.citationClusters.append(self._citationClusterFromFieldCode(fieldCode))
+        self.citationClusters[len(self.citationClusters)-1]["footnoteIndex"] = footnoteIndex
 
     def addFormattedCitation(self, formattedCitation):
         self.citationClusters[len(self.citationClusters)-1]["formattedText"] = formattedCitation

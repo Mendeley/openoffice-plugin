@@ -248,7 +248,11 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
         
         If isMendeleyCitationField(markName) Then
             citationNumber = citationNumber + 1
-            Call apiAddCitation(addUnicodeTags(markName))
+
+            Dim footnoteIndex As Integer
+            footnoteIndex = citationNumber ' TODO: pass the footnote index or 0 if in-text
+
+            Call apiAddCitation(addUnicodeTags(markName), footnoteIndex)
             
             ' Just send an empty string if the displayed text is a temporary placeholder
             Dim displayedText As String
