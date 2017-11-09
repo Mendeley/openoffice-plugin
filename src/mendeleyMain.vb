@@ -148,7 +148,7 @@ Global Const VALIDATE_INSERT_AREA = "Mendeley can not insert a citation or bibli
 ' Next TEMP_BOOKMARK to keep the position of the cursor on 
 Global Const TEMP_BOOKMARK_CURSOR_POSITION = "MendeleyTempCursorBookmark"
 Global Const TEMP_BOOKMARK_CURSOR_POSITION_STYLE = "MendeleyTempCursorBookmark_Style"
-Global Const FOOTNOTE_CITATIONS_MERGE = "Footnote citations can't be merged."
+Global Const FOOTNOTE_CITATIONS_MERGE = "Footnote citations can't be merged at this location."
 
 ' arguments can be a single String argument or an Array of argument Strings
 Function mendeleyApiCall(functionName As String, Optional arguments) As String
@@ -367,6 +367,10 @@ Sub mergeCitations()
      'Validate Insert area
      If fnLocationType(oSelection) = ZOTERO_ERROR Then
        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citation"
+       GoTo EndOfSub
+     End If
+      If fnLocationType(oSelection) = ZOTERO_FOOTNOTE Then
+       MsgBox FOOTNOTE_CITATIONS_MERGE, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citation"
        GoTo EndOfSub
      End If
     '''''''''''''''''''''''''
