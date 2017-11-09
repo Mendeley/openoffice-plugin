@@ -224,7 +224,8 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     
     Dim marks
     marks = fnGetMarks(ZoteroUseBookmarks)
-    
+    Dim presentationType as Integer
+    presentationType = apiGetCitationStylePresentationType()
     Dim markName As String
     Dim thisField
     Dim mark
@@ -250,21 +251,24 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
             citationNumber = citationNumber + 1
 
             Dim footnoteIndex As Integer
-            footnoteIndex = citationNumber ' TODO: pass the footnote index or 0 if in-text
+            Dim displayedText As String
+            footnoteIndex = 0
+            displayedText = getMarkText(thisField)
+            
+            If presentationType = ZOTERO_FOOTNOTE Then
+                footnoteIndex = fngetFootIndex(displayedText)
+            End If
 
             Call apiAddCitation(addUnicodeTags(markName), footnoteIndex)
-            
+
             ' Just send an empty string if the displayed text is a temporary placeholder
-            Dim displayedText As String
-            displayedText = getMarkText(thisField)
-            'displayedText = getMarkTextWithFormattingTags(thisField)
+            ' displayedText = getMarkTextWithFormattingTags(thisField)
             If displayedText = INSERT_CITATION_TEXT _
                     Or displayedText = MERGING_TEXT _
                     Or displayedText = CITATION_EDIT_TEXT Then
                 displayedText = ""
-            End If
-            Call apiAddFormattedCitation(addUnicodeTags(displayedText))
-            
+           End If
+           Call apiAddFormattedCitation(addUnicodeTags(displayedText))
         End If
     Next
     
@@ -375,7 +379,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
             previouslySelectedFieldResultText = ""
         End If
     End If
-    Dim presentationType as Integer
+
     presentationType = apiGetCitationStylePresentationType()
     If presentationType = ZOTERO_FOOTNOTE Then
         Call convertInlineToFootnote
@@ -1146,24 +1150,50 @@ Sub convertFootnote_Inline()
     j = 0
     
     Set foots = ThisComponent.getFootnotes()
-    If foots.getCount() = 0 Then
-        Exit Sub
-    End If
-
     For i = 0 To foots.getCount() - 1
         footn = foots.getByIndex(j)
         Omrk = foots.getByIndex(j).getAnchor()
         oCursor = ThisComponent.getCurrentController().getViewCursor()
         footnoteText = footn.getString()
-        If  Left(footn.string,1) = Chr(0) Or Left(footn.string,1) = Chr(8288) Then
-            footnoteText  =  Right(footnoteText,Len(footnoteText)-1)
-        End If
-        If Right(footn.string,1)= Chr(0) Or Right(footn.string,1) = Chr(8288) Then
-            footnoteText = Left(footnoteText,Len(footnoteText)-1)
-        End If
+        footnoteText = trimFootnoteText(footnoteText)
         markCode = fnGetFieldCode(footnoteText)
         If markCode <> "" Then
             Set oField = fnAddMark(Omrk, markCode, footnoteText)
+         Else
+            j = j + 1
         End If
     Next 
 End sub
+Function trimFootnoteText(ftText as String) as String
+    If  Left(ftText,1) = Chr(0) Or Left(ftText,1) = Chr(8288) Then
+        ftText  =  Right(ftText,Len(ftText)-1)
+    End If
+    If Right(ftText,1)= Chr(0) Or Right(ftText,1) = Chr(8288) Then
+       ftText = Left(ftText,Len(ftText)-1)
+    End If
+    trimFootnoteText = ftText
+End Function
+
+Function fngetFootIndex(fieldTextToFind as String) as Integer
+    Dim foots
+    Dim footn
+    Dim footnoteText
+    Dim i as Integer
+    Dim j as Integer
+    i = 0
+    j = 1
+    
+    Set foots = ThisComponent.getFootnotes()
+    For i = 0 To foots.getCount() - 1
+        footn = foots.getByIndex(i)
+        footnoteText = footn.getString()
+        footnoteText = trimFootnoteText(footnoteText)
+        If fieldTextToFind = footnoteText Then
+            fngetFootIndex = j
+            Exit Function
+        Else
+            fngetFootIndex = 0
+        End If
+        j = j + 1
+    Next
+End Function
