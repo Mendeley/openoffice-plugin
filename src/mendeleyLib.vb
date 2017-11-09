@@ -1157,9 +1157,9 @@ Sub convertFootnote_Inline()
         footnoteText = footn.getString()
         footnoteText = trimFootnoteText(footnoteText)
         markCode = fnGetFieldCode(footnoteText)
-         If isMendeleyCitationField(markCode) = True then
+        If isMendeleyCitationField(markCode) = True then
             Set oField = fnAddMark(Omrk, markCode, footnoteText)
-         Else
+        Else
             j = j + 1
         End If
     Next 

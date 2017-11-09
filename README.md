@@ -11,7 +11,6 @@ and generate a bibliography automatically.
 ## Build prerequisites:
 
  * Python
- * 7za (Windows) or zip (Linux or OSX)
 
 ## Building the extension:
 
