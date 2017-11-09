@@ -256,7 +256,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
             displayedText = getMarkText(thisField)
             
             If presentationType = ZOTERO_FOOTNOTE Then
-                footnoteIndex = fngetFootIndex(displayedText)
+                footnoteIndex = fngetFootIndex(markName)
             End If
 
             Call apiAddCitation(addUnicodeTags(markName), footnoteIndex)
@@ -1157,9 +1157,9 @@ Sub convertFootnote_Inline()
         footnoteText = footn.getString()
         footnoteText = trimFootnoteText(footnoteText)
         markCode = fnGetFieldCode(footnoteText)
-        If markCode <> "" Then
+        If isMendeleyCitationField(markCode) = True then
             Set oField = fnAddMark(Omrk, markCode, footnoteText)
-         Else
+        Else
             j = j + 1
         End If
     Next 
@@ -1174,12 +1174,13 @@ Function trimFootnoteText(ftText as String) as String
     trimFootnoteText = ftText
 End Function
 
-Function fngetFootIndex(fieldTextToFind as String) as Integer
+Function fngetFootIndex(fieldCodeToFind as String) as Integer
     Dim foots
     Dim footn
     Dim footnoteText
     Dim i as Integer
     Dim j as Integer
+    Dim markCode
     i = 0
     j = 1
     
@@ -1188,7 +1189,8 @@ Function fngetFootIndex(fieldTextToFind as String) as Integer
         footn = foots.getByIndex(i)
         footnoteText = footn.getString()
         footnoteText = trimFootnoteText(footnoteText)
-        If fieldTextToFind = footnoteText Then
+        markCode = fnGetFieldCode(footnoteText)
+        If fieldCodeToFind = markCode Then
             fngetFootIndex = j
             Exit Function
         Else
