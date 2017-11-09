@@ -250,26 +250,25 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
         If isMendeleyCitationField(markName) Then
             citationNumber = citationNumber + 1
 
-           Dim footnoteIndex As Integer
-           Dim displayedText As String
-           footnoteIndex = 0 
-           displayedText = getMarkText(thisField)
+            Dim footnoteIndex As Integer
+            Dim displayedText As String
+            footnoteIndex = 0
+            displayedText = getMarkText(thisField)
             
-           If presentationType = ZOTERO_FOOTNOTE Then
-                footnoteIndex = fngetFootIndex(displayedText)      
-           End If
+            If presentationType = ZOTERO_FOOTNOTE Then
+                footnoteIndex = fngetFootIndex(displayedText)
+            End If
 
-           Call apiAddCitation(addUnicodeTags(markName), footnoteIndex)
-           
+            Call apiAddCitation(addUnicodeTags(markName), footnoteIndex)
+
             ' Just send an empty string if the displayed text is a temporary placeholder
-            'displayedText = getMarkTextWithFormattingTags(thisField)
-           If displayedText = INSERT_CITATION_TEXT _
+            ' displayedText = getMarkTextWithFormattingTags(thisField)
+            If displayedText = INSERT_CITATION_TEXT _
                     Or displayedText = MERGING_TEXT _
                     Or displayedText = CITATION_EDIT_TEXT Then
                 displayedText = ""
            End If
            Call apiAddFormattedCitation(addUnicodeTags(displayedText))
-            
         End If
     Next
     
@@ -1172,7 +1171,7 @@ Function trimFootnoteText(ftText as String) as String
     If Right(ftText,1)= Chr(0) Or Right(ftText,1) = Chr(8288) Then
        ftText = Left(ftText,Len(ftText)-1)
     End If
-	trimFootnoteText = ftText
+    trimFootnoteText = ftText
 End Function
 
 Function fngetFootIndex(fieldTextToFind as String) as Integer
@@ -1180,22 +1179,21 @@ Function fngetFootIndex(fieldTextToFind as String) as Integer
     Dim footn
     Dim footnoteText
     Dim i as Integer
-    Dim j as Integer    
+    Dim j as Integer
     i = 0
     j = 1
     
     Set foots = ThisComponent.getFootnotes()
     For i = 0 To foots.getCount() - 1
-        footn = foots.getByIndex(i)        
-        footnoteText = footn.getString()             
-        footnoteText= trimFootnoteText(footnoteText)
+        footn = foots.getByIndex(i)
+        footnoteText = footn.getString()
+        footnoteText = trimFootnoteText(footnoteText)
         If fieldTextToFind = footnoteText Then
-           fngetFootIndex = j 
-		   exit Function
+            fngetFootIndex = j
+            Exit Function
         Else
-        	fngetFootIndex = 0
+            fngetFootIndex = 0
         End If
         j = j + 1
-    Next 
-
+    Next
 End Function
