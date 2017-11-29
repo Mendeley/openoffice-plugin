@@ -96,9 +96,19 @@ class MendeleyDesktopAPI(unohelper.Base, XJob):
 
     def addFormattedCitation(self, formattedCitation):
         self.citationClusters[len(self.citationClusters)-1]["formattedText"] = formattedCitation
-    
+
     def setCitationStyle(self, citationStyleUrl):
-        self.citationStyleUrl = citationStyleUrl
+        response = self._client.setCitationStyle(
+                {
+                    "styleId": citationStyleUrl
+                })
+
+        if response.status != 200:
+            raise MendeleyHttpClient.UnexpectedResponse(response)
+
+        self.citationStyleUrl = response.body.citationStyleUrl
+
+        return self.citationStyleUrl
 
     def getCitationStyleId(self):
         return self.citationStyleUrl

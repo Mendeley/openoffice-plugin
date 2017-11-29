@@ -208,10 +208,13 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     Call sendWordProcessorVersion
     
     Dim oldCitationStyle As String
+    Dim newCitationStyle As String
     oldCitationStyle = getCitationStyleId()
+    
     ' Ensure Mendeley Desktop knows which citation style to use and that it's added to
-    ' document properties
-    Call setCitationStyle(oldCitationStyle)
+    ' document properties and Mendeley Desktop updates the presentation type.
+    ' It might change if oldCitationStyle didn't exist
+    newCitationStyle = setCitationStyle(oldCitationStyle)
     
     ' Subscribe to events (e.g. WindowSelectionChange) doing on refreshDocument as it
     ' doesn't work in initialise() when addExternalFunctions() is also called
@@ -222,10 +225,16 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
 
     Call apiResetCitations
     
-    Dim marks
-    marks = fnGetMarks(ZoteroUseBookmarks)
     Dim presentationType as Integer
     presentationType = apiGetCitationStylePresentationType()
+    If presentationType = ZOTERO_FOOTNOTE Then
+        Call convertInlineToFootnote
+    Else
+        Call convertFootnote_Inline
+    End If
+    
+    Dim marks
+    marks = fnGetMarks(ZoteroUseBookmarks)
     Dim markName As String
     Dim thisField
     Dim mark
@@ -364,14 +373,6 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
     Next
     
     If Not unitTest Then
-        Dim newCitationStyle As String
-        newCitationStyle = apiGetCitationStyleId()
-        
-        If (newCitationStyle <> oldCitationStyle) Then
-            ' set new citation style
-            Call setCitationStyle(newCitationStyle)
-        End If
-        
         previouslySelectedField = getFieldAtSelection()
         If Not IsNull(previouslySelectedField) And Not IsEmpty(previouslySelectedField) Then
             previouslySelectedFieldResultText = getMarkText(previouslySelectedField)
@@ -380,12 +381,6 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
         End If
     End If
 
-    presentationType = apiGetCitationStylePresentationType()
-    If presentationType = ZOTERO_FOOTNOTE Then
-        Call convertInlineToFootnote
-    Else
-        Call convertFootnote_Inline
-    End If
     refreshDocument = True
   End Function
 
@@ -433,9 +428,15 @@ Function getPreviousFormattedCitation(mark)
     End If
 End Function
 
-Sub setCitationStyle(style As String)
-    Call subSetProperty(MENDELEY_CITATION_STYLE, style)
-    Call apiSetCitationStyle(style)
+' Returns the citation style that has been set. User will be asked
+' if the current style is not available
+Sub setCitationStyle(style As String) As String
+    Dim newCitationStyle As String
+    
+    newCitationStyle = apiSetCitationStyle(style)
+    Call subSetProperty(MENDELEY_CITATION_STYLE, newCitationStyle)
+
+    setCitationStyle = newCitationStyle
 End Sub
 
 Function getCitationStyleId() As String
