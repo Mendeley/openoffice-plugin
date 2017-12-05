@@ -265,7 +265,7 @@ Function refreshDocument(Optional openingDocument As Boolean, Optional unitTest 
             displayedText = getMarkText(thisField)
             
             If presentationType = ZOTERO_FOOTNOTE Then
-                footnoteIndex = fngetFootIndex(markName)
+                footnoteIndex = fngetFootIndex(thisField)
             End If
 
             Call apiAddCitation(addUnicodeTags(markName), footnoteIndex)
@@ -1175,28 +1175,12 @@ Function trimFootnoteText(ftText as String) as String
     trimFootnoteText = ftText
 End Function
 
-Function fngetFootIndex(fieldCodeToFind as String) as Integer
-    Dim foots
-    Dim footn
-    Dim footnoteText
-    Dim i as Integer
-    Dim j as Integer
-    Dim markCode
-    i = 0
-    j = 1
-    
-    Set foots = ThisComponent.getFootnotes()
-    For i = 0 To foots.getCount() - 1
-        footn = foots.getByIndex(i)
-        footnoteText = footn.getString()
-        footnoteText = trimFootnoteText(footnoteText)
-        markCode = fnGetFieldCode(footnoteText)
-        If fieldCodeToFind = markCode Then
-            fngetFootIndex = j
-            Exit Function
-        Else
-            fngetFootIndex = 0
-        End If
-        j = j + 1
-    Next
+Function fngetFootIndex(field As Variant) As Integer
+    ' If field is not a footnote returns 0. Specially useful when
+    ' comparing the fields (one might be in a footnote but not the other one)
+    On Error GoTo catchError
+        fngetFootIndex = Int(field.getAnchor().Text.Anchor.String)
+        Exit Function
+CatchError:
+    fnGetFootIndex = 0
 End Function

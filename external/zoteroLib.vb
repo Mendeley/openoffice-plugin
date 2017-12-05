@@ -344,6 +344,8 @@ Function fnRangeComp(m1, m2) As Boolean
     Dim previousSelection
     Dim range1TableSelection
     Dim range2TableSelection
+    Dim footnoteIndex1 As Integer
+    Dim footnoteIndex2 As Integer
     
     Dim beforeRange1
     Dim beforeRange2
@@ -352,11 +354,19 @@ Function fnRangeComp(m1, m2) As Boolean
     oR2 = fnMarkRange(m2)
     nLT1 = fnLocationType(oR1)
     nLT2 = fnLocationType(oR2)
+    footnoteIndex1 = fngetFootIndex(m1)
+    footnoteIndex2 = fngetFootIndex(m2)
     
     currentSelection = ThisComponent.getCurrentController().getViewCursor()
     ' remember the current selection in-case we have to move it to find a table position
     previousSelection = currentSelection.getText().createTextCursorByRange(currentSelection)
     
+    If footnoteIndex1 <> 0 And footnoteIndex2 <> 0 Then
+	' If both fields are in footnotes then compare the footnotes index
+        fnRangeComp = footnoteIndex1 < footnoteIndex2
+        Exit Function
+    End If
+
     If nLT1 = ZOTERO_TABLE Then
         ThisComponent.getCurrentController().Select (oR1.TextTable)
         currentSelection.goLeft(1,False)
