@@ -1164,6 +1164,92 @@ Sub convertFootnote_Inline()
         End If
     Next 
 End sub
+
+Function getSelectedCitationMarks(bBookmarks As Boolean)
+'Function is to get only selected citation
+'Validation included for normal citation and table based citation
+
+    Dim i As Long, j As Long, mMarks()
+    Dim oRef
+    Dim oViewCursor
+    Dim fieldRange
+    Dim oSelection
+    Dim validatelocation,ltn
+    Dim mReferenceMarks
+    Dim refCount, selCount
+    Dim markName
+    Dim selectedcell
+    Dim citationcell
+
+    refCount = 0
+    selCount = 0
+    i = 0
+
+    refCount = thisComponent.ReferenceMarks.Count
+    oViewCursor = thiscomponent.getCurrentController().getViewCursor()
+    oSelection = thisComponent.currentController.getViewCursor()
+    validatelocation = fnLocationType(oViewCursor)
+
+    If validatelocation = ZOTERO_TABLE Then
+        selectionToReplace = oViewCursor.cell.createTextCursorByRange(oViewCursor.cell)
+        selectedcell = oViewCursor.cell.cellname
+    End If
+
+    ReDim mMarks(refCount)
+    mReferenceMarks = thisComponent.ReferenceMarks.ElementNames
+
+    For j = 0 To UBound(mReferenceMarks)
+        oRef = thisComponent.ReferenceMarks.getByname(mReferenceMarks(j))
+        fieldRange = fnMarkRange(oRef)
+        ltn = fnLocationType(fieldRange)
+
+       If isMendeleyCitationField(oRef.Name) = true Then
+        If validatelocation = ltn then
+            If ltn = ZOTERO_TABLE then
+                citationcell =  fieldRange.Cell.cellname
+                    'Compare selected cell and each citation cell
+                    If citationcell <> selectedcell Then
+                        Goto SkipField
+                    ElseIf Not oViewCursor.Cell.compareRegionStarts( selectionToReplace, fieldRange.end) = 1 _ 'Compare selected table string and each citation
+                        And oViewCursor.Cell.compareRegionEnds( fieldRange.start, selectionToReplace) = 1 Then
+                            Goto SkipField
+                    End If
+
+                ElseIf ltn =  ZOTERO_MAIN Then 'Compare selected text string and each citation
+                        If Not(thisComponent.Text.compareRegionStarts(oSelection,fieldRange.end) = 1
+                            And thisComponent.Text.compareRegionEnds(fieldRange.start,oSelection) = 1) Then
+                            Goto SkipField
+                        End If
+                End If
+            Else
+                Goto SkipField
+            End If
+
+            If Not bBookmarks Then
+                Set mMarks(selCount) = oRef
+            Else
+                Set mMarks(selCount) = fnConvert(oRef)
+            End If
+
+            selCount = selCount + 1
+
+SkipField:
+            i = i + 1
+            End If
+    Next
+
+    If i = 0 Then
+        fnGetMarks = Array()
+    Else
+        If selCount > 0 then
+            ReDim Preserve mMarks(selCount - 1)
+            Call subShellSort(mMarks)
+            getSelectedCitationMarks = mMarks()
+        End If
+    End If
+End Function
+
+
 Function trimFootnoteText(ftText as String) as String
     If  Left(ftText,1) = Chr(0) Or Left(ftText,1) = Chr(8288) Then
         ftText  =  Right(ftText,Len(ftText)-1)
