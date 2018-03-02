@@ -355,14 +355,14 @@ Sub mergeCitations()
     End If
     uiDisabled = True
 
-    Dim thisField
+    Dim thisField As Variant
 
     '''''''''''''''''''''''''
-    Dim oSelection
-    Dim oViewCursor
-    Dim selectionToReplace
-    Dim validatelocation
-    Dim strSelectionCharCount
+    Dim oSelection As Object
+    Dim oViewCursor As Object
+    Dim selectionToReplace As Object
+    Dim validatelocation As Integer
+    Dim strSelectionCharCount As Integer
 
     oSelection = thisComponent.currentController.getViewCursor()
     validatelocation = fnLocationType(oSelection)

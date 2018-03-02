@@ -1165,25 +1165,25 @@ Sub convertFootnote_Inline()
     Next 
 End sub
 
-Function getSelectedCitationMarks(bBookmarks As Boolean)
+Function getSelectedCitationMarks(bBookmarks As Boolean) As Fields
 'Function is to get only selected citation
 'Validation included for normal citation and table based citation
 
-    Dim i As Long, j As Long, mMarks()
-    Dim oRef
-    Dim oViewCursor
-    Dim fieldRange
-    Dim oSelection
-    Dim validatelocation,ltn
-    Dim mReferenceMarks
-    Dim refCount, selCount
-    Dim markName
-    Dim selectedcell
-    Dim citationcell
+    Dim j As Long, mMarks()
+    Dim oRef As Object
+    Dim oViewCursor As Object
+    Dim fieldRange As Object
+    Dim oSelection As Object
+    Dim validateLocation,ltn as Integer
+    Dim mReferenceMarks As Object
+    Dim refCount, selCount As Integer
+    Dim fieldCount As Boolean
+    Dim selectedCell As String
+    Dim citationCell As String
 
     refCount = 0
     selCount = 0
-    i = 0
+    fieldCount = false
 
     refCount = thisComponent.ReferenceMarks.Count
     oViewCursor = thiscomponent.getCurrentController().getViewCursor()
@@ -1234,11 +1234,11 @@ Function getSelectedCitationMarks(bBookmarks As Boolean)
             selCount = selCount + 1
 
 SkipField:
-            i = i + 1
+            fieldCount = true
             End If
     Next
 
-    If i = 0 Then
+     If fieldCount = false Then
         fnGetMarks = Array()
     Else
         If selCount > 0 then
