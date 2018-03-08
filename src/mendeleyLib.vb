@@ -1216,7 +1216,7 @@ Function getSelectedCitationMarks(bBookmarks As Boolean) As Fields
                     End If
 
                 ElseIf ltn =  ZOTERO_MAIN Then 'Compare selected text string and each citation
-                        If Not(thisComponent.Text.compareRegionStarts(oSelection,fieldRange.end) = 1
+                        If Not(thisComponent.Text.compareRegionStarts(oSelection,fieldRange.end) = 1 _
                             And thisComponent.Text.compareRegionEnds(fieldRange.start,oSelection) = 1) Then
                             Goto SkipField
                         End If
