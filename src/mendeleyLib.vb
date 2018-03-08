@@ -1210,7 +1210,7 @@ Function getSelectedCitationMarks(bBookmarks As Boolean) As Fields
                     'Compare selected cell and each citation cell
                     If citationcell <> selectedcell Then
                         Goto SkipField
-                    ElseIf Not oViewCursor.Cell.compareRegionStarts( selectionToReplace, fieldRange.end) = 1 _ 'Compare selected table string and each citation
+                    ElseIf Not oViewCursor.Cell.compareRegionStarts( selectionToReplace, fieldRange.end) = 1 _
                         And oViewCursor.Cell.compareRegionEnds( fieldRange.start, selectionToReplace) = 1 Then
                             Goto SkipField
                     End If
