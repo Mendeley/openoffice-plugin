@@ -1180,6 +1180,7 @@ Function getSelectedCitationMarks(bBookmarks As Boolean) As Fields
     Dim fieldCount As Boolean
     Dim selectedCell As String
     Dim citationCell As String
+    Dim selectionToReplace as object
 
     refCount = 0
     selCount = 0
