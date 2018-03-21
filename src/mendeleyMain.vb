@@ -789,7 +789,12 @@ Sub insertBibliography()
         MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography Citation"
         GoTo EndOfSub
     End If
-    
+
+    If ValidateCursorSection = False then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        Goto EndOfSub
+    End If
+
     ZoteroUseBookmarks = False
     
     Dim fieldAtSelection As Variant
@@ -827,6 +832,24 @@ EndOfSub:
     uiDisabled = False
 End Sub
 
+Function ValidateCursorSection() as Boolean
+'Validate text section area 
+   Dim currentSelection as object
+   Dim cursorSelectionString as String
+On Error goto ErrorHandler
+   currentSelection = thisComponent.currentController.getViewCursor()
+   cursorSelectionString = currentSelection.Textsection.name
+   If InStr(cursorSelectionString, "CSL_BIBLIOGRAPHY") = 0 then
+        ValidateCursorSection = True
+   Else  
+        If currentSelection.Textsection.name <> "" Then
+            ValidateCursorSection = False
+        End If
+   End If
+   Exit Function
+ErrorHandler:
+     ValidateCursorSection = True
+End Function
 Sub undoEdit()
     If isUiDisabled Then Exit Sub
     If Not DEBUG_MODE Then
@@ -974,6 +997,10 @@ Sub insertCitationButton()
         
     Dim tipText As String
     tipText = "Tip: You can press Alt-M instead of clicking Insert Citation."
+    If ValidateCursorSection = False then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        Goto EndOfSub
+    End If
     Call privateInsertCitation(tipText)
     
     GoTo EndOfSub
@@ -990,6 +1017,10 @@ Sub insertCitation()
     End If
     uiDisabled = True
 
+     If ValidateCursorSection = False then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        Goto EndOfSub
+    End If
     Call privateInsertCitation("")
     
     GoTo EndOfSub
