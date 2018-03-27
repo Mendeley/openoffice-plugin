@@ -839,12 +839,13 @@ Function ValidateCursorSection() as Boolean
 On Error goto ErrorHandler
    currentSelection = thisComponent.currentController.getViewCursor()
    cursorSelectionString = currentSelection.Textsection.name
-   If InStr(cursorSelectionString, "CSL_BIBLIOGRAPHY") = 0 then
-        ValidateCursorSection = True
-   Else  
+
+   If isMendeleyBibliographyField(cursorSelectionString) Then
         If currentSelection.Textsection.name <> "" Then
             ValidateCursorSection = False
         End If
+   Else
+        ValidateCursorSection = True
    End If
    Exit Function
 ErrorHandler:
