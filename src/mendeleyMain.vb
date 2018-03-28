@@ -834,11 +834,11 @@ EndOfSub:
 End Sub
 
 Function isCursorInBibliography() as Boolean
-   ' Returns True if a citation or bibliography can be inserted
-   ' in the current selection area.
    Dim currentSelection as object
    Dim cursorSelectionString as String
 On Error goto ErrorHandler
+   ' ErrorHandler becasue getting the ViewCursor in certain places (e.g. in a field)
+   ' returns an error.
    currentSelection = thisComponent.currentController.getViewCursor()
    cursorSelectionString = currentSelection.Textsection.name
    isCursorInBibliography = isMendeleyBibliographyField(cursorSelectionString)
