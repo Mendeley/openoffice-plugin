@@ -789,7 +789,13 @@ Sub insertBibliography()
         MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography Citation"
         GoTo EndOfSub
     End If
+
+    If isCursorInBibliography() = True then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        Goto EndOfSub
+    End If
     
+
     ZoteroUseBookmarks = False
     
     Dim fieldAtSelection As Variant
@@ -827,6 +833,19 @@ EndOfSub:
     uiDisabled = False
 End Sub
 
+Function isCursorInBibliography() as Boolean
+   Dim currentSelection as object
+   Dim cursorSelectionString as String
+On Error goto ErrorHandler
+   ' ErrorHandler becasue getting the ViewCursor in certain places (e.g. in a field)
+   ' returns an error.
+   currentSelection = thisComponent.currentController.getViewCursor()
+   cursorSelectionString = currentSelection.Textsection.name
+   isCursorInBibliography = isMendeleyBibliographyField(cursorSelectionString)
+   Exit Function
+ErrorHandler:
+     isCursorInBibliography = False
+End Function
 Sub undoEdit()
     If isUiDisabled Then Exit Sub
     If Not DEBUG_MODE Then
@@ -837,6 +856,11 @@ Sub undoEdit()
     Const NOT_IN_EDITABLE_CITATION_TITLE = "Undo Citation Edit"
     Const NOT_IN_EDITABLE_CITATION_TEXT = "Place the cursor within an edited citation before clicking 'Undo Edit'"
     
+    If isCursorInBibliography() = True then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        Goto EndOfSub
+    End If
+
     Dim currentMark
     
     If Not IsEmpty(getFieldAtSelection()) Then
@@ -974,6 +998,10 @@ Sub insertCitationButton()
         
     Dim tipText As String
     tipText = "Tip: You can press Alt-M instead of clicking Insert Citation."
+    If isCursorInBibliography() = True then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        Goto EndOfSub
+    End If
     Call privateInsertCitation(tipText)
     
     GoTo EndOfSub
@@ -990,6 +1018,10 @@ Sub insertCitation()
     End If
     uiDisabled = True
 
+     If isCursorInBibliography() = True then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        Goto EndOfSub
+    End If
     Call privateInsertCitation("")
     
     GoTo EndOfSub
