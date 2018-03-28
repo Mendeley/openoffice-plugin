@@ -790,10 +790,11 @@ Sub insertBibliography()
         GoTo EndOfSub
     End If
 
-    If ValidateCursorSection = False then
+    If isCursorInBibliography() = True then
         MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
         Goto EndOfSub
     End If
+    
 
     ZoteroUseBookmarks = False
     
@@ -832,24 +833,18 @@ EndOfSub:
     uiDisabled = False
 End Sub
 
-Function ValidateCursorSection() as Boolean
-'Validate text section area 
+Function isCursorInBibliography() as Boolean
+   ' Returns True if a citation or bibliography can be inserted
+   ' in the current selection area.
    Dim currentSelection as object
    Dim cursorSelectionString as String
 On Error goto ErrorHandler
    currentSelection = thisComponent.currentController.getViewCursor()
    cursorSelectionString = currentSelection.Textsection.name
-
-   If isMendeleyBibliographyField(cursorSelectionString) Then
-        If currentSelection.Textsection.name <> "" Then
-            ValidateCursorSection = False
-        End If
-   Else
-        ValidateCursorSection = True
-   End If
+   isCursorInBibliography = isMendeleyBibliographyField(cursorSelectionString)
    Exit Function
 ErrorHandler:
-     ValidateCursorSection = True
+     isCursorInBibliography = False
 End Function
 Sub undoEdit()
     If isUiDisabled Then Exit Sub
@@ -861,6 +856,11 @@ Sub undoEdit()
     Const NOT_IN_EDITABLE_CITATION_TITLE = "Undo Citation Edit"
     Const NOT_IN_EDITABLE_CITATION_TEXT = "Place the cursor within an edited citation before clicking 'Undo Edit'"
     
+    If isCursorInBibliography() = True then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        Goto EndOfSub
+    End If
+
     Dim currentMark
     
     If Not IsEmpty(getFieldAtSelection()) Then
@@ -998,7 +998,7 @@ Sub insertCitationButton()
         
     Dim tipText As String
     tipText = "Tip: You can press Alt-M instead of clicking Insert Citation."
-    If ValidateCursorSection = False then
+    If isCursorInBibliography() = True then
         MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
         Goto EndOfSub
     End If
@@ -1018,7 +1018,7 @@ Sub insertCitation()
     End If
     uiDisabled = True
 
-     If ValidateCursorSection = False then
+     If isCursorInBibliography() = True then
         MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
         Goto EndOfSub
     End If
