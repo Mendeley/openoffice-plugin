@@ -149,6 +149,7 @@ Global Const VALIDATE_INSERT_AREA = "Mendeley can not insert a citation or bibli
 Global Const TEMP_BOOKMARK_CURSOR_POSITION = "MendeleyTempCursorBookmark"
 Global Const TEMP_BOOKMARK_CURSOR_POSITION_STYLE = "MendeleyTempCursorBookmark_Style"
 Global Const FOOTNOTE_CITATIONS_MERGE = "Footnote citations can't be merged at this location."
+Global Const MSGBOX_TITLE_INSERT = "Insert Citation or Bibliography"
 
 ' arguments can be a single String argument or an Array of argument Strings
 Function mendeleyApiCall(functionName As String, Optional arguments) As String
@@ -786,9 +787,17 @@ Sub insertBibliography()
     Dim validateLocation
     validateLocation = thisComponent.currentController.viewCursor
     If fnLocationType(validateLocation) = ZOTERO_ERROR Then
-        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography Citation"
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography"
         GoTo EndOfSub
     End If
+<<<<<<< Updated upstream
+=======
+
+    If isCursorInBibliography() = True then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, MSGBOX_TITLE_INSERT
+        Goto EndOfSub
+    End If
+>>>>>>> Stashed changes
     
     ZoteroUseBookmarks = False
     
@@ -836,7 +845,12 @@ Sub undoEdit()
     
     Const NOT_IN_EDITABLE_CITATION_TITLE = "Undo Citation Edit"
     Const NOT_IN_EDITABLE_CITATION_TEXT = "Place the cursor within an edited citation before clicking 'Undo Edit'"
-    
+
+    If isCursorInBibliography() = True then
+        MsgBox VALIDATE_UNDO_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, NOT_IN_EDITABLE_CITATION_TITLE
+        Goto EndOfSub
+    End If
+
     Dim currentMark
     
     If Not IsEmpty(getFieldAtSelection()) Then
@@ -974,6 +988,12 @@ Sub insertCitationButton()
         
     Dim tipText As String
     tipText = "Tip: You can press Alt-M instead of clicking Insert Citation."
+
+    If isCursorInBibliography() = True then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, MSGBOX_TITLE_INSERT
+        Goto EndOfSub
+    End If
+
     Call privateInsertCitation(tipText)
     
     GoTo EndOfSub
@@ -989,7 +1009,11 @@ Sub insertCitation()
         On Error GoTo ErrorHandler
     End If
     uiDisabled = True
-
+     If isCursorInBibliography() = True then
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, MSGBOX_TITLE_INSERT
+        Goto EndOfSub
+    End If
+>>>>>>> Stashed changes
     Call privateInsertCitation("")
     
     GoTo EndOfSub
