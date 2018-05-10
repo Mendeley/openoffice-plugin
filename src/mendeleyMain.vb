@@ -818,6 +818,9 @@ Sub insertBibliography()
     If Not isDocumentLinkedToCurrentUser Then
         GoTo EndOfSub
     End If
+
+    'Insert space before and after from Bibliography to move cursor from section.
+    Call moveCursorFromSection
     
     Dim thisField 'As Field
     Set thisField = fnAddMark(fnSelection(), "ADDIN " & MENDELEY_BIBLIOGRAPHY & " " & CSL_BIBLIOGRAPHY_OLD,"")
@@ -831,6 +834,20 @@ ErrorHandler:
     
 EndOfSub:
     uiDisabled = False
+End Sub
+Sub moveCursorFromSection()
+    Dim document   as object
+    Dim dispatcher as object
+    document   = ThisComponent.CurrentController.Frame
+    dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+
+    Dim args1(0) as new com.sun.star.beans.PropertyValue
+    'Insert space
+    args1(0).Name = "Text"
+    args1(0).Value = "  "
+    dispatcher.executeDispatch(document, ".uno:InsertText", "", 0, args1())
+    dispatcher.executeDispatch(document, ".uno:GoLeft", "", 0, Array())
+
 End Sub
 
 Function isCursorInBibliography() as Boolean
