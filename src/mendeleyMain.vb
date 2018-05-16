@@ -786,12 +786,12 @@ Sub insertBibliography()
     Dim validateLocation
     validateLocation = thisComponent.currentController.viewCursor
     If fnLocationType(validateLocation) = ZOTERO_ERROR Then
-        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography Citation"
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Bibliography"
         GoTo EndOfSub
     End If
 
     If isCursorInBibliography() = True then
-        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography"
         Goto EndOfSub
     End If
     
@@ -874,7 +874,7 @@ Sub undoEdit()
     Const NOT_IN_EDITABLE_CITATION_TEXT = "Place the cursor within an edited citation before clicking 'Undo Edit'"
     
     If isCursorInBibliography() = True then
-        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography"
         Goto EndOfSub
     End If
 
@@ -1016,7 +1016,7 @@ Sub insertCitationButton()
     Dim tipText As String
     tipText = "Tip: You can press Alt-M instead of clicking Insert Citation."
     If isCursorInBibliography() = True then
-        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography"
         Goto EndOfSub
     End If
     Call privateInsertCitation(tipText)
@@ -1036,7 +1036,7 @@ Sub insertCitation()
     uiDisabled = True
 
      If isCursorInBibliography() = True then
-        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography Citation"
+        MsgBox VALIDATE_INSERT_AREA, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Insert Citation or Bibliography"
         Goto EndOfSub
     End If
     Call privateInsertCitation("")
