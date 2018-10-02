@@ -354,28 +354,29 @@ Sub mergeCitations()
         On Error GoTo ErrorHandler
     End If
     uiDisabled = True
-
     Dim thisField As Variant
-
     '''''''''''''''''''''''''
     Dim oSelection As Object
     Dim oViewCursor As Object
     Dim selectionToReplace As Object
     Dim validatelocation As Integer
     Dim strSelectionCharCount As Integer
+    Dim count as Long
+    Dim fieldCodesToMerge(0) As String
+    Dim presentationType as Integer
 
     oSelection = thisComponent.currentController.getViewCursor()
     validatelocation = fnLocationType(oSelection)
-
     'Validation for empty string and Location
     If validatelocation = ZOTERO_TABLE Then    	'Selected citation in the Table area
         oViewCursor = thiscomponent.getCurrentController().getViewCursor()
-        selectionToReplace = oViewCursor.cell.createTextCursorByRange(  oViewCursor.cell)
+        selectionToReplace = oViewCursor.cell.createTextCursorByRange(oViewCursor.cell)
         strSelectionCharCount  = Len(selectionToReplace.String)
     ElseIf validatelocation = ZOTERO_MAIN Then
         strSelectionCharCount  =Len(oSelection.string)
-    End if
-
+    ElseIf Validatelocation = ZOTERO_FOOTNOTE Then
+	    Goto Foot
+    End If
      If validatelocation = ZOTERO_ERROR Then    'Validate the selected citation location
         MsgBox CITATIONS_NOT_ADJACENT, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citation"
         GoTo EndOfSub
@@ -387,10 +388,9 @@ Sub mergeCitations()
         GoTo EndOfSub
      End If
 
-   'Validate Footnote Merge
-    Dim count as Long
-    Dim fieldCodesToMerge(0) As String
-    Dim presentationType as Integer
+     'Validate Footnote Merge
+
+
     presentationType = apiGetCitationStylePresentationType()
     If presentationType = ZOTERO_FOOTNOTE Then
         Dim strLen as Integer
@@ -450,11 +450,13 @@ Sub mergeCitations()
      End If
 
    'merge normal citation (not footnote) included table's citation
-
+Foot:
     Dim allDocumentMarks, mark
     Dim markName
     Dim fieldRange
     Dim lastPossibleStartOfNextField
+    Dim spl_condition
+
     allDocumentMarks = getSelectedCitationMarks(False) 'Store only selected citation
     If IsEmpty(allDocumentMarks) = true Then
         MsgBox MERGE_CITATIONS_NOT_ENOUGH_CITATIONS, MSGBOX_TYPE_OK + MSGBOX_TYPE_EXCLAMATION, "Merge Citations"
@@ -468,8 +470,6 @@ Sub mergeCitations()
         GoTo EndOfSub
     End If
 
-    count = 0
-
     For Each mark In allDocumentMarks
         Set thisField = mark
         fieldRange = fnMarkRange(thisField)
@@ -480,31 +480,39 @@ Sub mergeCitations()
 
     'Valdation for space or text between citations also table citation 
        If count = 0 Then
-            If validatelocation = ZOTERO_TABLE Then
+            If  Validatelocation = ZOTERO_FOOTNOTE  then
+                oViewCursor = thiscomponent.getCurrentController().getViewCursor()
+                selectionToReplace = oViewCursor.getText.createTextCursorByRange(fieldRange.getStart())
+            ElseIf validatelocation = ZOTERO_TABLE Then
                 selectionToReplace = oViewCursor.cell.createTextCursorByRange(oViewCursor.cell.getstart())
             Else
                 selectionToReplace = thisComponent.Text.createTextCursorByRange(fieldRange.getStart())
             End If
        Else
 
-             If validatelocation = ZOTERO_TABLE Then
+            If validatelocation = ZOTERO_TABLE Then
                     lastPossibleStartOfNextField = oViewCursor.cell.createTextCursorByRange(fieldRange.getStart())
                     lastPossibleStartOfNextField.goLeft(CITATION_ADJECENT_LIMIT,False)
-
-                If oViewCursor.Cell.compareRegionEnds(selectionToReplace,lastPossibleStartOfNextField) = 1 Then
+            ElseIf Validatelocation = ZOTERO_FOOTNOTE Then
+                   lastPossibleStartOfNextField = oViewCursor.getText.createTextCursorByRange(fieldRange.getStart())
+            Else
+                    lastPossibleStartOfNextField = thisComponent.Text.createTextCursorByRange(fieldRange.getStart())
+            End If
+            
+            lastPossibleStartOfNextField.goLeft(CITATION_ADJECENT_LIMIT,False)
+            
+            If Validatelocation = ZOTERO_FOOTNOTE Then
+                If oViewCursor.getText.compareRegionEnds(selectionToReplace,lastPossibleStartOfNextField) = 1 Then
                     MsgBox CITATIONS_NOT_ADJACENT
                     GoTo EndOfSub
                 EndIf
             Else
-
-                   lastPossibleStartOfNextField = thisComponent.Text.createTextCursorByRange(fieldRange.getStart())
-                  lastPossibleStartOfNextField.goLeft(CITATION_ADJECENT_LIMIT,False)
-
-                If thisComponent.Text.compareRegionEnds(selectionToReplace,lastPossibleStartOfNextField) = 1 Then
-                    MsgBox CITATIONS_NOT_ADJACENT
+               If thisComponent.Text.compareRegionEnds(selectionToReplace,lastPossibleStartOfNextField) = 1 Then
+                   MsgBox CITATIONS_NOT_ADJACENT
                     GoTo EndOfSub
                 EndIf
             End If
+
        End If
 
        If validatelocation = ZOTERO_TABLE Then
@@ -512,9 +520,16 @@ Sub mergeCitations()
                 selectionToReplace.goRight(1, True)
             WEnd
       Else
+
+        If Validatelocation = ZOTERO_FOOTNOTE Then
+            while oViewCursor.getText.compareRegionEnds(fieldRange, selectionToReplace) = -1
+            selectionToReplace.goRight(1, True)
+                WEnd
+        Else
             While thisComponent.Text.compareRegionEnds(fieldRange, selectionToReplace) = -1
-                selectionToReplace.goRight(1, True)
-            WEnd
+                    selectionToReplace.goRight(1, True)
+                WEnd
+        End If
       End If
 
         ReDim Preserve fieldCodesToMerge(0 to count) As String
@@ -536,15 +551,12 @@ SkipField_Footnote:
     newFieldCode = apiMergeCitations(fieldCodesToMerge)
     Dim citeField
     If presentationType = ZOTERO_FOOTNOTE Then
-
         If validatelocation = ZOTERO_TABLE Then
             Set citeField = fnAddMark(selectionToReplace,newFieldCode,"")
         Else
             Set citeField = fnAddMark(oSelection,newFieldCode,"")
         End If
-
     Else
-
         If validatelocation = ZOTERO_TABLE Then
             Set citeField = fnAddMark(selectionToReplace,newFieldCode,"")
         Else
