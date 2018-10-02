@@ -361,6 +361,9 @@ Sub mergeCitations()
     Dim selectionToReplace As Object
     Dim validatelocation As Integer
     Dim strSelectionCharCount As Integer
+    Dim count as Long
+    Dim fieldCodesToMerge(0) As String
+    Dim presentationType as Integer
 
     oSelection = thisComponent.currentController.getViewCursor()
     validatelocation = fnLocationType(oSelection)
@@ -387,9 +390,7 @@ Sub mergeCitations()
 
      'Validate Footnote Merge
 
-     Dim count as Long
-    Dim fieldCodesToMerge(0) As String
-    Dim presentationType as Integer
+
     presentationType = apiGetCitationStylePresentationType()
     If presentationType = ZOTERO_FOOTNOTE Then
         Dim strLen as Integer
