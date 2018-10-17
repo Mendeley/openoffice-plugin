@@ -1119,7 +1119,6 @@ Sub exportAsBookmarks(fileUrl)
 
         dim exportProperties(1) as new com.sun.star.beans.PropertyValue
         exportProperties(0).Name = "FilterName"
-        exportProperties(0).Value = "MS Word 97"
         ThisComponent.storeToUrl(fileUrl, exportProperties())
     End If
 End Sub
