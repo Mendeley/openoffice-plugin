@@ -1069,8 +1069,13 @@ Sub exportCompatibleMSWord()
 
     oFileDialog.Initialize(sFilePickerArgs())
     oFileDialog.setTitle("Save To...")
-    oFileDialog.appendFilter("Microsoft Word (*.doc)", "*.doc")
+
+    Dim filterName As String
+    filterName = "Microsoft Word 2007-2013 XML (.docx)"
+
+    oFileDialog.appendFilter(filterName, "*.docx")
     oFileDialog.appendFilter("All Files", "*.*")
+    oFileDialog.setCurrentFilter(FilterName)
 
     dim sFileUrl
     if oFileDialog.execute() then
@@ -1119,6 +1124,7 @@ Sub exportAsBookmarks(fileUrl)
 
         dim exportProperties(1) as new com.sun.star.beans.PropertyValue
         exportProperties(0).Name = "FilterName"
+        exportProperties(0).Value = "MS Word 2007 XML"
         ThisComponent.storeToUrl(fileUrl, exportProperties())
     End If
 End Sub
