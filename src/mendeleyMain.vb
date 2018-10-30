@@ -505,14 +505,18 @@ Foot:
                 If oViewCursor.getText.compareRegionEnds(selectionToReplace,lastPossibleStartOfNextField) = 1 Then
                     MsgBox CITATIONS_NOT_ADJACENT
                     GoTo EndOfSub
-                EndIf
+                End If
+            ElseIf validatelocation = ZOTERO_TABLE Then
+               If oViewCursor.Cell.compareRegionEnds(selectionToReplace,lastPossibleStartOfNextField) = 1 Then
+                   MsgBox CITATIONS_NOT_ADJACENT
+                   GoTo EndOfSub
+                End If
             Else
                If thisComponent.Text.compareRegionEnds(selectionToReplace,lastPossibleStartOfNextField) = 1 Then
                    MsgBox CITATIONS_NOT_ADJACENT
-                    GoTo EndOfSub
-                EndIf
+                   GoTo EndOfSub
+               End If
             End If
-
        End If
 
        If validatelocation = ZOTERO_TABLE Then
