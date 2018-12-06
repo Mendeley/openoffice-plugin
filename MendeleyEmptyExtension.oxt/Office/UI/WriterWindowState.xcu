@@ -9,9 +9,6 @@
 				<prop oor:name="UIName" oor:type="xs:string">
 					<value xml:lang="en-US">Mendeley</value>
 				</prop>
-				<prop oor:name="Style" oor:type="xs:int">
-					<value>2</value>
-				</prop>
 			</node>
 		</node>
 	</node>

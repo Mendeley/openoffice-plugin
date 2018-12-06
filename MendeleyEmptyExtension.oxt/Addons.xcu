@@ -7,15 +7,15 @@
 	<node oor:name="AddonUI">
 		<node oor:name="OfficeToolBar">
 			<node oor:name="Mendeley.OfficeToolBar" oor:op="replace">
+			<prop oor:name="Title" oor:type="xs:string">
+					<value>Mendeley</value>
+				</prop>
 				<node oor:name="m3" oor:op="replace">
 					<prop oor:name="Context" oor:type="xs:string">
-						<value>com.sun.star.text.TextDocument</value>
+						<value>com.sun.star.text.TextDocument, com.sun.star.text.GlobalDocument</value>
 					</prop>
 					<prop oor:name="URL" oor:type="xs:string">
 						<value>macro:///Mendeley.mendeleyMain.insertCitation</value>
-					</prop>
-					<prop oor:name="ImageIdentifier" oor:type="xs:string">
-						<value>%origin%/icons/insertCitation</value>
 					</prop>
 					<prop oor:name="Title" oor:type="xs:string">
 						<value>Insert Citation</value>
@@ -26,13 +26,10 @@
 				</node>
 				<node oor:name="m4" oor:op="replace">
 					<prop oor:name="Context" oor:type="xs:string">
-						<value>com.sun.star.text.TextDocument</value>
+						<value>com.sun.star.text.TextDocument, com.sun.star.text.GlobalDocument</value>
 					</prop>
 					<prop oor:name="URL" oor:type="xs:string">
 						<value>macro:///Mendeley.mendeleyMain.undoEdit</value>
-					</prop>
-					<prop oor:name="ImageIdentifier" oor:type="xs:string">
-						<value>%origin%/icons/undoEdit</value>
 					</prop>
 					<prop oor:name="Title" oor:type="xs:string">
 						<value>Undo Edit</value>
@@ -43,13 +40,10 @@
 				</node>
 				<node oor:name="m5" oor:op="replace">
 					<prop oor:name="Context" oor:type="xs:string">
-						<value>com.sun.star.text.TextDocument</value>
+						<value>com.sun.star.text.TextDocument, com.sun.star.text.GlobalDocument</value>
 					</prop>
 					<prop oor:name="URL" oor:type="xs:string">
 						<value>macro:///Mendeley.mendeleyMain.mergeCitations</value>
-					</prop>
-					<prop oor:name="ImageIdentifier" oor:type="xs:string">
-						<value>%origin%/icons/mergeCitations</value>
 					</prop>
 					<prop oor:name="Title" oor:type="xs:string">
 						<value>Merge Citations</value>
@@ -60,13 +54,10 @@
 				</node>
 				<node oor:name="m6" oor:op="replace">
 					<prop oor:name="Context" oor:type="xs:string">
-						<value>com.sun.star.text.TextDocument</value>
+						<value>com.sun.star.text.TextDocument, com.sun.star.text.GlobalDocument</value>
 					</prop>
 					<prop oor:name="URL" oor:type="xs:string">
 						<value>macro:///Mendeley.mendeleyMain.insertBibliography</value>
-					</prop>
-					<prop oor:name="ImageIdentifier" oor:type="xs:string">
-						<value>%origin%/icons/insertBibliography</value>
 					</prop>
 					<prop oor:name="Title" oor:type="xs:string">
 						<value>Insert Bibliography</value>
@@ -77,13 +68,10 @@
 				</node>
 				<node oor:name="m7" oor:op="replace">
 					<prop oor:name="Context" oor:type="xs:string">
-						<value>com.sun.star.text.TextDocument</value>
+						<value>com.sun.star.text.TextDocument, com.sun.star.text.GlobalDocument</value>
 					</prop>
 					<prop oor:name="URL" oor:type="xs:string">
 						<value>macro:///Mendeley.mendeleyMain.refresh</value>
-					</prop>
-					<prop oor:name="ImageIdentifier" oor:type="xs:string">
-						<value>%origin%/icons/refresh</value>
 					</prop>
 					<prop oor:name="Title" oor:type="xs:string">
 						<value>Refresh</value>
@@ -94,7 +82,7 @@
 				</node>
 				<node oor:name="m8" oor:op="replace">
 					<prop oor:name="Context" oor:type="xs:string">
-						<value>com.sun.star.text.TextDocument</value>
+						<value>com.sun.star.text.TextDocument, com.sun.star.text.GlobalDocument</value>
 					</prop>
 					<prop oor:name="URL" oor:type="xs:string">
 						<value>macro:///Mendeley.mendeleyMain.chooseCitationStyle</value>
@@ -108,7 +96,7 @@
 				</node>
 				<node oor:name="m9" oor:op="replace">
 					<prop oor:name="Context" oor:type="xs:string">
-						<value>com.sun.star.text.TextDocument</value>
+						<value>com.sun.star.text.TextDocument, com.sun.star.text.GlobalDocument</value>
 					</prop>
 					<prop oor:name="URL" oor:type="xs:string">
 						<value>macro:///Mendeley.mendeleyMain.exportCompatibleMSWord</value>
@@ -122,5 +110,105 @@
 				</node>
 			</node>
 		</node>
+
+
+		<node oor:name="Images">
+			<node oor:name="Mendeley.Images.insertCitation" oor:op="replace">
+				<prop oor:name="URL" oor:type="xs:string">
+					<value>macro:///Mendeley.mendeleyMain.insertCitation</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL">
+						<value>%origin%/icons/mendeley-insert-16.png</value>
+					</prop>
+					<prop oor:name="ImageBigURL">
+						<value>%origin%/icons/mendeley-insert-24.png</value>
+					</prop>
+				</node>
+			</node>
+			<node oor:name="Mendeley.Images.undoEdit" oor:op="replace">
+				<prop oor:name="URL" oor:type="xs:string">
+					<value>macro:///Mendeley.mendeleyMain.undoEdit</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL">
+						<value>%origin%/icons/mendeley-undo-16.png</value>
+					</prop>
+					<prop oor:name="ImageBigURL">
+						<value>%origin%/icons/mendeley-undo-24.png</value>
+					</prop>
+				</node>
+			</node>
+			<node oor:name="Mendeley.Images.mergeCitations" oor:op="replace">
+				<prop oor:name="URL" oor:type="xs:string">
+					<value>macro:///Mendeley.mendeleyMain.mergeCitations</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL">
+						<value>%origin%/icons/mendeley-merge-16.png</value>
+					</prop>
+					<prop oor:name="ImageBigURL">
+						<value>%origin%/icons/mendeley-merge-24.png</value>
+					</prop>
+				</node>
+			</node>
+
+			<node oor:name="Mendeley.Images.insertBibliography" oor:op="replace">
+				<prop oor:name="URL" oor:type="xs:string">
+					<value>macro:///Mendeley.mendeleyMain.insertBibliography</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL">
+						<value>%origin%/icons/mendeley-bib-16.png</value>
+					</prop>
+					<prop oor:name="ImageBigURL">
+						<value>%origin%/icons/mendeley-bib-24.png</value>
+					</prop>
+				</node>
+			</node>
+			
+
+			
+			<node oor:name="Mendeley.Images.chooseCitationStyle" oor:op="replace">
+				<prop oor:name="URL" oor:type="xs:string">
+					<value>macro:///Mendeley.mendeleyMain.chooseCitationStyle</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL">
+						<value>%origin%/icons/mendeley-prop-16.png</value>
+					</prop>
+					<prop oor:name="ImageBigURL">
+						<value>%origin%/icons/mendeley-prop-24.png</value>
+					</prop>
+				</node>
+			</node>
+			<node oor:name="Mendeley.Images.refresh" oor:op="replace">
+				<prop oor:name="URL" oor:type="xs:string">
+					<value>macro:///Mendeley.mendeleyMain.refresh</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL">
+						<value>%origin%/icons/mendely-refresh-16.png</value>
+					</prop>
+					<prop oor:name="ImageBigURL">
+						<value>%origin%/icons/mendeley-refresh-24.png</value>
+					</prop>
+				</node>
+			</node>
+			<node oor:name="Mendeley.Images.exportCompatibleMSWord" oor:op="replace">
+				<prop oor:name="URL" oor:type="xs:string">
+					<value>macro:///Mendeley.mendeleyMain.exportCompatibleMSWord</value>
+				</prop>
+				<node oor:name="UserDefinedImages">
+					<prop oor:name="ImageSmallURL">
+						<value>%origin%/icons/mendeley-export-16.png</value>
+					</prop>
+					<prop oor:name="ImageBigURL">
+						<value>%origin%/icons/mendeley-export-24.png</value>
+					</prop>
+				</node>
+			</node>
+		</node>
+
 	</node>
 </oor:component-data>
